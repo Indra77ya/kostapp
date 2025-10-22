@@ -3,28 +3,17 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use App\Services\BillingService;
 
 class GenerateMonthlyInvoices extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'app:generate-monthly-invoices';
+    protected $signature = 'billing:generate-monthly';
+    protected $description = 'Generate invoice bulanan untuk stay aktif monthly';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Command description';
-
-    /**
-     * Execute the console command.
-     */
-    public function handle()
+    public function handle(BillingService $billing)
     {
-        //
+        $n = $billing->generateMonthlyInvoices();
+        $this->info("Generated $n invoices.");
+        return self::SUCCESS;
     }
 }
