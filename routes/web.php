@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\InvoiceController;
 
 Route::resource('bookings', BookingController::class);
 Route::post('bookings/{booking}/confirm', [BookingController::class,'confirm'])->name('bookings.confirm');
@@ -12,6 +13,7 @@ Route::get('reports/availability',[ReportController::class,'availability'])->nam
 Route::get('reports/profit-loss',[ReportController::class,'profitLoss'])->name('reports.pl');
 Route::get('reports/balance-sheet',[ReportController::class,'balanceSheet'])->name('reports.bs');
 Route::resource('tickets', TicketController::class)->only(['index','store','update']);
+Route::resource('invoices', InvoiceController::class)->only(['index','show','create','store']);
 
 
 Route::get('/', function () {
