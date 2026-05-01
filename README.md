@@ -57,6 +57,8 @@ php artisan migrate:fresh --seed
 ```
 *Catatan: Perintah ini akan menghapus data lama dan mengisi ulang dengan akun demo.*
 
+> **Tips Error SQLite**: Jika Anda mendapatkan error "Database file at path [kostapp] does not exist", pastikan variabel `DB_DATABASE` di file `.env` dikosongkan atau dikomentari agar Laravel menggunakan path default `database/database.sqlite`.
+
 ### 6. Instal Dependensi Frontend & Build Aset
 Proyek ini menggunakan Vite untuk manajemen aset. Jalankan perintah berikut:
 ```bash
