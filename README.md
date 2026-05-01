@@ -1,66 +1,77 @@
-# Sistem Manajemen Kost (KostApp)
+# KostApp - Sistem Manajemen Kost Real-Time
 
-Aplikasi sistem manajemen kost modern yang dibangun menggunakan **Laravel 11**, **Livewire 3**, dan template dashboard **Tabler**. Sistem ini dirancang untuk memberikan pengalaman pengguna yang responsif dengan fitur real-time yang didukung oleh **Laravel Reverb**.
+Selamat datang di **KostApp**! Sebuah platform manajemen rumah kost yang modern, cepat, dan interaktif. Aplikasi ini dibangun dengan teknologi terbaru di ekosistem Laravel untuk memastikan pengelolaan kost menjadi lebih mudah bagi pemilik dan nyaman bagi penghuni.
 
-## Fitur Utama
+Aplikasi ini sangat spesial karena mendukung fitur **Real-Time**. Artinya, semua perubahan data (seperti penambahan kamar atau konfirmasi pembayaran) akan muncul secara instan di layar tanpa perlu menekan tombol refresh halaman (F5).
 
--   **Dashboard Full Custom**: Menggunakan template [Tabler](https://tabler.io/) yang dimodifikasi untuk kebutuhan manajemen kost.
--   **Multi-Role Management**: Sistem role yang fleksibel (Developer, Owner, Admin, dan Tenant) menggunakan [Spatie Permission](https://spatie.be/docs/laravel-permission/v6/).
--   **Real-time Ready**: Notifikasi dan update data dashboard secara instan tanpa refresh halaman menggunakan **Laravel Reverb** (WebSockets) dan **Livewire**.
--   **Manajemen Kamar & Pemesanan**: Struktur database yang siap untuk pengelolaan data kamar, harga, dan status hunian.
--   **Login System Custom**: Autentikasi yang dibangun dari awal dengan tampilan yang konsisten menggunakan komponen Tabler.
+---
 
-## Persyaratan Sistem
+## 🚀 Fitur Unggulan
 
-Pastikan perangkat Anda memenuhi spesifikasi berikut:
--   **PHP** >= 8.2
--   **Composer**
--   **Node.js** (LTS recommended) & **NPM**
--   **SQLite** (Default untuk pengembangan) atau MySQL
+-   **Dashboard Interaktif**: Statistik jumlah kamar dan tenant yang terupdate otomatis secara instan.
+-   **Notifikasi Instan**: Muncul lonceng notifikasi di pojok kanan atas setiap kali ada aktivitas penting.
+-   **Multi-Role**: Sistem akses berbeda untuk Owner (Pemilik), Admin (Pengelola), dan Tenant (Penghuni).
+-   **Tanpa Refresh**: Berkat teknologi Livewire dan Laravel Reverb, aplikasi terasa seperti aplikasi mobile yang responsif.
+-   **Desain Modern**: Menggunakan framework Tabler yang bersih, profesional, dan nyaman di mata.
 
-## Panduan Instalasi Detail
+---
 
-Ikuti langkah-langkah di bawah ini untuk menyiapkan lingkungan pengembangan di komputer lokal Anda:
+## 🛠️ Teknologi yang Digunakan
 
-### 1. Clone Repositori
-Masuk ke direktori proyek Anda:
+-   **Laravel 11**: Framework PHP tercanggih saat ini.
+-   **Livewire 3**: Untuk membuat antarmuka yang dinamis tanpa menulis banyak kode JavaScript.
+-   **Laravel Reverb**: Mesin utama di balik fitur real-time (WebSocket).
+-   **Tabler Dashboard**: Template dashboard premium yang elegan.
+-   **Spatie Permission**: Untuk mengelola hak akses setiap role.
+-   **SQLite/MySQL**: Pilihan database yang fleksibel.
+
+---
+
+## 💻 Panduan Instalasi (Untuk Pemula)
+
+Bagi Anda yang baru pertama kali menjalankan proyek Laravel, ikuti langkah-langkah detail berikut ini:
+
+### 1. Persiapan Awal
+Pastikan komputer Anda sudah terinstall:
+-   **PHP** (Versi 8.2 atau lebih tinggi)
+-   **Composer** (Manajer paket untuk PHP)
+-   **Node.js & NPM** (Untuk memproses tampilan/frontend)
+-   **Git** (Untuk mendownload kode)
+
+### 2. Persiapkan Folder Proyek
+Buka terminal atau Command Prompt (CMD), lalu masuk ke folder proyek Anda:
 ```bash
 cd kostapp
 ```
 
-### 2. Instal Dependensi Backend (PHP)
-Jalankan perintah berikut untuk menginstal semua library Laravel yang diperlukan:
+### 3. Instal 'Otak' Aplikasi (Backend)
+Perintah ini akan mendownload semua pustaka yang dibutuhkan oleh Laravel:
 ```bash
 composer install
 ```
 
-### 3. Konfigurasi Lingkungan (.env)
-Salin file `.env.example` menjadi `.env`:
+### 4. Setup File Konfigurasi (.env)
+Buat file rahasia untuk pengaturan aplikasi:
 ```bash
 cp .env.example .env
 ```
-Setelah itu, buka file `.env` dan pastikan konfigurasi database dan Reverb sudah sesuai. Secara default, proyek ini menggunakan SQLite.
-
-### 4. Generate Application Key
+Setelah itu, buat "Kunci Keamanan" untuk aplikasi Anda:
 ```bash
 php artisan key:generate
 ```
 
 ### 5. Setup Database
-Pastikan file database SQLite sudah ada (jika menggunakan SQLite):
+Buat file database kosong (jika menggunakan SQLite):
 ```bash
 touch database/database.sqlite
 ```
-Kemudian jalankan migrasi tabel dan pengisian data awal (seeder):
+Kemudian buat tabel-tabel dan isi data contoh (seperti akun login):
 ```bash
 php artisan migrate:fresh --seed
 ```
-*Catatan: Perintah ini akan menghapus data lama dan mengisi ulang dengan akun demo.*
 
-> **Tips Error SQLite**: Jika Anda mendapatkan error "Database file at path [kostapp] does not exist", pastikan variabel `DB_DATABASE` di file `.env` dikosongkan atau dikomentari agar Laravel menggunakan path default `database/database.sqlite`.
-
-### 6. Instal Dependensi Frontend & Build Aset
-Proyek ini menggunakan Vite untuk manajemen aset. Jalankan perintah berikut:
+### 6. Instal 'Tampilan' Aplikasi (Frontend)
+Download dan bangun aset tampilan seperti CSS dan JavaScript:
 ```bash
 npm install
 npm run build
@@ -68,49 +79,89 @@ npm run build
 
 ---
 
-## Cara Menjalankan Aplikasi
+## 🚦 Cara Menjalankan Aplikasi di Lokal
 
-Sistem ini memiliki fitur real-time, sehingga Anda perlu menjalankan beberapa proses secara bersamaan:
+Untuk melihat fitur real-time berjalan sempurna, Anda perlu membuka **DUA TERMINAL** sekaligus:
 
-### 1. Menjalankan Server Utama
-Gunakan perintah artisan untuk menjalankan server lokal:
+### Terminal 1: Menjalankan Server Web
 ```bash
 php artisan serve
 ```
-Akses di browser: `http://127.0.0.1:8000`
+Buka browser dan ketik: `http://127.0.0.1:8000`
 
-### 2. Menjalankan Server WebSocket (Reverb)
-Agar fitur real-time (notifikasi dan update otomatis) berjalan, Anda harus menjalankan server Reverb di terminal terpisah:
+### Terminal 2: Menjalankan Mesin Real-Time (Reverb)
 ```bash
 php artisan reverb:start
 ```
+*Pastikan terminal ini tetap terbuka agar notifikasi bisa muncul secara otomatis.*
 
-### 3. Menjalankan Queue Worker (Opsional)
-Jika Anda menggunakan fitur yang memerlukan antrean (seperti pengiriman email masal):
-```bash
-php artisan queue:listen
+---
+
+## ☁️ Panduan Deployment ke Server (Produksi)
+
+Jika Anda ingin mengonlinekan aplikasi ini agar bisa diakses orang lain melalui internet, ikuti panduan ini:
+
+### 1. Persiapan VPS
+Gunakan VPS (Ubuntu 22.04 ke atas sangat direkomendasikan) dan install **Nginx**, **PHP-FPM**, **MySQL**, dan **Node.js**.
+
+### 2. Konfigurasi .env (Sangat Penting!)
+Ubah variabel berikut di server:
+```env
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://domain-anda.com
+
+# Reverb untuk Server
+REVERB_HOST=domain-anda.com
+REVERB_PORT=443
+REVERB_SCHEME=https
 ```
 
+### 3. Konfigurasi Nginx (Reverse Proxy)
+Agar Reverb bisa diakses melalui port 443 (HTTPS), Anda perlu menambahkan konfigurasi proxy di Nginx untuk path `/app`:
+```nginx
+location /app {
+    proxy_http_version 1.1;
+    proxy_set_header Host $http_host;
+    proxy_set_header Scheme $scheme;
+    proxy_set_header SERVER_PORT $server_port;
+    proxy_set_header REMOTE_ADDR $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "Upgrade";
+
+    proxy_pass http://127.0.0.1:8080;
+}
+```
+
+### 4. Menjalankan Reverb sebagai Background Service
+Gunakan **Supervisor** agar server Reverb tetap berjalan meskipun Anda keluar dari server:
+1. Buat file `/etc/supervisor/conf.d/reverb.conf`:
+```ini
+[program:reverb]
+process_name=%(program_name)s_%(process_num)02d
+command=php /var/www/kostapp/artisan reverb:start
+autostart=true
+autorestart=true
+user=www-data
+redirect_stderr=true
+stdout_logfile=/var/www/kostapp/storage/logs/reverb.log
+```
+2. Update supervisor: `supervisorctl update && supervisorctl start reverb`.
+
 ---
 
-## Akun Demo (Default Password: `password`)
-
-| Role | Email | Deskripsi |
-|------|-------|-----------|
-| **Developer** | `developer@example.com` | Akses penuh ke sistem dan konfigurasi. |
-| **Owner** | `owner@example.com` | Pemilik kost, melihat laporan dan statistik. |
-| **Admin** | `admin@example.com` | Pengelola operasional harian dan kamar. |
-| **Tenant** | `tenant@example.com` | Penghuni kost, melihat status pemesanan. |
+## 🔑 Akun Demo Login
+- **Email**: `admin@example.com`
+- **Password**: `password`
 
 ---
 
-## Struktur Data Real-time (Demo)
+## ❓ FAQ & Troubleshooting
 
-Di dalam Dashboard, Anda akan menemukan bagian **"Test Real-time Features"**. Fitur ini disediakan untuk mendemonstrasikan kecanggihan integrasi Reverb & Livewire:
--   **Trigger Update Stats**: Mengirimkan event ke semua user yang sedang online untuk memperbarui angka di widget dashboard.
--   **Tambah Kamar**: Menambahkan data kamar baru ke database dan langsung memunculkan notifikasi di pojok kanan atas serta memperbarui grafik/statistik secara instan.
+- **Error: Database file does not exist**: Pastikan Anda sudah menjalankan `touch database/database.sqlite` dan variabel `DB_DATABASE` di `.env` sudah dikosongkan.
+- **Notifikasi Tidak Muncul**: Pastikan perintah `php artisan reverb:start` sedang berjalan di terminal Anda.
+- **Tampilan Berantakan**: Pastikan Anda sudah menjalankan `npm install` dan `npm run build`.
 
-## Catatan Pengembangan
--   Aplikasi ini **tidak** menggunakan Laravel Breeze atau Jetstream agar desain Tabler tetap bersih dan fleksibel.
--   Aset Tabler disimpan secara lokal di `public/assets/tabler/` untuk performa loading yang lebih cepat tanpa ketergantungan CDN.
--   Broadcasting menggunakan driver `reverb` yang dikonfigurasi di `config/broadcasting.php`.
+---
+Dibuat dengan ❤️ untuk kemudahan manajemen kost Anda.
