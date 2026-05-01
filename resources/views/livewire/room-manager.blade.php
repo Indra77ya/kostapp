@@ -41,8 +41,8 @@
                             <div><strong>Kamar {{ $room->room_number }}</strong></div>
                             <div class="text-secondary small">{{ $room->room_type }} - Lantai {{ $room->floor }}</div>
                             <div class="mt-1">
-                                <span class="badge {{ $room->status === 'available' ? 'bg-success' : ($room->status === 'occupied' ? 'bg-danger' : 'bg-warning') }}">
-                                    {{ ucfirst($room->status) }}
+                                <span class="badge {{ $room->status === 'available' ? 'bg-success' : ($room->status === 'occupied' ? 'bg-danger' : 'bg-warning') }} text-white">
+                                    {{ $room->status === 'available' ? 'Tersedia' : ($room->status === 'occupied' ? 'Terisi' : 'Perbaikan') }}
                                 </span>
                             </div>
                             <div class="mt-2 h3">Rp {{ number_format($room->price, 0, ',', '.') }}</div>
@@ -78,8 +78,8 @@
                             {{ $room->room_type }} / Lantai {{ $room->floor }}
                         </td>
                         <td>
-                            <span class="badge {{ $room->status === 'available' ? 'bg-success' : ($room->status === 'occupied' ? 'bg-danger' : 'bg-warning') }}">
-                                {{ ucfirst($room->status) }}
+                            <span class="badge {{ $room->status === 'available' ? 'bg-success' : ($room->status === 'occupied' ? 'bg-danger' : 'bg-warning') }} text-white">
+                                {{ $room->status === 'available' ? 'Tersedia' : ($room->status === 'occupied' ? 'Terisi' : 'Perbaikan') }}
                             </span>
                         </td>
                         <td>Rp {{ number_format($room->price, 0, ',', '.') }}</td>
