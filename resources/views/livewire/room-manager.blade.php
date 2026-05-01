@@ -60,15 +60,15 @@
                             </div>
                             @endif
                             @if($room->description)
-                            <div class="text-secondary small mt-1 text-truncate" style="max-width: 100%;" title="{{ $room->description }}">
+                            <div class="text-secondary small mt-1" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;" title="{{ $room->description }}">
                                 {{ $room->description }}
                             </div>
                             @endif
                         </div>
                     </div>
-                    <div class="mt-3">
-                        <button class="btn btn-primary btn-sm w-100" wire:click="openModal({{ $room->id }})">Edit</button>
-                        <button class="btn btn-ghost-danger btn-sm w-100 mt-1" wire:click="deleteRoom({{ $room->id }})" wire:confirm="Yakin ingin menghapus kamar ini?">Hapus</button>
+                    <div class="mt-3 d-flex gap-2">
+                        <button class="btn btn-primary btn-sm flex-fill" wire:click="openModal({{ $room->id }})">Edit</button>
+                        <button class="btn btn-outline-danger btn-sm flex-fill" wire:click="deleteRoom({{ $room->id }})" wire:confirm="Yakin ingin menghapus kamar ini?">Hapus</button>
                     </div>
                 </div>
             </div>
@@ -97,10 +97,10 @@
                             {{ $room->room_type }}{{ $room->room_type && $room->floor ? ' / ' : '' }}{{ $room->floor ? 'Lantai ' . $room->floor : '' }}
                         </td>
                         <td>
-                            <div class="small text-truncate" style="max-width: 200px;">
+                            <div class="small text-truncate" style="max-width: 150px;" title="{{ $room->facilities }}">
                                 <strong>{{ $room->facilities }}</strong>
                             </div>
-                            <div class="small text-secondary text-truncate" style="max-width: 200px;">
+                            <div class="small text-secondary text-truncate" style="max-width: 150px;" title="{{ $room->description }}">
                                 {{ $room->description }}
                             </div>
                         </td>
