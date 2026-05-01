@@ -17,6 +17,11 @@ class RoomManager extends Component
     public $isModalOpen = false;
     public $roomId;
 
+    // Search and Filters
+    public $search = '';
+    public $filterStatus = '';
+    public $filterFloor = '';
+
     // Form fields
     public $room_number, $price, $status, $description, $image, $facilities, $room_type, $floor;
     public $newImage;
@@ -135,10 +140,46 @@ class RoomManager extends Component
         $room->delete();
     }
 
+    public function updatingSearch()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingFilterStatus()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingFilterFloor()
+    {
+        $this->resetPage();
+    }
+
     public function render()
     {
+        $query = Room::query();
+
+        if ($this->search) {
+            $query->where(function($q) {
+                $q->where('room_number', 'like', '%' . $this->search . '%')
+                  ->orWhere('room_type', 'like', '%' . $this->search . '%')
+                  ->orWhere('facilities', 'like', '%' . $this->search . '%');
+            });
+        }
+
+        if ($this->filterStatus) {
+            $query->where('status', $this->filterStatus);
+        }
+
+        if ($this->filterFloor) {
+            $query->where('floor', $this->filterFloor);
+        }
+
+        $floors = Room::whereNotNull('floor')->distinct()->pluck('floor')->sort();
+
         return view('livewire.room-manager', [
-            'rooms' => Room::orderBy('room_number')->paginate(12)
+            'rooms' => $query->orderBy('room_number')->paginate(12),
+            'floors' => $floors
         ]);
     }
 }

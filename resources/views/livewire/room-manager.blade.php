@@ -1,9 +1,9 @@
 <div>
     <div class="row mb-3 align-items-center">
-        <div class="col">
+        <div class="col-12 col-md-auto mb-3 mb-md-0">
             <h2 class="page-title">Manajemen Kamar</h2>
         </div>
-        <div class="col-auto ms-auto">
+        <div class="col-12 col-md ms-md-auto">
             <div class="btn-list">
                 <div class="btn-group">
                     <button type="button" class="btn {{ $viewType === 'grid' ? 'btn-primary' : 'btn-outline-primary' }}" wire:click="setView('grid')">
@@ -21,15 +21,51 @@
                 </button>
             </div>
         </div>
+    </div>
 
-        <div class="mt-4">
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="row g-2">
+                <div class="col-md-6">
+                    <div class="input-icon">
+                        <span class="input-icon-addon">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
+                        </span>
+                        <input type="text" class="form-control" placeholder="Cari nomor kamar, tipe, atau fasilitas..." wire:model.live.debounce.300ms="search">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" wire:model.live="filterStatus">
+                        <option value="">Semua Status</option>
+                        <option value="available">Tersedia</option>
+                        <option value="occupied">Terisi</option>
+                        <option value="maintenance">Perbaikan</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" wire:model.live="filterFloor">
+                        <option value="">Semua Lantai</option>
+                        @foreach($floors as $floor)
+                            <option value="{{ $floor }}">Lantai {{ $floor }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="text-secondary small">
+            Menampilkan {{ $rooms->firstItem() }} sampai {{ $rooms->lastItem() }} dari {{ $rooms->total() }} kamar
+        </div>
+        <div>
             {{ $rooms->links() }}
         </div>
     </div>
 
     @if($viewType === 'grid')
     <div class="row row-cards">
-        @foreach($rooms as $room)
+        @forelse($rooms as $room)
         <div class="col-sm-6 col-lg-3">
             <div class="card card-sm">
                 @if($room->image)
@@ -73,7 +109,15 @@
                 </div>
             </div>
         </div>
-        @endforeach
+        @empty
+        <div class="col-12">
+            <div class="card card-md">
+                <div class="card-body text-center py-4">
+                    <div class="text-secondary mb-3">Tidak ada kamar yang sesuai dengan kriteria pencarian.</div>
+                </div>
+            </div>
+        </div>
+        @endforelse
     </div>
     @else
     <div class="card">
@@ -90,7 +134,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($rooms as $room)
+                    @forelse($rooms as $room)
                     <tr>
                         <td>{{ $room->room_number }}</td>
                         <td class="text-secondary">
@@ -117,7 +161,13 @@
                             </div>
                         </td>
                     </tr>
-                    @endforeach
+                    @empty
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-secondary">
+                            Tidak ada kamar yang sesuai dengan kriteria pencarian.
+                        </td>
+                    </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
