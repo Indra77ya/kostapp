@@ -60,7 +60,7 @@ Setelah itu, buat "Kunci Keamanan" untuk aplikasi Anda:
 php artisan key:generate
 ```
 
-### 5. Setup Database
+### 5. Setup Database & Storage
 Buat file database kosong (jika menggunakan SQLite):
 ```bash
 touch database/database.sqlite
@@ -68,6 +68,10 @@ touch database/database.sqlite
 Kemudian buat tabel-tabel dan isi data contoh (seperti akun login):
 ```bash
 php artisan migrate:fresh --seed
+```
+Aktifkan link untuk penyimpanan file (foto kamar):
+```bash
+php artisan storage:link
 ```
 
 ### 6. Instal 'Tampilan' Aplikasi (Frontend)
