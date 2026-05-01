@@ -25,7 +25,7 @@ Ikuti langkah-langkah di bawah ini untuk menyiapkan lingkungan pengembangan di k
 ### 1. Clone Repositori
 Masuk ke direktori proyek Anda:
 ```bash
-cd sistem-manajemen-kost
+cd kostapp
 ```
 
 ### 2. Instal Dependensi Backend (PHP)
