@@ -81,7 +81,7 @@ npm run build
 
 ## 🚦 Cara Menjalankan Aplikasi di Lokal
 
-Untuk melihat fitur real-time berjalan sempurna, Anda perlu membuka **DUA TERMINAL** sekaligus:
+Untuk melihat fitur real-time berjalan sempurna, Anda perlu membuka **TIGA TERMINAL** sekaligus:
 
 ### Terminal 1: Menjalankan Server Web
 ```bash
@@ -94,6 +94,12 @@ Buka browser dan ketik: `http://127.0.0.1:8000`
 php artisan reverb:start
 ```
 *Pastikan terminal ini tetap terbuka agar notifikasi bisa muncul secara otomatis.*
+
+### Terminal 3: Menjalankan Antrean (Queue)
+```bash
+php artisan queue:listen
+```
+*Gunakan terminal ini jika Anda memiliki proses latar belakang seperti pengiriman email atau pengolahan data berat.*
 
 ---
 
@@ -148,6 +154,21 @@ redirect_stderr=true
 stdout_logfile=/var/www/kostapp/storage/logs/reverb.log
 ```
 2. Update supervisor: `supervisorctl update && supervisorctl start reverb`.
+
+### 5. Menjalankan Queue Worker di Server
+Sama seperti Reverb, Queue juga harus dijalankan di latar belakang:
+1. Buat file `/etc/supervisor/conf.d/queue.conf`:
+```ini
+[program:queue]
+process_name=%(program_name)s_%(process_num)02d
+command=php /var/www/kostapp/artisan queue:work --sleep=3 --tries=3
+autostart=true
+autorestart=true
+user=www-data
+redirect_stderr=true
+stdout_logfile=/var/www/kostapp/storage/logs/queue.log
+```
+2. Jalankan: `supervisorctl update && supervisorctl start queue`.
 
 ---
 
