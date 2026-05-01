@@ -39,7 +39,9 @@
                     <div class="d-flex align-items-center">
                         <div>
                             <div><strong>Kamar {{ $room->room_number }}</strong></div>
-                            <div class="text-secondary small">{{ $room->room_type }} - Lantai {{ $room->floor }}</div>
+                            <div class="text-secondary small">
+                                {{ $room->room_type }}{{ $room->room_type && $room->floor ? ' - ' : '' }}{{ $room->floor ? 'Lantai ' . $room->floor : '' }}
+                            </div>
                             <div class="mt-1">
                                 <span class="badge {{ $room->status === 'available' ? 'bg-success' : ($room->status === 'occupied' ? 'bg-danger' : 'bg-warning') }} text-white">
                                     {{ $room->status === 'available' ? 'Tersedia' : ($room->status === 'occupied' ? 'Terisi' : 'Perbaikan') }}
@@ -75,7 +77,7 @@
                     <tr>
                         <td>{{ $room->room_number }}</td>
                         <td class="text-secondary">
-                            {{ $room->room_type }} / Lantai {{ $room->floor }}
+                            {{ $room->room_type }}{{ $room->room_type && $room->floor ? ' / ' : '' }}{{ $room->floor ? 'Lantai ' . $room->floor : '' }}
                         </td>
                         <td>
                             <span class="badge {{ $room->status === 'available' ? 'bg-success' : ($room->status === 'occupied' ? 'bg-danger' : 'bg-warning') }} text-white">
