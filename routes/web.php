@@ -16,5 +16,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
+
+    Route::middleware('role:owner')->group(function () {
+        Route::get('/rooms', function () {
+            return view('rooms.index');
+        })->name('rooms.index');
+    });
+
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });

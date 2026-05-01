@@ -16,6 +16,10 @@ class Room extends Model
         'price',
         'status',
         'description',
+        'image',
+        'facilities',
+        'room_type',
+        'floor',
     ];
 
     protected static function booted()
