@@ -21,7 +21,7 @@ class RoomManager extends Component
     public $room_number, $price, $status, $description, $image, $facilities, $room_type, $floor;
     public $newImage;
 
-    protected $listeners = ['echo:stats,DatabaseUpdated' => 'loadRooms'];
+    protected $listeners = ['echo:stats,DatabaseUpdated' => '$refresh'];
 
     protected $rules = [
         'room_number' => 'required|unique:rooms,room_number',
@@ -36,12 +36,7 @@ class RoomManager extends Component
 
     public function mount()
     {
-        $this->loadRooms();
-    }
-
-    public function loadRooms()
-    {
-        $this->rooms = Room::all();
+        // No need to load rooms here
     }
 
     public function setView($type)
@@ -129,7 +124,6 @@ class RoomManager extends Component
         }
 
         $this->closeModal();
-        $this->loadRooms();
     }
 
     public function deleteRoom($id)
@@ -139,11 +133,12 @@ class RoomManager extends Component
             Storage::disk('public')->delete($room->image);
         }
         $room->delete();
-        $this->loadRooms();
     }
 
     public function render()
     {
-        return view('livewire.room-manager');
+        return view('livewire.room-manager', [
+            'rooms' => Room::orderBy('room_number')->paginate(12)
+        ]);
     }
 }
