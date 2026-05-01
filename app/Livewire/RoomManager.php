@@ -16,6 +16,8 @@ class RoomManager extends Component
     protected $paginationTheme = 'bootstrap';
     public $viewType = 'grid'; // 'grid' or 'table'
     public $isModalOpen = false;
+    public $isLightboxOpen = false;
+    public $lightboxImageUrl = '';
     public $roomId;
 
     // Search and Filters
@@ -73,6 +75,17 @@ class RoomManager extends Component
     {
         $this->isModalOpen = false;
         $this->resetForm();
+    }
+
+    public function openLightbox($url)
+    {
+        $this->lightboxImageUrl = $url;
+        $this->isLightboxOpen = true;
+    }
+
+    public function closeLightbox()
+    {
+        $this->isLightboxOpen = false;
     }
 
     private function resetForm()

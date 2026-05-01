@@ -1,4 +1,23 @@
 <div>
+    <style>
+        .carousel-control-prev, .carousel-control-next {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .card:hover .carousel-control-prev, .card:hover .carousel-control-next {
+            opacity: 1;
+        }
+        .carousel-indicators {
+            margin-bottom: 0.5rem;
+        }
+        .carousel-indicators [data-bs-target] {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            margin-right: 3px;
+            margin-left: 3px;
+        }
+    </style>
     <div class="row mb-3 align-items-center">
         <div class="col-12 col-md-auto mb-3 mb-md-0">
             <h2 class="page-title">Manajemen Kamar</h2>
@@ -69,21 +88,47 @@
         <div class="col-sm-6 col-lg-3">
             <div class="card card-sm">
                 <div class="position-relative">
-                    @if($room->image)
-                    <a href="#" class="d-block"><img src="{{ Storage::url($room->image) }}" class="card-img-top" style="height: 150px; object-fit: cover;"></a>
+                    @if($room->images->count() > 0 || $room->image)
+                        <div id="carousel-{{ $room->id }}" class="carousel slide" data-bs-ride="carousel">
+                            @if($room->images->count() > 0)
+                                <div class="carousel-indicators">
+                                    <button type="button" data-bs-target="#carousel-{{ $room->id }}" data-bs-slide-to="0" class="active"></button>
+                                    @foreach($room->images as $index => $img)
+                                        <button type="button" data-bs-target="#carousel-{{ $room->id }}" data-bs-slide-to="{{ $index + 1 }}"></button>
+                                    @endforeach
+                                </div>
+                            @endif
+                            <div class="carousel-inner">
+                                <div class="carousel-item active">
+                                    @if($room->image)
+                                        <img src="{{ Storage::url($room->image) }}" class="d-block w-100 card-img-top" style="height: 150px; object-fit: cover; cursor: pointer;" wire:click="openLightbox('{{ Storage::url($room->image) }}')">
+                                    @else
+                                        <div class="card-img-top bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 150px;">
+                                            No Image
+                                        </div>
+                                    @endif
+                                </div>
+                                @foreach($room->images as $img)
+                                    <div class="carousel-item">
+                                        <img src="{{ Storage::url($img->image_path) }}" class="d-block w-100 card-img-top" style="height: 150px; object-fit: cover; cursor: pointer;" wire:click="openLightbox('{{ Storage::url($img->image_path) }}')">
+                                    </div>
+                                @endforeach
+                            </div>
+                            @if($room->images->count() > 0)
+                                <button class="carousel-control-prev" type="button" data-bs-target="#carousel-{{ $room->id }}" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Previous</span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#carousel-{{ $room->id }}" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Next</span>
+                                </button>
+                            @endif
+                        </div>
                     @else
-                    <div class="card-img-top bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 150px;">
-                        No Image
-                    </div>
-                    @endif
-
-                    @if($room->images->count() > 0)
-                    <div class="position-absolute bottom-0 end-0 m-2">
-                        <span class="badge bg-dark-lt text-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-photo" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8h.01" /><path d="M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z" /><path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5" /><path d="M14 14l1 -1c.928 -.893 2.072 -.893 3 0l2.5 2.5" /></svg>
-                            +{{ $room->images->count() }}
-                        </span>
-                    </div>
+                        <div class="card-img-top bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 150px;">
+                            No Image
+                        </div>
                     @endif
                 </div>
                 <div class="card-body">
@@ -297,6 +342,20 @@
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lightbox Modal -->
+    <div class="modal modal-blur fade {{ $isLightboxOpen ? 'show d-block' : '' }}" tabindex="-1" role="dialog" aria-hidden="true" style="{{ $isLightboxOpen ? 'background: rgba(0,0,0,0.8)' : '' }}" wire:click.self="closeLightbox()">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content bg-transparent border-0">
+                <div class="modal-body p-0 text-center position-relative">
+                    <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" wire:click="closeLightbox()" aria-label="Close"></button>
+                    @if($lightboxImageUrl)
+                        <img src="{{ $lightboxImageUrl }}" class="img-fluid rounded shadow-lg">
+                    @endif
+                </div>
             </div>
         </div>
     </div>
