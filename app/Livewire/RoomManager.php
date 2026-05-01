@@ -5,13 +5,14 @@ namespace App\Livewire;
 use App\Models\Room;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use Livewire\WithPagination;
 use Illuminate\Support\Facades\Storage;
 
 class RoomManager extends Component
 {
-    use WithFileUploads;
+    use WithFileUploads, WithPagination;
 
-    public $rooms;
+    protected $paginationTheme = 'bootstrap';
     public $viewType = 'grid'; // 'grid' or 'table'
     public $isModalOpen = false;
     public $roomId;

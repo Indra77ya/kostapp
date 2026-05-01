@@ -21,6 +21,10 @@
                 </button>
             </div>
         </div>
+
+        <div class="mt-4">
+            {{ $rooms->links() }}
+        </div>
     </div>
 
     @if($viewType === 'grid')
@@ -47,7 +51,19 @@
                                     {{ $room->status === 'available' ? 'Tersedia' : ($room->status === 'occupied' ? 'Terisi' : 'Perbaikan') }}
                                 </span>
                             </div>
-                            <div class="mt-2 h3">Rp {{ number_format($room->price, 0, ',', '.') }}</div>
+                            <div class="mt-2 h3 mb-1">Rp {{ number_format($room->price, 0, ',', '.') }}</div>
+                            @if($room->facilities)
+                            <div class="mt-2">
+                                @foreach(explode(',', $room->facilities) as $facility)
+                                <span class="badge badge-outline text-secondary fw-normal badge-pill mb-1">{{ trim($facility) }}</span>
+                                @endforeach
+                            </div>
+                            @endif
+                            @if($room->description)
+                            <div class="text-secondary small mt-1 text-truncate" style="max-width: 100%;" title="{{ $room->description }}">
+                                {{ $room->description }}
+                            </div>
+                            @endif
                         </div>
                     </div>
                     <div class="mt-3">
@@ -67,6 +83,7 @@
                     <tr>
                         <th>No. Kamar</th>
                         <th>Tipe / Lantai</th>
+                        <th>Fasilitas & Deskripsi</th>
                         <th>Status</th>
                         <th>Harga</th>
                         <th class="w-1"></th>
@@ -78,6 +95,14 @@
                         <td>{{ $room->room_number }}</td>
                         <td class="text-secondary">
                             {{ $room->room_type }}{{ $room->room_type && $room->floor ? ' / ' : '' }}{{ $room->floor ? 'Lantai ' . $room->floor : '' }}
+                        </td>
+                        <td>
+                            <div class="small text-truncate" style="max-width: 200px;">
+                                <strong>{{ $room->facilities }}</strong>
+                            </div>
+                            <div class="small text-secondary text-truncate" style="max-width: 200px;">
+                                {{ $room->description }}
+                            </div>
                         </td>
                         <td>
                             <span class="badge {{ $room->status === 'available' ? 'bg-success' : ($room->status === 'occupied' ? 'bg-danger' : 'bg-warning') }} text-white">
