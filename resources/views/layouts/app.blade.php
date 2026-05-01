@@ -32,6 +32,7 @@
             </a>
           </h1>
           <div class="navbar-nav flex-row order-md-last">
+            @livewire('notification-bell')
             <div class="nav-item dropdown">
               <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" aria-label="Open user menu">
                 <span class="avatar avatar-sm" style="background-image: url(https://preview.tabler.io/static/avatars/000m.jpg)"></span>
@@ -109,6 +110,7 @@
     </div>
     <!-- Libs JS -->
     <script src="{{ asset('assets/tabler/js/tabler.min.js') }}" defer></script>
+    @vite(['resources/js/app.js'])
     @livewireScripts
   </body>
 </html>
