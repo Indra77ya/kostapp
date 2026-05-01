@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\Room;
+use App\Models\RoomImage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
@@ -25,6 +26,8 @@ class RoomManager extends Component
     // Form fields
     public $room_number, $price, $status, $description, $image, $facilities, $room_type, $floor;
     public $newImage;
+    public $gallery = [];
+    public $newGallery = [];
 
     protected $listeners = ['echo:stats,DatabaseUpdated' => '$refresh'];
 
@@ -39,11 +42,6 @@ class RoomManager extends Component
         'newImage' => 'nullable|image|max:1024', // 1MB Max
     ];
 
-    public function mount()
-    {
-        // No need to load rooms here
-    }
-
     public function setView($type)
     {
         $this->viewType = $type;
@@ -56,7 +54,7 @@ class RoomManager extends Component
 
         if ($id) {
             $this->roomId = $id;
-            $room = Room::find($id);
+            $room = Room::with('images')->find($id);
             $this->room_number = $room->room_number;
             $this->price = $room->price;
             $this->status = $room->status;
@@ -65,6 +63,7 @@ class RoomManager extends Component
             $this->room_type = $room->room_type;
             $this->floor = $room->floor;
             $this->image = $room->image;
+            $this->gallery = $room->images->toArray();
         }
 
         $this->isModalOpen = true;
@@ -88,6 +87,8 @@ class RoomManager extends Component
         $this->floor = '';
         $this->image = null;
         $this->newImage = null;
+        $this->gallery = [];
+        $this->newGallery = [];
     }
 
     public function saveRoom()
@@ -123,9 +124,18 @@ class RoomManager extends Component
         }
 
         if ($this->roomId) {
-            Room::find($this->roomId)->update($data);
+            $room = Room::find($this->roomId);
+            $room->update($data);
         } else {
-            Room::create($data);
+            $room = Room::create($data);
+        }
+
+        // Handle Gallery
+        if ($this->newGallery) {
+            foreach ($this->newGallery as $photo) {
+                $photoPath = $photo->store('rooms/gallery', 'public');
+                $room->images()->create(['image_path' => $photoPath]);
+            }
         }
 
         $this->closeModal();
@@ -133,11 +143,33 @@ class RoomManager extends Component
 
     public function deleteRoom($id)
     {
-        $room = Room::find($id);
+        $room = Room::with('images')->find($id);
+
+        // Delete main image
         if ($room->image) {
             Storage::disk('public')->delete($room->image);
         }
+
+        // Delete gallery images
+        foreach ($room->images as $img) {
+            Storage::disk('public')->delete($img->image_path);
+        }
+
         $room->delete();
+    }
+
+    public function deleteGalleryImage($imageId)
+    {
+        $image = RoomImage::find($imageId);
+        if ($image) {
+            Storage::disk('public')->delete($image->image_path);
+            $image->delete();
+
+            // Refresh gallery
+            if ($this->roomId) {
+                $this->gallery = RoomImage::where('room_id', $this->roomId)->get()->toArray();
+            }
+        }
     }
 
     public function updatingSearch()
@@ -178,7 +210,7 @@ class RoomManager extends Component
         $floors = Room::whereNotNull('floor')->distinct()->pluck('floor')->sort();
 
         return view('livewire.room-manager', [
-            'rooms' => $query->orderBy('room_number')->paginate(12),
+            'rooms' => $query->with('images')->orderBy('room_number')->paginate(12),
             'floors' => $floors
         ]);
     }

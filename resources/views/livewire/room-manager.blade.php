@@ -68,13 +68,24 @@
         @forelse($rooms as $room)
         <div class="col-sm-6 col-lg-3">
             <div class="card card-sm">
-                @if($room->image)
-                <a href="#" class="d-block"><img src="{{ Storage::url($room->image) }}" class="card-img-top" style="height: 150px; object-fit: cover;"></a>
-                @else
-                <div class="card-img-top bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 150px;">
-                    No Image
+                <div class="position-relative">
+                    @if($room->image)
+                    <a href="#" class="d-block"><img src="{{ Storage::url($room->image) }}" class="card-img-top" style="height: 150px; object-fit: cover;"></a>
+                    @else
+                    <div class="card-img-top bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 150px;">
+                        No Image
+                    </div>
+                    @endif
+
+                    @if($room->images->count() > 0)
+                    <div class="position-absolute bottom-0 end-0 m-2">
+                        <span class="badge bg-dark-lt text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-photo" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8h.01" /><path d="M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z" /><path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5" /><path d="M14 14l1 -1c.928 -.893 2.072 -.893 3 0l2.5 2.5" /></svg>
+                            +{{ $room->images->count() }}
+                        </span>
+                    </div>
+                    @endif
                 </div>
-                @endif
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div>
@@ -237,20 +248,45 @@
                             <textarea class="form-control @error('description') is-invalid @enderror" rows="3" wire:model="description"></textarea>
                             @error('description') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Foto Kamar</label>
-                            @if ($newImage)
-                                <div class="mb-2">
-                                    <img src="{{ $newImage->temporaryUrl() }}" style="height: 100px;">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Foto Utama</label>
+                                    @if ($newImage)
+                                        <div class="mb-2">
+                                            <img src="{{ $newImage->temporaryUrl() }}" class="rounded border" style="height: 100px; width: 100%; object-fit: cover;">
+                                        </div>
+                                    @elseif ($image)
+                                        <div class="mb-2">
+                                            <img src="{{ Storage::url($image) }}" class="rounded border" style="height: 100px; width: 100%; object-fit: cover;">
+                                        </div>
+                                    @endif
+                                    <input type="file" class="form-control @error('newImage') is-invalid @enderror" wire:model="newImage">
+                                    <div wire:loading wire:target="newImage" class="text-info small">Uploading...</div>
+                                    @error('newImage') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
-                            @elseif ($image)
-                                <div class="mb-2">
-                                    <img src="{{ Storage::url($image) }}" style="height: 100px;">
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Galeri Foto (Multiple)</label>
+                                    <div class="d-flex flex-wrap gap-2 mb-2">
+                                        @foreach($gallery as $img)
+                                            <div class="position-relative">
+                                                <img src="{{ Storage::url($img['image_path']) }}" class="rounded border" style="height: 45px; width: 45px; object-fit: cover;">
+                                                <button type="button" class="btn btn-danger btn-icon btn-sm position-absolute top-0 end-0 p-0" style="width: 15px; height: 15px; font-size: 10px;" wire:click="deleteGalleryImage({{ $img['id'] }})" wire:confirm="Hapus foto ini dari galeri?">×</button>
+                                            </div>
+                                        @endforeach
+                                        @foreach($newGallery as $index => $photo)
+                                            <div class="position-relative">
+                                                <img src="{{ $photo->temporaryUrl() }}" class="rounded border" style="height: 45px; width: 45px; object-fit: cover; opacity: 0.6;">
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                    <input type="file" class="form-control @error('newGallery.*') is-invalid @enderror" wire:model="newGallery" multiple>
+                                    <div wire:loading wire:target="newGallery" class="text-info small">Uploading...</div>
+                                    @error('newGallery.*') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
-                            @endif
-                            <input type="file" class="form-control @error('newImage') is-invalid @enderror" wire:model="newImage">
-                            <div wire:loading wire:target="newImage" class="text-info small">Uploading...</div>
-                            @error('newImage') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">
