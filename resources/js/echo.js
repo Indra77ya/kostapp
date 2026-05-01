@@ -3,6 +3,10 @@ import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
 window.Pusher = Pusher;
 
+if (!import.meta.env.VITE_REVERB_APP_KEY) {
+    console.warn('VITE_REVERB_APP_KEY is missing. Real-time features may not work.');
+}
+
 window.Echo = new Echo({
     broadcaster: 'reverb',
     key: import.meta.env.VITE_REVERB_APP_KEY,
