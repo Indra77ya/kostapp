@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Events\DatabaseUpdated;
+use App\Events\NotificationSent;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -17,6 +19,19 @@ class Booking extends Model
         'total_price',
         'status',
     ];
+
+    protected static function booted()
+    {
+        static::created(function ($booking) {
+            DatabaseUpdated::dispatch();
+            NotificationSent::dispatch("Pemesanan baru dibuat oleh {$booking->user->name}.", 'success');
+        });
+
+        static::updated(function ($booking) {
+            DatabaseUpdated::dispatch();
+            NotificationSent::dispatch("Status pemesanan #{$booking->id} berubah menjadi {$booking->status}.", 'info');
+        });
+    }
 
     public function user()
     {

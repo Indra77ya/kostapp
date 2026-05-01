@@ -11,21 +11,19 @@ class TestRealtime extends Component
 {
     public function triggerUpdate()
     {
-        // Simulate a database change
+        // Event ini sekarang juga dikirim otomatis oleh Model observer
         DatabaseUpdated::dispatch();
-        NotificationSent::dispatch('Data dashboard telah diperbarui!', 'success');
+        NotificationSent::dispatch('Manual trigger: Data dashboard diperbarui!', 'info');
     }
 
     public function addRoom()
     {
+        // Room::create akan memicu event di model secara otomatis
         Room::create([
             'room_number' => 'R' . rand(100, 999),
             'price' => rand(1000000, 2000000),
             'status' => 'available'
         ]);
-
-        DatabaseUpdated::dispatch();
-        NotificationSent::dispatch('Kamar baru telah ditambahkan!', 'info');
     }
 
     public function render()
