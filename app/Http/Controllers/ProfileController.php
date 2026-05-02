@@ -23,7 +23,7 @@ class ProfileController extends Controller
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'phone_number' => ['nullable', 'string', 'regex:/^\+[0-9]+$/'],
+            'phone_number' => ['nullable', 'string', 'regex:/^\+?[0-9 ]+$/'],
             'address' => ['nullable', 'string'],
             'bank_info' => ['nullable', 'string'],
             'bio' => ['nullable', 'string'],
@@ -56,7 +56,7 @@ class ProfileController extends Controller
         ]);
 
         $request->user()->update([
-            'password' => Hash::make($validated['password']),
+            'password' => $validated['password'],
         ]);
 
         return back()->with('status', 'password-updated');

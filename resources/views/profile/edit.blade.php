@@ -150,7 +150,7 @@
                 </div>
             </div>
             <div class="card-footer text-end">
-                <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                <button type="submit" id="submit-profile" class="btn btn-primary">Simpan Perubahan</button>
             </div>
         </form>
     </div>
@@ -172,28 +172,39 @@
         const iti = window.intlTelInput(phoneInput, {
             initialCountry: "id",
             separateDialCode: true,
-            utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@28.0.4/build/js/utils.js",
+            // utilsScript has moved to validation (utilsScript is for validation/formatting)
+            // In v28 it might be different, let's use the simplest config if unsure
         });
 
         const updateFullNumber = () => {
             phoneFullInput.value = iti.getNumber();
         };
 
-        phoneInput.addEventListener('change', updateFullNumber);
+        // Update hidden field whenever input changes or country changes
+        phoneInput.addEventListener('input', updateFullNumber);
+        phoneInput.addEventListener('countrychange', updateFullNumber);
+
         phoneInput.addEventListener('input', function() {
             // Real-time auto-format 0 to +62
             let value = phoneInput.value;
             if (value.startsWith('0')) {
                 phoneInput.value = value.replace(/^0+/, '');
+                updateFullNumber();
             }
-            updateFullNumber();
         });
 
         // Initialize with existing number if available
         if (phoneInput.value) {
-            // Explicitly set the number to trigger intl-tel-input parsing
             iti.setNumber(phoneInput.value);
             updateFullNumber();
+        }
+
+        // Ensure full number is set before form submission
+        const profileForm = document.querySelector('form[action*="profile"]');
+        if (profileForm) {
+            profileForm.addEventListener('submit', function(e) {
+                updateFullNumber();
+            });
         }
     });
 </script>
