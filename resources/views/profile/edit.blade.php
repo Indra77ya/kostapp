@@ -172,7 +172,7 @@
         const iti = window.intlTelInput(phoneInput, {
             initialCountry: "id",
             separateDialCode: true,
-            utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@24.5.0/build/js/utils.js",
+            utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@28.0.4/build/js/utils.js",
         });
 
         const updateFullNumber = () => {
@@ -191,10 +191,8 @@
 
         // Initialize with existing number if available
         if (phoneInput.value) {
-            // If the value already has a '+', it's a full number from DB
-            if (phoneInput.value.startsWith('+')) {
-                iti.setNumber(phoneInput.value);
-            }
+            // Explicitly set the number to trigger intl-tel-input parsing
+            iti.setNumber(phoneInput.value);
             updateFullNumber();
         }
     });
