@@ -10,7 +10,7 @@ Aplikasi ini sangat spesial karena mendukung fitur **Real-Time**. Artinya, semua
 
 -   **Dashboard Interaktif**: Statistik jumlah kamar dan tenant yang terupdate otomatis secara instan.
 -   **Notifikasi Instan**: Muncul lonceng notifikasi di pojok kanan atas setiap kali ada aktivitas penting.
--   **Multi-Role**: Sistem akses berbeda untuk Owner (Pemilik), Admin (Pengelola), dan Tenant (Penghuni).
+-   **Multi-Role**: Sistem akses berbeda untuk Owner (Pemilik), Admin (Pengelola), dan Tenant (Penghuni). *Catatan: Role Developer memiliki tingkat akses yang setara dengan Owner.*
 -   **Tanpa Refresh**: Berkat teknologi Livewire dan Laravel Reverb, aplikasi terasa seperti aplikasi mobile yang responsif.
 -   **Desain Modern**: Menggunakan framework Tabler yang bersih, profesional, dan nyaman di mata.
 

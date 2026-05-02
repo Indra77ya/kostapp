@@ -1,0 +1,161 @@
+<?php
+
+namespace App\Livewire;
+
+use App\Models\User;
+use Livewire\Component;
+use Livewire\WithPagination;
+use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Hash;
+use App\Events\DatabaseUpdated;
+use App\Events\NotificationSent;
+
+class UserManager extends Component
+{
+    use WithPagination;
+
+    protected $paginationTheme = 'bootstrap';
+    public $viewType = 'table'; // 'grid' or 'table'
+    public $isModalOpen = false;
+    public $userId;
+
+    // Search and Filters
+    public $search = '';
+    public $filterRole = '';
+
+    // Form fields
+    public $name, $email, $role, $password;
+    public $showPassword = false;
+
+    protected $listeners = ['echo:stats,DatabaseUpdated' => '$refresh'];
+
+    protected function rules()
+    {
+        return [
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $this->userId,
+            'role' => 'required|exists:roles,name',
+        ];
+    }
+
+    public function setView($type)
+    {
+        $this->viewType = $type;
+    }
+
+    public function togglePassword()
+    {
+        $this->showPassword = !$this->showPassword;
+    }
+
+    public function openModal($id = null)
+    {
+        $this->resetValidation();
+        $this->resetForm();
+
+        if ($id) {
+            $this->userId = $id;
+            $user = User::find($id);
+            $this->name = $user->name;
+            $this->email = $user->email;
+            $this->role = $user->getRoleNames()->first();
+        } else {
+            $this->password = '12345678';
+            $this->role = 'tenant';
+        }
+
+        $this->isModalOpen = true;
+    }
+
+    public function closeModal()
+    {
+        $this->isModalOpen = false;
+        $this->resetForm();
+    }
+
+    private function resetForm()
+    {
+        $this->userId = null;
+        $this->name = '';
+        $this->email = '';
+        $this->role = '';
+        $this->password = '';
+        $this->showPassword = false;
+    }
+
+    public function saveUser()
+    {
+        $this->validate();
+
+        if ($this->userId) {
+            $user = User::find($this->userId);
+            $user->update([
+                'name' => $this->name,
+                'email' => $this->email,
+            ]);
+            $user->syncRoles([$this->role]);
+
+            NotificationSent::dispatch("Pengguna {$user->name} berhasil diperbarui.", 'success');
+        } else {
+            $user = User::create([
+                'name' => $this->name,
+                'email' => $this->email,
+                'password' => Hash::make($this->password),
+            ]);
+            $user->assignRole($this->role);
+
+            NotificationSent::dispatch("Pengguna baru {$user->name} berhasil ditambahkan.", 'success');
+        }
+
+        DatabaseUpdated::dispatch();
+        $this->closeModal();
+    }
+
+    public function deleteUser($id)
+    {
+        if ($id === auth()->id()) {
+            NotificationSent::dispatch("Anda tidak bisa menghapus diri sendiri!", 'danger');
+            return;
+        }
+
+        $user = User::find($id);
+        $name = $user->name;
+        $user->delete();
+
+        DatabaseUpdated::dispatch();
+        NotificationSent::dispatch("Pengguna {$name} berhasil dihapus.", 'success');
+    }
+
+    public function updatingSearch()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingFilterRole()
+    {
+        $this->resetPage();
+    }
+
+    public function render()
+    {
+        $query = User::query();
+
+        if ($this->search) {
+            $query->where(function($q) {
+                $q->where('name', 'like', '%' . $this->search . '%')
+                  ->orWhere('email', 'like', '%' . $this->search . '%');
+            });
+        }
+
+        if ($this->filterRole) {
+            $query->role($this->filterRole);
+        }
+
+        $roles = Role::all();
+
+        return view('livewire.user-manager', [
+            'users' => $query->with('roles')->orderBy('name')->paginate(12),
+            'roles' => $roles
+        ]);
+    }
+}
