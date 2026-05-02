@@ -1,7 +1,7 @@
 <div>
     <div class="row mb-3 align-items-center">
         <div class="col-12 col-md-auto mb-3 mb-md-0">
-            <h2 class="page-title">Manajemen Pengguna</h2>
+            <h2 class="page-title">Dashboard</h2>
         </div>
         <div class="col-12 col-md ms-md-auto">
             <div class="btn-list">
@@ -26,7 +26,7 @@
     <div class="card mb-3">
         <div class="card-body">
             <div class="row g-2">
-                <div class="col-md-9">
+                <div class="col-md-6">
                     <div class="input-icon">
                         <span class="input-icon-addon">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
@@ -34,7 +34,7 @@
                         <input type="text" class="form-control" placeholder="Cari nama atau email..." wire:model.live.debounce.300ms="search">
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-6">
                     <select class="form-select" wire:model.live="filterRole">
                         <option value="">Semua Role</option>
                         @foreach($roles as $r)
