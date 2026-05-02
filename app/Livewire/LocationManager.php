@@ -15,6 +15,7 @@ class LocationManager extends Component
     use WithFileUploads, WithPagination;
 
     protected $paginationTheme = 'bootstrap';
+    public $viewType = 'grid'; // 'grid' or 'table'
     public $isModalOpen = false;
     public $locationId;
 
@@ -51,6 +52,11 @@ class LocationManager extends Component
         }
 
         $this->isModalOpen = true;
+    }
+
+    public function setView($type)
+    {
+        $this->viewType = $type;
     }
 
     public function closeModal()
