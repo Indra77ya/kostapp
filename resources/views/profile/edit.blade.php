@@ -172,20 +172,18 @@
         const iti = window.intlTelInput(phoneInput, {
             initialCountry: "id",
             separateDialCode: true,
-            // utilsScript has moved to validation (utilsScript is for validation/formatting)
-            // In v28 it might be different, let's use the simplest config if unsure
         });
 
         const updateFullNumber = () => {
-            phoneFullInput.value = iti.getNumber();
+            if (iti && typeof iti.getNumber === 'function') {
+                phoneFullInput.value = iti.getNumber();
+            }
         };
 
-        // Update hidden field whenever input changes or country changes
         phoneInput.addEventListener('input', updateFullNumber);
         phoneInput.addEventListener('countrychange', updateFullNumber);
 
         phoneInput.addEventListener('input', function() {
-            // Real-time auto-format 0 to +62
             let value = phoneInput.value;
             if (value.startsWith('0')) {
                 phoneInput.value = value.replace(/^0+/, '');
@@ -193,13 +191,11 @@
             }
         });
 
-        // Initialize with existing number if available
         if (phoneInput.value) {
             iti.setNumber(phoneInput.value);
             updateFullNumber();
         }
 
-        // Ensure full number is set before form submission
         const profileForm = document.querySelector('form[action*="profile"]');
         if (profileForm) {
             profileForm.addEventListener('submit', function(e) {
