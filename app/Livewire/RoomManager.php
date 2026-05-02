@@ -26,7 +26,7 @@ class RoomManager extends Component
     public $filterFloor = '';
 
     // Form fields
-    public $location_id, $room_number, $price, $status, $description, $image, $facilities, $room_type, $floor;
+    public $location_id, $room_number, $price, $status, $description, $image, $facilities = [], $room_type, $floor;
     public $newImage;
     public $gallery = [];
     public $newGallery = [];
@@ -67,6 +67,7 @@ class RoomManager extends Component
             $this->room_type = $room->room_type;
             $this->floor = $room->floor;
             $this->image = $room->image;
+            $this->facilities = $room->facilities ? explode(', ', $room->facilities) : [];
             $this->gallery = $room->images->toArray();
         }
 
@@ -98,7 +99,7 @@ class RoomManager extends Component
         $this->price = '';
         $this->status = 'available';
         $this->description = '';
-        $this->facilities = '';
+        $this->facilities = [];
         $this->room_type = '';
         $this->floor = '';
         $this->image = null;
@@ -122,7 +123,7 @@ class RoomManager extends Component
             'price' => $this->price,
             'status' => $this->status,
             'description' => $this->description,
-            'facilities' => $this->facilities,
+            'facilities' => is_array($this->facilities) ? implode(', ', $this->facilities) : $this->facilities,
             'room_type' => $this->room_type,
             'floor' => $this->floor,
         ];
@@ -226,11 +227,13 @@ class RoomManager extends Component
 
         $floors = Room::whereNotNull('floor')->distinct()->pluck('floor')->sort();
         $locations = \App\Models\Location::orderBy('name')->get();
+        $allFacilities = \App\Models\Facility::orderBy('category')->orderBy('name')->get()->groupBy('category');
 
         return view('livewire.room-manager', [
             'rooms' => $query->with(['images', 'location'])->orderBy('room_number')->paginate(12),
             'floors' => $floors,
-            'locations' => $locations
+            'locations' => $locations,
+            'allFacilities' => $allFacilities
         ]);
     }
 }

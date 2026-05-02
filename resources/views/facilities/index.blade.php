@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
-@section('title', 'Manajemen Pengguna')
+@section('title', 'Manajemen Fasilitas')
 @section('page_title', '')
 
 @section('content')
-    @livewire('user-manager')
+    @livewire('facility-manager')
 @endsection
