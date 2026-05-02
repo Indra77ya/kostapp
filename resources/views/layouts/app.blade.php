@@ -105,6 +105,9 @@
                         <a class="dropdown-item {{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.index') }}">
                           Pengguna
                         </a>
+                        <a class="dropdown-item {{ request()->routeIs('facilities.*') ? 'active' : '' }}" href="{{ route('facilities.index') }}">
+                          Fasilitas
+                        </a>
                       </div>
                     </div>
                   </div>

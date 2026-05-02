@@ -34,6 +34,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/users', function () {
             return view('users.index');
         })->name('users.index');
+
+        Route::get('/facilities', function () {
+            return view('facilities.index');
+        })->name('facilities.index');
     });
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

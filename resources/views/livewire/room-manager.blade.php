@@ -304,8 +304,26 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Fasilitas</label>
-                            <textarea class="form-control @error('facilities') is-invalid @enderror" rows="2" wire:model="facilities" placeholder="e.g. AC, Kamar mandi dalam, Kasur"></textarea>
-                            @error('facilities') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            <div class="card card-body bg-light-lt">
+                                <div class="row">
+                                    @foreach($allFacilities as $category => $items)
+                                        <div class="col-md-6 mb-2">
+                                            <div class="form-label small text-uppercase text-secondary fw-bold mb-2">{{ $category }}</div>
+                                            <div class="row g-2">
+                                                @foreach($items as $item)
+                                                    <div class="col-6">
+                                                        <label class="form-check form-check-inline cursor-pointer">
+                                                            <input class="form-check-input" type="checkbox" value="{{ $item->name }}" wire:model="facilities">
+                                                            <span class="form-check-label">{{ $item->name }}</span>
+                                                        </label>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                            @error('facilities') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Deskripsi</label>
