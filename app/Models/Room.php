@@ -16,6 +16,10 @@ class Room extends Model
         'price',
         'status',
         'description',
+        'image',
+        'facilities',
+        'room_type',
+        'floor',
     ];
 
     protected static function booted()
@@ -39,5 +43,10 @@ class Room extends Model
     public function bookings()
     {
         return $this->hasMany(Booking::class);
+    }
+
+    public function images()
+    {
+        return $this->hasMany(RoomImage::class);
     }
 }
