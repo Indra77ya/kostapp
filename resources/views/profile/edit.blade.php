@@ -189,8 +189,12 @@
             updateFullNumber();
         });
 
-        // Initialize full number on load
+        // Initialize with existing number if available
         if (phoneInput.value) {
+            // If the value already has a '+', it's a full number from DB
+            if (phoneInput.value.startsWith('+')) {
+                iti.setNumber(phoneInput.value);
+            }
             updateFullNumber();
         }
     });

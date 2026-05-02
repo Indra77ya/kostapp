@@ -45,7 +45,7 @@ class ProfileController extends Controller
 
         $user->update($validated);
 
-        return redirect()->route('profile.edit')->with('status', 'profile-updated');
+        return back()->with('status', 'profile-updated');
     }
 
     public function updatePassword(Request $request)
@@ -55,10 +55,10 @@ class ProfileController extends Controller
             'password' => ['required', Password::defaults(), 'confirmed'],
         ]);
 
-        Auth::user()->update([
+        $request->user()->update([
             'password' => Hash::make($validated['password']),
         ]);
 
-        return redirect()->route('profile.edit')->with('status', 'password-updated');
+        return back()->with('status', 'password-updated');
     }
 }
