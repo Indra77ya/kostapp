@@ -17,6 +17,7 @@
       }
     </style>
     @livewireStyles
+    @stack('styles')
   </head>
   <body>
     <div class="page">
@@ -128,5 +129,6 @@
     <script src="{{ asset('assets/tabler/js/tabler.min.js') }}" defer></script>
     @vite(['resources/js/app.js'])
     @livewireScripts
+    @stack('scripts')
   </body>
 </html>

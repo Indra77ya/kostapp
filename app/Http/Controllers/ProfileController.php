@@ -23,13 +23,13 @@ class ProfileController extends Controller
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'phone_number' => ['nullable', 'string', 'regex:/^\+62[0-9]+$/'],
+            'phone_number' => ['nullable', 'string', 'regex:/^\+[0-9]+$/'],
             'address' => ['nullable', 'string'],
             'bank_info' => ['nullable', 'string'],
             'bio' => ['nullable', 'string'],
             'avatar' => ['nullable', 'image', 'max:2048'],
         ], [
-            'phone_number.regex' => 'Nomor telepon harus diawali dengan +62.',
+            'phone_number.regex' => 'Nomor telepon harus diawali dengan kode negara (misal: +62).',
         ]);
 
         if ($request->hasFile('avatar')) {

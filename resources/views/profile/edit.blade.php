@@ -109,9 +109,10 @@
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label class="form-label">Nomor Telepon (WhatsApp)</label>
-                            <input type="text" name="phone_number" class="form-control @error('phone_number') is-invalid @enderror" value="{{ old('phone_number', $user->phone_number) }}" placeholder="+62...">
+                            <input type="tel" id="phone" class="form-control @error('phone_number') is-invalid @enderror" value="{{ old('phone_number', $user->phone_number) }}">
+                            <input type="hidden" name="phone_number" id="phone_full" value="{{ old('phone_number', $user->phone_number) }}">
                             @error('phone_number')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
                             @enderror
                         </div>
                     </div>
@@ -155,3 +156,43 @@
     </div>
 </div>
 @endsection
+
+@push('styles')
+<style>
+    .iti { width: 100%; }
+</style>
+@endpush
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const phoneInput = document.querySelector("#phone");
+        const phoneFullInput = document.querySelector("#phone_full");
+
+        const iti = window.intlTelInput(phoneInput, {
+            initialCountry: "id",
+            separateDialCode: true,
+            utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@24.5.0/build/js/utils.js",
+        });
+
+        const updateFullNumber = () => {
+            phoneFullInput.value = iti.getNumber();
+        };
+
+        phoneInput.addEventListener('change', updateFullNumber);
+        phoneInput.addEventListener('input', function() {
+            // Real-time auto-format 0 to +62
+            let value = phoneInput.value;
+            if (value.startsWith('0')) {
+                phoneInput.value = value.replace(/^0+/, '');
+            }
+            updateFullNumber();
+        });
+
+        // Initialize full number on load
+        if (phoneInput.value) {
+            updateFullNumber();
+        }
+    });
+</script>
+@endpush
