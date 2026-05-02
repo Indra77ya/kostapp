@@ -304,15 +304,15 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Fasilitas</label>
-                            <div class="card card-body bg-light-lt">
+                            <div class="card card-body">
                                 <div class="row">
                                     @foreach($allFacilities as $category => $items)
-                                        <div class="col-md-6 mb-2">
-                                            <div class="form-label small text-uppercase text-secondary fw-bold mb-2">{{ $category }}</div>
+                                        <div class="col-md-6 mb-3">
+                                            <div class="form-label small text-uppercase text-primary fw-bold mb-2 border-bottom pb-1">{{ $category }}</div>
                                             <div class="row g-2">
                                                 @foreach($items as $item)
                                                     <div class="col-6">
-                                                        <label class="form-check form-check-inline cursor-pointer">
+                                                        <label class="form-check cursor-pointer">
                                                             <input class="form-check-input" type="checkbox" value="{{ $item->name }}" wire:model="facilities">
                                                             <span class="form-check-label">{{ $item->name }}</span>
                                                         </label>
