@@ -35,6 +35,8 @@ class ProfileController extends Controller
                 Storage::disk('public')->delete($user->avatar);
             }
             $validated['avatar'] = $request->file('avatar')->store('avatars', 'public');
+        } else {
+            unset($validated['avatar']);
         }
 
         if (!$user->hasRole('owner')) {

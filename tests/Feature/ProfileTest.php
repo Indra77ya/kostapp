@@ -94,6 +94,26 @@ class ProfileTest extends TestCase
         Storage::disk('public')->assertExists($user->avatar);
     }
 
+    public function test_avatar_is_not_deleted_when_updating_other_fields()
+    {
+        Storage::fake('public');
+
+        $user = User::factory()->create([
+            'avatar' => 'avatars/old-avatar.jpg'
+        ]);
+        Storage::disk('public')->put('avatars/old-avatar.jpg', 'content');
+
+        $response = $this->actingAs($user)->patch('/profile', [
+            'name' => 'Updated Name',
+        ]);
+
+        $user->refresh();
+
+        $this->assertEquals('Updated Name', $user->name);
+        $this->assertEquals('avatars/old-avatar.jpg', $user->avatar);
+        Storage::disk('public')->assertExists('avatars/old-avatar.jpg');
+    }
+
     public function test_password_can_be_updated()
     {
         $user = User::factory()->create([
