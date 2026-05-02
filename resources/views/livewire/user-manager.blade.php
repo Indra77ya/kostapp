@@ -1,7 +1,7 @@
 <div>
     <div class="row mb-3 align-items-center">
         <div class="col-12 col-md-auto mb-3 mb-md-0">
-            <h2 class="page-title">Dashboard</h2>
+            <h2 class="page-title">Manajemen Pengguna</h2>
         </div>
         <div class="col-12 col-md ms-md-auto">
             <div class="btn-list">
