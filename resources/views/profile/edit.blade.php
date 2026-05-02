@@ -109,10 +109,9 @@
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label class="form-label">Nomor Telepon (WhatsApp)</label>
-                            <input type="tel" id="phone" class="form-control @error('phone_number') is-invalid @enderror" value="{{ old('phone_number', $user->phone_number) }}">
-                            <input type="hidden" name="phone_number" id="phone_full" value="{{ old('phone_number', $user->phone_number) }}">
+                            <input type="tel" name="phone_number" class="form-control @error('phone_number') is-invalid @enderror" value="{{ old('phone_number', $user->phone_number) }}" placeholder="Contoh: 08123456789">
                             @error('phone_number')
-                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                                <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
                     </div>
@@ -150,58 +149,9 @@
                 </div>
             </div>
             <div class="card-footer text-end">
-                <button type="submit" id="submit-profile" class="btn btn-primary">Simpan Perubahan</button>
+                <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
             </div>
         </form>
     </div>
 </div>
 @endsection
-
-@push('styles')
-<style>
-    .iti { width: 100%; }
-</style>
-@endpush
-
-@push('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const phoneInput = document.querySelector("#phone");
-        const phoneFullInput = document.querySelector("#phone_full");
-
-        const iti = window.intlTelInput(phoneInput, {
-            initialCountry: "id",
-            separateDialCode: true,
-        });
-
-        const updateFullNumber = () => {
-            if (iti && typeof iti.getNumber === 'function') {
-                phoneFullInput.value = iti.getNumber();
-            }
-        };
-
-        phoneInput.addEventListener('input', updateFullNumber);
-        phoneInput.addEventListener('countrychange', updateFullNumber);
-
-        phoneInput.addEventListener('input', function() {
-            let value = phoneInput.value;
-            if (value.startsWith('0')) {
-                phoneInput.value = value.replace(/^0+/, '');
-                updateFullNumber();
-            }
-        });
-
-        if (phoneInput.value) {
-            iti.setNumber(phoneInput.value);
-            updateFullNumber();
-        }
-
-        const profileForm = document.querySelector('form[action*="profile"]');
-        if (profileForm) {
-            profileForm.addEventListener('submit', function(e) {
-                updateFullNumber();
-            });
-        }
-    });
-</script>
-@endpush
