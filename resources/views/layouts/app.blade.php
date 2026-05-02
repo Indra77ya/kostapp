@@ -35,14 +35,18 @@
             @livewire('notification-bell')
             <div class="nav-item dropdown">
               <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" aria-label="Open user menu">
-                <span class="avatar avatar-sm" style="background-image: url(https://preview.tabler.io/static/avatars/000m.jpg)"></span>
+                @if(Auth::user()->avatar)
+                    <span class="avatar avatar-sm" style="background-image: url({{ asset('storage/' . Auth::user()->avatar) }})"></span>
+                @else
+                    <span class="avatar avatar-sm">{{ substr(Auth::user()->name, 0, 2) }}</span>
+                @endif
                 <div class="d-none d-xl-block ps-2">
                   <div>{{ Auth::user()->name }}</div>
                   <div class="mt-1 small text-secondary">{{ Auth::user()->getRoleNames()->first() }}</div>
                 </div>
               </a>
               <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                <a href="#" class="dropdown-item">Settings</a>
+                <a href="{{ route('profile.edit') }}" class="dropdown-item">Pengaturan</a>
                 <form action="{{ route('logout') }}" method="POST">
                     @csrf
                     <button type="submit" class="dropdown-item">Logout</button>
