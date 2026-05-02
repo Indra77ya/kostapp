@@ -213,6 +213,17 @@
             profileTab.classList.remove('active');
             profileContent.classList.remove('show', 'active');
         @endif
+
+        // Auto-format phone number (replace leading 0 with +62)
+        const phoneInput = document.querySelector('input[name="phone_number"]');
+        if (phoneInput) {
+            phoneInput.addEventListener('input', function(e) {
+                let value = e.target.value;
+                if (value.startsWith('0')) {
+                    e.target.value = '+62' + value.substring(1);
+                }
+            });
+        }
     });
 </script>
 @endpush
