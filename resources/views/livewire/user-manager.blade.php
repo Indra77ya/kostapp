@@ -186,11 +186,12 @@
         <div class="modal-dialog modal-md" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">{{ $userId ? 'Edit Pengguna' : 'Tambah Pengguna Baru' }}</h5>
+                    <h5 class="modal-title">{{ $userId ? 'Edit Pengguna: ' . $name : 'Tambah Pengguna Baru' }}</h5>
                     <button type="button" class="btn-close" wire:click="closeModal()" aria-label="Close"></button>
                 </div>
                 <form wire:submit.prevent="saveUser">
                     <div class="modal-body">
+                        @if(!$userId)
                         <div class="mb-3">
                             <label class="form-label">Nama</label>
                             <input type="text" class="form-control @error('name') is-invalid @enderror" wire:model="name">
@@ -201,6 +202,7 @@
                             <input type="email" class="form-control @error('email') is-invalid @enderror" wire:model="email">
                             @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
+                        @endif
                         <div class="mb-3">
                             <label class="form-label">Role</label>
                             <select class="form-select @error('role') is-invalid @enderror" wire:model="role">

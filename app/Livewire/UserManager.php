@@ -34,11 +34,16 @@ class UserManager extends Component
 
     protected function rules()
     {
-        return [
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $this->userId,
+        $rules = [
             'role' => 'required|exists:roles,name',
         ];
+
+        if (!$this->userId) {
+            $rules['name'] = 'required|string|max:255';
+            $rules['email'] = 'required|email|unique:users,email';
+        }
+
+        return $rules;
     }
 
     public function setView($type)
@@ -100,10 +105,12 @@ class UserManager extends Component
     {
         $this->validate();
 
-        $userData = [
-            'name' => $this->name,
-            'email' => $this->email,
-        ];
+        $userData = [];
+
+        if (!$this->userId) {
+            $userData['name'] = $this->name;
+            $userData['email'] = $this->email;
+        }
 
         if ($this->password) {
             $userData['password'] = Hash::make($this->password);
