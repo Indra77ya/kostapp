@@ -26,7 +26,7 @@ class RoomManager extends Component
     public $filterFloor = '';
 
     // Form fields
-    public $room_number, $price, $status, $description, $image, $facilities, $room_type, $floor;
+    public $location_id, $room_number, $price, $status, $description, $image, $facilities, $room_type, $floor;
     public $newImage;
     public $gallery = [];
     public $newGallery = [];
@@ -34,6 +34,7 @@ class RoomManager extends Component
     protected $listeners = ['echo:stats,DatabaseUpdated' => '$refresh'];
 
     protected $rules = [
+        'location_id' => 'nullable|exists:locations,id',
         'room_number' => 'required|unique:rooms,room_number',
         'price' => 'required|numeric',
         'status' => 'required|in:available,occupied,maintenance',
@@ -57,6 +58,7 @@ class RoomManager extends Component
         if ($id) {
             $this->roomId = $id;
             $room = Room::with('images')->find($id);
+            $this->location_id = $room->location_id;
             $this->room_number = $room->room_number;
             $this->price = $room->price;
             $this->status = $room->status;
@@ -91,6 +93,7 @@ class RoomManager extends Component
     private function resetForm()
     {
         $this->roomId = null;
+        $this->location_id = null;
         $this->room_number = '';
         $this->price = '';
         $this->status = 'available';
@@ -114,6 +117,7 @@ class RoomManager extends Component
         $this->validate($rules);
 
         $data = [
+            'location_id' => $this->location_id ?: null,
             'room_number' => $this->room_number,
             'price' => $this->price,
             'status' => $this->status,
@@ -221,10 +225,12 @@ class RoomManager extends Component
         }
 
         $floors = Room::whereNotNull('floor')->distinct()->pluck('floor')->sort();
+        $locations = \App\Models\Location::orderBy('name')->get();
 
         return view('livewire.room-manager', [
-            'rooms' => $query->with('images')->orderBy('room_number')->paginate(12),
-            'floors' => $floors
+            'rooms' => $query->with(['images', 'location'])->orderBy('room_number')->paginate(12),
+            'floors' => $floors,
+            'locations' => $locations
         ]);
     }
 }
