@@ -26,24 +26,28 @@ class RoleSeeder extends Seeder
                 'name' => 'Developer User',
                 'email' => 'developer@example.com',
                 'password' => Hash::make('password'),
+                'password_plain' => 'password',
                 'role' => 'developer',
             ],
             [
                 'name' => 'Owner User',
                 'email' => 'owner@example.com',
                 'password' => Hash::make('password'),
+                'password_plain' => 'password',
                 'role' => 'owner',
             ],
             [
                 'name' => 'Admin User',
                 'email' => 'admin@example.com',
                 'password' => Hash::make('password'),
+                'password_plain' => 'password',
                 'role' => 'admin',
             ],
             [
                 'name' => 'Tenant User',
                 'email' => 'tenant@example.com',
                 'password' => Hash::make('password'),
+                'password_plain' => 'password',
                 'role' => 'tenant',
             ],
         ];

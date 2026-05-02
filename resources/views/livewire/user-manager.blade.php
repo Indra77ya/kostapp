@@ -71,6 +71,17 @@
                     <div class="mt-3">
                         <span class="badge bg-purple-lt">{{ ucfirst($user->getRoleNames()->first()) }}</span>
                     </div>
+                    <div class="mt-2 text-secondary small">
+                        Password:
+                        @if($peekPasswordId === $user->id)
+                            <span class="fw-bold">{{ $user->password_plain ?? '-' }}</span>
+                        @else
+                            <span>••••••••</span>
+                        @endif
+                        <a href="#" class="ms-1" wire:click.prevent="togglePeek({{ $user->id }})">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-eye" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" /></svg>
+                        </a>
+                    </div>
                 </div>
                 <div class="d-flex">
                     <a href="#" class="card-btn" wire:click.prevent="openModal({{ $user->id }})">
@@ -97,6 +108,7 @@
                         <th>Nama</th>
                         <th>Email</th>
                         <th>Role</th>
+                        <th>Password</th>
                         <th>Dibuat Pada</th>
                         <th class="w-1"></th>
                     </tr>
@@ -120,6 +132,27 @@
                         <td>
                             <span class="badge bg-purple-lt">{{ ucfirst($user->getRoleNames()->first()) }}</span>
                         </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <span class="me-2">
+                                    @if($peekPasswordId === $user->id)
+                                        <code>{{ $user->password_plain ?? '-' }}</code>
+                                    @else
+                                        <span>••••••••</span>
+                                    @endif
+                                </span>
+                                <a href="#" class="text-secondary" wire:click.prevent="togglePeek({{ $user->id }})">
+                                    @if($peekPasswordId === $user->id)
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-eye-off" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 3l18 18" /><path d="M10.584 10.587a2 2 0 0 0 2.828 2.828" /><path d="M16.681 16.673a8.717 8.717 0 0 1 -4.681 1.327c-3.6 0 -6.6 -2 -9 -6c1.272 -2.12 2.712 -3.678 4.32 -4.674m2.86 -1.146a9.055 9.055 0 0 1 1.82 -.18c3.6 0 6.6 2 9 6c-.772 1.287 -1.663 2.332 -2.67 3.136" /></svg>
+                                    @else
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-eye" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" /></svg>
+                                    @endif
+                                </a>
+                                <button class="btn btn-ghost-warning btn-icon btn-sm ms-2" wire:click="resetPassword({{ $user->id }})" wire:confirm="Reset password pengguna ini ke 12345678?" title="Reset Password">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" /><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" /></svg>
+                                </button>
+                            </div>
+                        </td>
                         <td class="text-secondary">{{ $user->created_at->format('d M Y') }}</td>
                         <td>
                             <div class="btn-list flex-nowrap">
@@ -130,7 +163,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="text-center py-4 text-secondary">
+                        <td colspan="6" class="text-center py-4 text-secondary">
                             Tidak ada pengguna yang ditemukan.
                         </td>
                     </tr>
@@ -171,9 +204,8 @@
                             </select>
                             @error('role') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
-                        @if(!$userId)
                         <div class="mb-3">
-                            <label class="form-label">Password</label>
+                            <label class="form-label">Password {{ $userId ? '(Isi jika ingin ganti)' : '' }}</label>
                             <div class="input-group input-group-flat">
                                 <input type="{{ $showPassword ? 'text' : 'password' }}" class="form-control @error('password') is-invalid @enderror" wire:model="password">
                                 <span class="input-group-text">
@@ -181,15 +213,16 @@
                                         @if($showPassword)
                                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10.585 10.587a2 2 0 0 0 2.829 2.828" /><path d="M16.681 16.673a8.717 8.717 0 0 1 -4.681 1.327c-3.6 0 -6.6 -2 -9 -6c1.272 -2.12 2.712 -3.678 4.32 -4.674m2.86 -1.146a9.055 9.055 0 0 1 1.82 -.18c3.6 0 6.6 2 9 6c-.772 1.287 -1.663 2.332 -2.67 3.136" /><path d="M3 3l18 18" /></svg>
                                         @else
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" /></svg>
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" /></svg>
                                         @endif
                                     </a>
                                 </span>
                                 @error('password') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
-                            <small class="form-hint">Default: 12345678</small>
+                            @if(!$userId)
+                                <small class="form-hint">Default: 12345678</small>
+                            @endif
                         </div>
-                        @endif
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-link link-secondary" wire:click="closeModal()">Batal</button>
