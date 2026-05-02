@@ -16,8 +16,9 @@ class FacilityManager extends Component
     public $isModalOpen = false;
     public $facilityId;
 
-    // Search
+    // Search & Filter
     public $search = '';
+    public $filterCategory = '';
 
     // Form fields
     public $name, $category;
@@ -95,11 +96,24 @@ class FacilityManager extends Component
         $this->resetPage();
     }
 
+    public function updatingFilterCategory()
+    {
+        $this->resetPage();
+    }
+
     public function render()
     {
-        $facilities = Facility::where('name', 'like', '%' . $this->search . '%')
-            ->orWhere('category', 'like', '%' . $this->search . '%')
-            ->orderBy('category')
+        $query = Facility::query();
+
+        if ($this->search) {
+            $query->where('name', 'like', '%' . $this->search . '%');
+        }
+
+        if ($this->filterCategory) {
+            $query->where('category', $this->filterCategory);
+        }
+
+        $facilities = $query->orderBy('category')
             ->orderBy('name')
             ->paginate(10);
 
