@@ -26,7 +26,7 @@
     <div class="card mb-3">
         <div class="card-body">
             <div class="row g-2">
-                <div class="col-md-9">
+                <div class="col-md-6">
                     <div class="input-icon">
                         <span class="input-icon-addon">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
@@ -34,7 +34,7 @@
                         <input type="text" class="form-control" placeholder="Cari nama atau email..." wire:model.live.debounce.300ms="search">
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-6">
                     <select class="form-select" wire:model.live="filterRole">
                         <option value="">Semua Role</option>
                         @foreach($roles as $r)
@@ -186,11 +186,12 @@
         <div class="modal-dialog modal-md" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">{{ $userId ? 'Edit Pengguna' : 'Tambah Pengguna Baru' }}</h5>
+                    <h5 class="modal-title">{{ $userId ? 'Edit Pengguna: ' . $name : 'Tambah Pengguna Baru' }}</h5>
                     <button type="button" class="btn-close" wire:click="closeModal()" aria-label="Close"></button>
                 </div>
                 <form wire:submit.prevent="saveUser">
                     <div class="modal-body">
+                        @if(!$userId)
                         <div class="mb-3">
                             <label class="form-label">Nama</label>
                             <input type="text" class="form-control @error('name') is-invalid @enderror" wire:model="name">
@@ -201,6 +202,7 @@
                             <input type="email" class="form-control @error('email') is-invalid @enderror" wire:model="email">
                             @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
+                        @endif
                         <div class="mb-3">
                             <label class="form-label">Role</label>
                             <select class="form-select @error('role') is-invalid @enderror" wire:model="role">

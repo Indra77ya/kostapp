@@ -12,6 +12,7 @@ class Room extends Model
     use HasFactory;
 
     protected $fillable = [
+        'location_id',
         'room_number',
         'price',
         'status',
@@ -38,6 +39,11 @@ class Room extends Model
             DatabaseUpdated::dispatch();
             NotificationSent::dispatch("Kamar #{$room->room_number} telah dihapus.", 'warning');
         });
+    }
+
+    public function location()
+    {
+        return $this->belongsTo(Location::class);
     }
 
     public function bookings()

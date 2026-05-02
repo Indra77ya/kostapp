@@ -136,6 +136,9 @@
                         <div>
                             <div><strong>Kamar {{ $room->room_number }}</strong></div>
                             <div class="text-secondary small">
+                                @if($room->location)
+                                    <span class="text-primary fw-bold">{{ $room->location->name }}</span><br>
+                                @endif
                                 {{ $room->room_type }}{{ $room->room_type && $room->floor ? ' - ' : '' }}{{ $room->floor ? 'Lantai ' . $room->floor : '' }}
                             </div>
                             <div class="mt-1">
@@ -182,6 +185,7 @@
                 <thead>
                     <tr>
                         <th>No. Kamar</th>
+                        <th>Lokasi</th>
                         <th>Tipe / Lantai</th>
                         <th>Fasilitas & Deskripsi</th>
                         <th>Status</th>
@@ -193,6 +197,7 @@
                     @forelse($rooms as $room)
                     <tr>
                         <td>{{ $room->room_number }}</td>
+                        <td>{{ $room->location->name ?? '-' }}</td>
                         <td class="text-secondary">
                             {{ $room->room_type }}{{ $room->room_type && $room->floor ? ' / ' : '' }}{{ $room->floor ? 'Lantai ' . $room->floor : '' }}
                         </td>
@@ -240,6 +245,20 @@
                 </div>
                 <form wire:submit.prevent="saveRoom">
                     <div class="modal-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="mb-3">
+                                    <label class="form-label">Lokasi</label>
+                                    <select class="form-select @error('location_id') is-invalid @enderror" wire:model="location_id">
+                                        <option value="">Pilih Lokasi</option>
+                                        @foreach($locations as $location)
+                                            <option value="{{ $location->id }}">{{ $location->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('location_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                            </div>
+                        </div>
                         <div class="row">
                             <div class="col-lg-6">
                                 <div class="mb-3">
