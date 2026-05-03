@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Manajemen Kamar')
-@section('page_title', '')
+@section('page_title', 'Manajemen Kamar')
 
 @section('content')
 <div class="row row-cards">

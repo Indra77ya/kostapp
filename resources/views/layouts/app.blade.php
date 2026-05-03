@@ -120,6 +120,7 @@
       </header>
       <div class="page-wrapper">
         <!-- Page header -->
+        @if(trim($__env->yieldContent('page_title', 'Dashboard')))
         <div class="page-header d-print-none">
           <div class="container-xl">
             <div class="row g-2 align-items-center">
@@ -131,6 +132,7 @@
             </div>
           </div>
         </div>
+        @endif
         <!-- Page body -->
         <div class="page-body">
           <div class="container-xl">
