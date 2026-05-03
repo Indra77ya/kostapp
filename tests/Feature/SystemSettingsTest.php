@@ -78,4 +78,23 @@ class SystemSettingsTest extends TestCase
 
         $this->assertEquals('Sistem berhasil direstore.', session('success'));
     }
+
+    public function test_user_stats_excludes_developers()
+    {
+        $owner = User::factory()->create();
+        $owner->assignRole('owner');
+
+        $admin = User::factory()->create();
+        $admin->assignRole('owner'); // using owner as admin for counting
+
+        $developer = User::factory()->create();
+        $developer->assignRole('developer');
+
+        // Total users = 3 (owner, admin, developer)
+        // But stats should only show 2
+
+        Livewire::actingAs($owner)
+            ->test(SystemSettings::class)
+            ->assertSet('stats.users', 2);
+    }
 }
