@@ -19,6 +19,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        \Illuminate\Support\Facades\Gate::define('access-master-data', function ($user) {
+            return $user->hasRole(['owner', 'developer']);
+        });
     }
 }
