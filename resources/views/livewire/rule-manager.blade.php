@@ -145,8 +145,8 @@
                             @endif
                         </td>
                         <td>
-                            <div class="small text-truncate" style="max-width: 200px;" title="{{ strip_tags($rule->description) }}">
-                                {!! $rule->description ?: '-' !!}
+                            <div class="small text-truncate" style="max-width: 300px;" title="{{ strip_tags($rule->description) }}">
+                                {{ $rule->description ? Str::limit(strip_tags($rule->description), 50) : '-' }}
                             </div>
                         </td>
                         <td>
