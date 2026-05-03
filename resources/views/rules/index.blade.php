@@ -1,7 +1,11 @@
 @extends('layouts.app')
 
-@section('title', 'Manajemen Lokasi')
+@section('title', 'Manajemen Peraturan')
 @section('page_title', '')
+
+@push('scripts')
+<script src="https://cdn.ckeditor.com/ckeditor5/41.1.0/classic/ckeditor.js"></script>
+@endpush
 
 @section('content')
 <div class="container-xl">
@@ -12,12 +16,12 @@
                     Master Data
                 </div>
                 <h2 class="page-title">
-                    Manajemen Lokasi
+                    Manajemen Peraturan
                 </h2>
             </div>
         </div>
     </div>
 
-    @livewire('location-manager')
+    @livewire('rule-manager')
 </div>
 @endsection
