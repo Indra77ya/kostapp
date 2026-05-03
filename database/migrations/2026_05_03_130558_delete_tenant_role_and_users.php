@@ -13,11 +13,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Delete all users with tenant role
-        User::role('tenant')->delete();
-
-        // Delete the tenant role
-        Role::where('name', 'tenant')->delete();
+        // Check if role exists before deleting users
+        if (Role::where('name', 'tenant')->exists()) {
+            User::role('tenant')->delete();
+            Role::where('name', 'tenant')->delete();
+        }
     }
 
     /**
