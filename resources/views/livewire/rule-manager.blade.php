@@ -248,34 +248,26 @@
         let editorInstance;
 
         const initEditor = () => {
-            if (typeof tinymce === 'undefined') return;
+            if (typeof ClassicEditor === 'undefined') return;
 
-            tinymce.init({
-                selector: '#rule-description',
-                height: 300,
-                menubar: false,
-                plugins: [
-                    'advlist', 'autolink', 'lists', 'link', 'charmap', 'preview',
-                    'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-                    'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'
-                ],
-                toolbar: 'undo redo | blocks | ' +
-                    'bold italic backcolor | alignleft aligncenter ' +
-                    'alignright alignjustify | bullist numlist outdent indent | ' +
-                    'removeformat | help',
-                setup: function (editor) {
+            ClassicEditor
+                .create(document.querySelector('#rule-description'), {
+                    toolbar: [ 'undo', 'redo', '|', 'heading', '|', 'bold', 'italic', '|', 'bulletedList', 'numberedList', 'outdent', 'indent', '|', 'blockQuote', 'insertTable', 'mediaEmbed', 'help' ]
+                })
+                .then(editor => {
                     editorInstance = editor;
-                    editor.on('init', function (e) {
-                        editor.setContent($wire.description || '');
+
+                    // Set initial content
+                    editor.setData($wire.description || '');
+
+                    // Sync with Livewire on change
+                    editor.model.document.on('change:data', () => {
+                        $wire.description = editor.getData();
                     });
-                    editor.on('change', function (e) {
-                        $wire.description = editor.getContent();
-                    });
-                    editor.on('blur', function (e) {
-                        $wire.description = editor.getContent();
-                    });
-                }
-            });
+                })
+                .catch(error => {
+                    console.error(error);
+                });
         };
 
         // Initialize on first load
@@ -285,8 +277,8 @@
         $wire.on('isModalOpenChanged', () => {
             if ($wire.isModalOpen) {
                 setTimeout(() => {
-                    if (tinymce.get('rule-description')) {
-                        tinymce.get('rule-description').setContent($wire.description || '');
+                    if (editorInstance) {
+                        editorInstance.setData($wire.description || '');
                     } else {
                         initEditor();
                     }
@@ -297,7 +289,9 @@
         // Cleanup on component destroy
         return () => {
             if (editorInstance) {
-                editorInstance.remove();
+                editorInstance.destroy()
+                    .then(() => editorInstance = null)
+                    .catch(error => console.error(error));
             }
         }
     </script>
