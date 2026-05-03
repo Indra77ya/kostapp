@@ -14,7 +14,9 @@ class RuleManager extends Component
     protected $paginationTheme = 'bootstrap';
     public $viewType = 'grid'; // 'grid' or 'table'
     public $isModalOpen = false;
+    public $isPreviewModalOpen = false;
     public $ruleId;
+    public $previewRule;
 
     // Search and Filters
     public $search = '';
@@ -63,6 +65,20 @@ class RuleManager extends Component
     {
         $this->isModalOpen = false;
         $this->resetForm();
+    }
+
+    public function openPreviewModal($id)
+    {
+        $this->previewRule = Rule::with('location')->find($id);
+        if ($this->previewRule) {
+            $this->isPreviewModalOpen = true;
+        }
+    }
+
+    public function closePreviewModal()
+    {
+        $this->isPreviewModalOpen = false;
+        $this->previewRule = null;
     }
 
     private function resetForm()

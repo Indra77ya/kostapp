@@ -147,4 +147,25 @@ class RuleManagerTest extends TestCase
 
         $this->assertDatabaseMissing('rules', ['id' => $rule->id]);
     }
+
+    public function test_can_open_preview_modal()
+    {
+        $owner = User::factory()->create();
+        $owner->assignRole('owner');
+
+        $rule = Rule::create([
+            'title' => 'Aturan Preview',
+            'category' => 'Umum',
+            'description' => 'Isi preview'
+        ]);
+
+        Livewire::actingAs($owner)
+            ->test(RuleManager::class)
+            ->call('openPreviewModal', $rule->id)
+            ->assertSet('isPreviewModalOpen', true)
+            ->assertSet('previewRule.id', $rule->id)
+            ->call('closePreviewModal')
+            ->assertSet('isPreviewModalOpen', false)
+            ->assertSet('previewRule', null);
+    }
 }

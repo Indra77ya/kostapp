@@ -96,6 +96,10 @@
                         {!! $rule->description ?: 'Tidak ada deskripsi.' !!}
                     </div>
                     <div class="mt-3 d-flex gap-2">
+                        <button class="btn btn-white btn-sm flex-fill" wire:click="openPreviewModal({{ $rule->id }})">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-eye" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" /></svg>
+                            Preview
+                        </button>
                         <button class="btn btn-primary btn-sm flex-fill" wire:click="openModal({{ $rule->id }})">Edit</button>
                         <button class="btn btn-outline-danger btn-sm flex-fill" wire:click="deleteRule({{ $rule->id }})" wire:confirm="Yakin ingin menghapus peraturan ini?">Hapus</button>
                     </div>
@@ -152,6 +156,7 @@
                         </td>
                         <td>
                             <div class="btn-list flex-nowrap">
+                                <button class="btn btn-white btn-sm" wire:click="openPreviewModal({{ $rule->id }})">Preview</button>
                                 <button class="btn btn-white btn-sm" wire:click="openModal({{ $rule->id }})">Edit</button>
                                 <button class="btn btn-white btn-sm text-danger" wire:click="deleteRule({{ $rule->id }})" wire:confirm="Yakin ingin menghapus peraturan ini?">Hapus</button>
                             </div>
@@ -243,6 +248,44 @@
             </div>
         </div>
     </div>
+
+    <!-- Preview Modal -->
+    <div class="modal modal-blur fade {{ $isPreviewModalOpen ? 'show d-block' : '' }}" tabindex="-1" role="dialog" aria-hidden="true" style="{{ $isPreviewModalOpen ? 'background: rgba(0,0,0,0.5)' : '' }}">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Preview Peraturan</h5>
+                    <button type="button" class="btn-close" wire:click="closePreviewModal()" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    @if($previewRule)
+                        <div class="mb-3">
+                            <h2 class="mb-1">{{ $previewRule->title }}</h2>
+                            <div class="text-secondary">
+                                <span class="badge bg-blue-lt me-1">{{ $previewRule->category }}</span>
+                                @if($previewRule->location)
+                                    <span class="badge bg-purple-lt">{{ $previewRule->location->name }}</span>
+                                @else
+                                    <span class="badge bg-green-lt">Global</span>
+                                @endif
+                                <span class="ms-2 badge {{ $previewRule->is_active ? 'bg-success' : 'bg-danger' }}">
+                                    {{ $previewRule->is_active ? 'Aktif' : 'Non-aktif' }}
+                                </span>
+                            </div>
+                        </div>
+                        <hr class="my-3">
+                        <div class="rule-content border p-3 rounded" style="min-height: 200px; max-height: 60vh; overflow-y: auto; background-color: var(--tblr-bg-surface-secondary);">
+                            {!! $previewRule->description ?: '<em class="text-secondary">Tidak ada deskripsi.</em>' !!}
+                        </div>
+                    @endif
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" wire:click="closePreviewModal()">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     @script
     <script>
         let editorInstance;
