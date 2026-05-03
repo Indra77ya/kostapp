@@ -36,13 +36,13 @@ class RoleSeeder extends Seeder
                 'password_plain' => 'password',
                 'role' => 'owner',
             ],
-            [
-                'name' => 'Admin User',
-                'email' => 'admin@example.com',
-                'password' => Hash::make('password'),
-                'password_plain' => 'password',
-                'role' => 'admin',
-            ],
+            // [
+            //     'name' => 'Admin User',
+            //     'email' => 'admin@example.com',
+            //     'password' => Hash::make('password'),
+            //     'password_plain' => 'password',
+            //     'role' => 'admin',
+            // ],
         ];
 
         foreach ($users as $userData) {
