@@ -6,6 +6,7 @@
 @section('content')
 <div class="row justify-content-center">
     <div class="col-md-10">
+        <!-- Profile Info Card -->
         @if (session('status') === 'profile-updated')
             <div class="alert alert-success alert-dismissible" role="alert">
                 <div class="d-flex">
@@ -18,7 +19,7 @@
             </div>
         @endif
 
-        <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data" class="card shadow-sm border-0">
+        <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data" class="card shadow-sm border-0 mb-4">
             @csrf
             @method('PATCH')
             <div class="card-header bg-white">
@@ -103,6 +104,50 @@
             </div>
             <div class="card-footer bg-white text-end">
                 <button type="submit" class="btn btn-primary px-4">Simpan Perubahan</button>
+            </div>
+        </form>
+
+        <!-- Password Card -->
+        @if (session('status') === 'password-updated')
+            <div class="alert alert-success alert-dismissible" role="alert">
+                <div class="d-flex">
+                    <div>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10" /></svg>
+                    </div>
+                    <div>Password berhasil diperbarui.</div>
+                </div>
+                <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
+            </div>
+        @endif
+
+        <form action="{{ route('profile.password.update') }}" method="POST" class="card shadow-sm border-0">
+            @csrf
+            @method('PUT')
+            <div class="card-header bg-white">
+                <h3 class="card-title text-primary">Ganti Password</h3>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label required">Password Saat Ini</label>
+                    <input type="password" name="current_password" class="form-control @error('current_password', 'updatePassword') is-invalid @enderror" required>
+                    @error('current_password', 'updatePassword')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="mb-3">
+                    <label class="form-label required">Password Baru</label>
+                    <input type="password" name="password" class="form-control @error('password', 'updatePassword') is-invalid @enderror" required>
+                    @error('password', 'updatePassword')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="mb-3">
+                    <label class="form-label required">Konfirmasi Password Baru</label>
+                    <input type="password" name="password_confirmation" class="form-control" required>
+                </div>
+            </div>
+            <div class="card-footer bg-white text-end">
+                <button type="submit" class="btn btn-primary px-4">Perbarui Password</button>
             </div>
         </form>
     </div>
