@@ -1,5 +1,6 @@
 @extends('layouts.app')
 
+@section('title', 'Manajemen Peraturan')
 @section('page_title', '')
 
 @push('scripts')
