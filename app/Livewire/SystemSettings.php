@@ -21,6 +21,7 @@ class SystemSettings extends Component
 
     public $backupFile;
     public $confirmingReset = false;
+    public $stats = [];
 
     public function mount()
     {
@@ -182,6 +183,14 @@ class SystemSettings extends Component
 
     public function render()
     {
+        $this->stats = [
+            'locations' => Location::count(),
+            'rooms' => Room::count(),
+            'users' => User::count(),
+            'facilities' => Facility::count(),
+            'rules' => Rule::count(),
+        ];
+
         return view('livewire.system-settings');
     }
 }

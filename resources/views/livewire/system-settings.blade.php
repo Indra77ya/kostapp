@@ -11,6 +11,44 @@
         </div>
     @endif
 
+    <!-- Statistik Sistem -->
+    <div class="card mb-3 shadow-sm border-0 bg-primary text-primary-fg">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h3 class="card-title mb-1">Status Data Saat Ini</h3>
+                    <div class="text-secondary-fg small">
+                        Gunakan data ini untuk memverifikasi apakah proses restore berhasil mengubah jumlah data sistem.
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <div class="row g-2 text-center">
+                        <div class="col-auto">
+                            <div class="h3 mb-0">{{ $stats['users'] }}</div>
+                            <div class="small">User</div>
+                        </div>
+                        <div class="col-auto border-start ps-3 ms-3">
+                            <div class="h3 mb-0">{{ $stats['locations'] }}</div>
+                            <div class="small">Lokasi</div>
+                        </div>
+                        <div class="col-auto border-start ps-3 ms-3">
+                            <div class="h3 mb-0">{{ $stats['rooms'] }}</div>
+                            <div class="small">Kamar</div>
+                        </div>
+                        <div class="col-auto border-start ps-3 ms-3">
+                            <div class="h3 mb-0">{{ $stats['facilities'] }}</div>
+                            <div class="small">Fasilitas</div>
+                        </div>
+                        <div class="col-auto border-start ps-3 ms-3">
+                            <div class="h3 mb-0">{{ $stats['rules'] }}</div>
+                            <div class="small">Peraturan</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     @if (session('error'))
         <div class="alert alert-danger alert-dismissible" role="alert">
             <div class="d-flex">
