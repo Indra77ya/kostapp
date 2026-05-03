@@ -17,7 +17,6 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->string('category');
             $table->foreignId('location_id')->nullable()->constrained()->onDelete('cascade');
-            $table->string('icon')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });

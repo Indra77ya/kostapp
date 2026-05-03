@@ -16,7 +16,6 @@ class Rule extends Model
         'description',
         'category',
         'location_id',
-        'icon',
         'is_active',
     ];
 

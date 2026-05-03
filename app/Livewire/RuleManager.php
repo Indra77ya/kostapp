@@ -23,7 +23,7 @@ class RuleManager extends Component
     public $filterStatus = '';
 
     // Form fields
-    public $title, $description, $category, $location_id, $icon, $is_active = true;
+    public $title, $description, $category, $location_id, $is_active = true;
 
     protected $listeners = ['echo:stats,DatabaseUpdated' => '$refresh'];
 
@@ -32,7 +32,6 @@ class RuleManager extends Component
         'description' => 'nullable',
         'category' => 'required',
         'location_id' => 'nullable|exists:locations,id',
-        'icon' => 'nullable',
         'is_active' => 'boolean',
     ];
 
@@ -53,7 +52,6 @@ class RuleManager extends Component
             $this->description = $rule->description;
             $this->category = $rule->category;
             $this->location_id = $rule->location_id;
-            $this->icon = $rule->icon;
             $this->is_active = $rule->is_active;
         }
 
@@ -73,7 +71,6 @@ class RuleManager extends Component
         $this->description = '';
         $this->category = '';
         $this->location_id = null;
-        $this->icon = 'ti ti-info-circle';
         $this->is_active = true;
     }
 
@@ -86,7 +83,6 @@ class RuleManager extends Component
             'description' => $this->description,
             'category' => $this->category,
             'location_id' => $this->location_id ?: null,
-            'icon' => $this->icon,
             'is_active' => $this->is_active,
         ];
 

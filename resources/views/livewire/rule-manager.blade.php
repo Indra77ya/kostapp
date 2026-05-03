@@ -75,10 +75,7 @@
             <div class="card card-sm">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
-                        <span class="bg-primary-lt avatar">
-                            <i class="{{ $rule->icon ?: 'ti ti-info-circle' }} fs-2"></i>
-                        </span>
-                        <div class="ms-3">
+                        <div>
                             <div class="fw-bold">{{ $rule->title }}</div>
                             <div class="text-secondary small">
                                 <span class="badge bg-blue-lt">{{ $rule->category }}</span>
@@ -133,10 +130,7 @@
                     @forelse($rules as $rule)
                     <tr>
                         <td>
-                            <div class="d-flex align-items-center">
-                                <i class="{{ $rule->icon ?: 'ti ti-info-circle' }} me-2 text-secondary"></i>
-                                <div>{{ $rule->title }}</div>
-                            </div>
+                            <div class="fw-bold">{{ $rule->title }}</div>
                         </td>
                         <td><span class="badge bg-blue-lt">{{ $rule->category }}</span></td>
                         <td>
@@ -187,22 +181,11 @@
                 <form wire:submit.prevent="saveRule">
                     <div class="modal-body">
                         <div class="row">
-                            <div class="col-lg-8">
+                            <div class="col-lg-12">
                                 <div class="mb-3">
                                     <label class="form-label">Judul Peraturan</label>
                                     <input type="text" class="form-control @error('title') is-invalid @enderror" wire:model="title" placeholder="e.g. Dilarang Merokok">
                                     @error('title') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                </div>
-                            </div>
-                            <div class="col-lg-4">
-                                <div class="mb-3">
-                                    <label class="form-label">Ikon (Tabler Icon class)</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="{{ $icon }}"></i></span>
-                                        <input type="text" class="form-control @error('icon') is-invalid @enderror" wire:model.live="icon" placeholder="ti ti-info-circle">
-                                    </div>
-                                    <small class="form-hint">Contoh: ti ti-smoking-no, ti ti-clock, ti ti-shield-lock</small>
-                                    @error('icon') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
                             </div>
                         </div>
