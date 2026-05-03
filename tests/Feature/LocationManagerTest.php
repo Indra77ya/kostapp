@@ -18,7 +18,6 @@ class LocationManagerTest extends TestCase
     {
         parent::setUp();
         Role::create(['name' => 'owner']);
-        Role::create(['name' => 'tenant']);
     }
 
     public function test_location_manager_is_accessible_by_owner()
@@ -32,15 +31,6 @@ class LocationManagerTest extends TestCase
         $response->assertSeeLivewire(LocationManager::class);
     }
 
-    public function test_location_manager_is_not_accessible_by_tenant()
-    {
-        $tenant = User::factory()->create();
-        $tenant->assignRole('tenant');
-
-        $response = $this->actingAs($tenant)->get('/locations');
-
-        $response->assertStatus(403);
-    }
 
     public function test_can_create_location()
     {

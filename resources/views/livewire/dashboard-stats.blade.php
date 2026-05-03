@@ -31,10 +31,10 @@
                     </div>
                     <div class="col">
                         <div class="font-weight-medium">
-                            {{ $totalTenants }} Total Tenant
+                            {{ $activeBookings }} Booking Aktif
                         </div>
                         <div class="text-secondary">
-                            {{ $activeBookings }} Booking Aktif
+                            Confirmed
                         </div>
                     </div>
                 </div>

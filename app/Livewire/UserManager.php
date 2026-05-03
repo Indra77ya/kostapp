@@ -79,7 +79,7 @@ class UserManager extends Component
             $this->password = $user->password_plain;
         } else {
             $this->password = '12345678';
-            $this->role = 'tenant';
+            $this->role = 'admin';
         }
 
         $this->isModalOpen = true;

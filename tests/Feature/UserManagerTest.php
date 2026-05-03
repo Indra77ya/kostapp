@@ -21,7 +21,6 @@ class UserManagerTest extends TestCase
         Role::create(['name' => 'developer']);
         Role::create(['name' => 'owner']);
         Role::create(['name' => 'admin']);
-        Role::create(['name' => 'tenant']);
     }
 
     public function test_user_manager_is_accessible_by_owner()
@@ -35,15 +34,6 @@ class UserManagerTest extends TestCase
         $response->assertSeeLivewire(UserManager::class);
     }
 
-    public function test_user_manager_is_not_accessible_by_tenant()
-    {
-        $tenant = User::factory()->create();
-        $tenant->assignRole('tenant');
-
-        $response = $this->actingAs($tenant)->get('/users');
-
-        $response->assertStatus(403);
-    }
 
     public function test_can_create_user()
     {
@@ -54,7 +44,7 @@ class UserManagerTest extends TestCase
             ->test(UserManager::class)
             ->set('name', 'New User')
             ->set('email', 'newuser@example.com')
-            ->set('role', 'tenant')
+            ->set('role', 'admin')
             ->set('password', '12345678')
             ->call('saveUser')
             ->assertHasNoErrors();
@@ -65,7 +55,7 @@ class UserManagerTest extends TestCase
         ]);
 
         $newUser = User::where('email', 'newuser@example.com')->first();
-        $this->assertTrue($newUser->hasRole('tenant'));
+        $this->assertTrue($newUser->hasRole('admin'));
     }
 
     public function test_can_update_user_role()
@@ -74,18 +64,18 @@ class UserManagerTest extends TestCase
         $owner->assignRole('owner');
 
         $targetUser = User::factory()->create();
-        $targetUser->assignRole('tenant');
+        $targetUser->assignRole('admin');
 
         Livewire::actingAs($owner)
             ->test(UserManager::class)
             ->call('openModal', $targetUser->id)
-            ->set('role', 'admin')
+            ->set('role', 'owner')
             ->call('saveUser')
             ->assertHasNoErrors();
 
         $targetUser->refresh();
-        $this->assertTrue($targetUser->hasRole('admin'));
-        $this->assertFalse($targetUser->hasRole('tenant'));
+        $this->assertTrue($targetUser->hasRole('owner'));
+        $this->assertFalse($targetUser->hasRole('admin'));
     }
 
     public function test_can_delete_user()
@@ -94,7 +84,7 @@ class UserManagerTest extends TestCase
         $owner->assignRole('owner');
 
         $targetUser = User::factory()->create();
-        $targetUser->assignRole('tenant');
+        $targetUser->assignRole('admin');
 
         Livewire::actingAs($owner)
             ->test(UserManager::class)

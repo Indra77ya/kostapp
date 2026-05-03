@@ -23,7 +23,6 @@ class RuleManagerTest extends TestCase
         if (Role::count() === 0) {
             Role::create(['name' => 'owner']);
             Role::create(['name' => 'developer']);
-            Role::create(['name' => 'tenant']);
         }
     }
 
@@ -37,15 +36,6 @@ class RuleManagerTest extends TestCase
             ->assertStatus(200);
     }
 
-    public function test_rule_manager_is_not_accessible_by_tenant()
-    {
-        $tenant = User::factory()->create();
-        $tenant->assignRole('tenant');
-
-        $this->actingAs($tenant)
-            ->get(route('rules.index'))
-            ->assertStatus(403);
-    }
 
     public function test_can_create_rule()
     {
