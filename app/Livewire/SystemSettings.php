@@ -186,7 +186,9 @@ class SystemSettings extends Component
         $this->stats = [
             'locations' => Location::count(),
             'rooms' => Room::count(),
-            'users' => User::count(),
+            'users' => User::whereDoesntHave('roles', function ($q) {
+                $q->where('name', 'developer');
+            })->count(),
             'facilities' => Facility::count(),
             'rules' => Rule::count(),
         ];
