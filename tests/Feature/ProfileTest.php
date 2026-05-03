@@ -59,7 +59,10 @@ class ProfileTest extends TestCase
 
     public function test_admin_cannot_update_owner_fields()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create([
+            'address' => null,
+            'bank_info' => null,
+        ]);
         $user->assignRole('admin');
 
         $response = $this->actingAs($user)->patch('/profile', [
