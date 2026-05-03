@@ -23,33 +23,16 @@
         </div>
     @endif
 
-    <!-- Pengaturan Sistem -->
-    <div class="card mb-3 shadow-sm border-0">
-        <div class="card-header bg-white">
-            <h3 class="card-title">Pengaturan Sistem</h3>
-        </div>
-        <div class="card-body">
-            <div class="mb-3">
-                <label class="form-label">Notifikasi Jatuh Tempo (Hari Sebelum)</label>
-                <input type="number" wire:model="due_notification_days" class="form-control" placeholder="100">
-                <small class="form-hint text-muted">Masukkan 0 untuk notifikasi pada hari H.</small>
-            </div>
-        </div>
-        <div class="card-footer bg-white text-end">
-            <button wire:click="saveSettings" class="btn btn-primary px-4">Simpan Perubahan</button>
-        </div>
-    </div>
-
     <!-- Backup & Restore Database -->
     <div class="card mb-3 shadow-sm border-0">
         <div class="card-header bg-white">
-            <h3 class="card-title">Backup & Restore Database</h3>
+            <h3 class="card-title">Backup & Restore Sistem</h3>
         </div>
         <div class="card-body">
             <div class="row">
                 <div class="col-md-6 border-end">
-                    <h4 class="fw-bold mb-1">Backup Database</h4>
-                    <p class="text-secondary small mb-3">Unduh salinan database lengkap (struktur dan data) dalam format SQL. Gunakan fitur ini secara berkala untuk mengamankan data Anda.</p>
+                    <h4 class="fw-bold mb-1">Backup Sistem</h4>
+                    <p class="text-secondary small mb-3">Unduh salinan data sistem lengkap (database dan file media) dalam format ZIP. Gunakan fitur ini secara berkala untuk mengamankan data Anda.</p>
                     <button wire:click="downloadBackup" class="btn btn-outline-primary">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -61,7 +44,7 @@
                     </button>
                 </div>
                 <div class="col-md-6 ps-md-4">
-                    <h4 class="fw-bold mb-1">Restore Database</h4>
+                    <h4 class="fw-bold mb-1">Restore Sistem</h4>
                     <p class="text-danger small mb-3">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-alert-triangle inline-block me-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -106,7 +89,7 @@
                         </svg>
                     </div>
                     <div>
-                        <p class="mb-1"><strong>PERINGATAN:</strong> Tindakan ini akan menghapus data yang Anda pilih secara permanen. Pastikan Anda telah memiliki backup sebelum melanjutkan. Sistem akan melakukan backup otomatis ke folder storage sebelum reset dijalankan.</p>
+                        <p class="mb-1"><strong>PERINGATAN:</strong> Tindakan ini akan menghapus data operasional secara permanen. Pastikan Anda telah memiliki backup sebelum melanjutkan. Sistem akan melakukan backup otomatis ke folder storage sebelum reset dijalankan.</p>
                         <button wire:click="confirmReset" class="btn btn-danger btn-sm mt-2">Reset Sekarang</button>
                     </div>
                 </div>
@@ -128,7 +111,7 @@
                         <path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75"></path>
                     </svg>
                     <h3>Apakah Anda yakin?</h3>
-                    <div class="text-secondary">Semua data akan dihapus secara permanen. Tindakan ini tidak dapat dibatalkan.</div>
+                    <div class="text-secondary">Semua data operasional akan dihapus secara permanen. Tindakan ini tidak dapat dibatalkan.</div>
                 </div>
                 <div class="modal-footer">
                     <div class="w-100">

@@ -9,7 +9,6 @@ use App\Models\Room;
 use App\Models\RoomImage;
 use App\Models\Rule;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
@@ -21,7 +20,6 @@ class SystemSettings extends Component
     use WithFileUploads;
 
     public $backupFile;
-    public $due_notification_days = 100;
     public $confirmingReset = false;
 
     public function mount()
@@ -29,13 +27,6 @@ class SystemSettings extends Component
         if (!auth()->user()->hasAnyRole(['owner', 'developer'])) {
             abort(403);
         }
-    }
-
-    public function saveSettings()
-    {
-        // For now, we just simulate saving since there's no settings table.
-        // In a real app, you'd save to a settings table or config file.
-        session()->flash('success', 'Pengaturan berhasil disimpan.');
     }
 
     private function createBackup()
@@ -95,7 +86,6 @@ class SystemSettings extends Component
             $extractedDb = $tempExtractPath . '/database.sqlite';
             if (File::exists($extractedDb)) {
                 $targetDb = config('database.connections.sqlite.database');
-                // Note: Overwriting active DB is risky but requested for this simple system.
                 File::copy($extractedDb, $targetDb);
             }
 
