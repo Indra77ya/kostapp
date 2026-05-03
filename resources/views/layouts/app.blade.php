@@ -108,6 +108,9 @@
                         <a class="dropdown-item {{ request()->routeIs('facilities.*') ? 'active' : '' }}" href="{{ route('facilities.index') }}">
                           Fasilitas
                         </a>
+                        <a class="dropdown-item {{ request()->routeIs('rules.*') ? 'active' : '' }}" href="{{ route('rules.index') }}">
+                          Peraturan
+                        </a>
                       </div>
                     </div>
                   </div>
