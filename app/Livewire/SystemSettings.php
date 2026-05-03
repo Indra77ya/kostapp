@@ -74,11 +74,18 @@ class SystemSettings extends Component
             'backupFile' => 'required|file|mimes:zip|max:51200', // 50MB max
         ]);
 
-        $path = $this->backupFile->store('temp');
-        $fullPath = storage_path('app/' . $path);
+        $path = $this->backupFile->store('temp', 'local');
+        $fullPath = Storage::disk('local')->path($path);
+
+        if (!File::exists($fullPath) || !File::isReadable($fullPath)) {
+            session()->flash('error', 'File backup tidak dapat diakses di server.');
+            return;
+        }
 
         $zip = new ZipArchive;
-        if ($zip->open($fullPath) === TRUE) {
+        $openResult = $zip->open($fullPath);
+
+        if ($openResult === TRUE) {
             // Extract to temp folder
             $tempExtractPath = storage_path('app/temp_restore_' . time());
 
@@ -127,7 +134,8 @@ class SystemSettings extends Component
             session()->flash('success', 'Sistem berhasil direstore.');
             return redirect()->route('dashboard');
         } else {
-            session()->flash('error', 'Gagal membuka file backup.');
+            Storage::disk('local')->delete($path);
+            session()->flash('error', 'Gagal membuka file backup (Error code: ' . $openResult . ').');
         }
     }
 

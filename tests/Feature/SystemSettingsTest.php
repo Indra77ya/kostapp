@@ -51,4 +51,33 @@ class SystemSettingsTest extends TestCase
             ->call('downloadBackup')
             ->assertStatus(200);
     }
+
+    public function test_restore_works_with_valid_zip()
+    {
+        $user = User::factory()->create();
+        $user->assignRole('owner');
+
+        // Create a valid zip using UploadedFile::fake() as it's better integrated with Livewire testing
+        \Illuminate\Support\Facades\Storage::fake('local');
+
+        $zipContent = '';
+        $tempZip = tempnam(sys_get_temp_dir(), 'zip');
+        $zip = new \ZipArchive();
+        if ($zip->open($tempZip, \ZipArchive::CREATE) === TRUE) {
+            $zip->addFromString('database.sqlite', 'fake-db-content');
+            $zip->close();
+            $zipContent = file_get_contents($tempZip);
+            unlink($tempZip);
+        }
+
+        $file = \Illuminate\Http\UploadedFile::fake()->createWithContent('backup.zip', $zipContent);
+
+        Livewire::actingAs($user)
+            ->test(SystemSettings::class)
+            ->set('backupFile', $file)
+            ->call('restore')
+            ->assertRedirect(route('dashboard'));
+
+        $this->assertEquals('Sistem berhasil direstore.', session('success'));
+    }
 }
