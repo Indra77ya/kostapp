@@ -113,6 +113,9 @@
                         <a class="dropdown-item {{ request()->routeIs('rules.*') ? 'active' : '' }}" href="{{ route('rules.index') }}">
                           Peraturan
                         </a>
+                        <a class="dropdown-item {{ request()->routeIs('payment-methods.*') ? 'active' : '' }}" href="{{ route('payment-methods.index') }}">
+                          Metode Pembayaran
+                        </a>
                       </div>
                     </div>
                   </div>

@@ -44,6 +44,10 @@ Route::middleware('auth')->group(function () {
             return view('rules.index');
         })->name('rules.index');
 
+        Route::get('/payment-methods', function () {
+            return view('payment-methods.index');
+        })->name('payment-methods.index');
+
         Route::get('/settings', function () {
             return view('settings');
         })->name('settings');

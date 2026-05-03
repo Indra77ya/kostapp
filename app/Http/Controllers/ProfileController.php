@@ -25,7 +25,6 @@ class ProfileController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'phone_number' => ['nullable', 'string', 'max:20'],
             'address' => ['nullable', 'string'],
-            'bank_info' => ['nullable', 'string'],
             'bio' => ['nullable', 'string'],
             'avatar' => ['nullable', 'image', 'max:2048'],
         ]);
@@ -40,7 +39,7 @@ class ProfileController extends Controller
         }
 
         if (!$user->hasRole('owner')) {
-            unset($validated['address'], $validated['bank_info']);
+            unset($validated['address']);
         }
 
         $user->update($validated);
