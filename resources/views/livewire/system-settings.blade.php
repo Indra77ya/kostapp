@@ -1,68 +1,114 @@
 <div>
-    <div class="row row-cards">
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-status-top bg-blue"></div>
-                <div class="card-body">
-                    <h3 class="card-title">Backup Sistem</h3>
-                    <p class="text-secondary">Unduh salinan data sistem termasuk database dan file media (foto lokasi & kamar).</p>
+    @if (session('success'))
+        <div class="alert alert-success alert-dismissible" role="alert">
+            <div class="d-flex">
+                <div>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10" /></svg>
                 </div>
-                <div class="card-footer">
-                    <button wire:click="downloadBackup" class="btn btn-primary w-100">
+                <div>{{ session('success') }}</div>
+            </div>
+            <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
+        </div>
+    @endif
+
+    @if (session('error'))
+        <div class="alert alert-danger alert-dismissible" role="alert">
+            <div class="d-flex">
+                <div>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" /><path d="M12 8v4" /><path d="M12 16h.01" /></svg>
+                </div>
+                <div>{{ session('error') }}</div>
+            </div>
+            <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
+        </div>
+    @endif
+
+    <!-- Pengaturan Sistem -->
+    <div class="card mb-3 shadow-sm border-0">
+        <div class="card-header bg-white">
+            <h3 class="card-title">Pengaturan Sistem</h3>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label class="form-label">Notifikasi Jatuh Tempo (Hari Sebelum)</label>
+                <input type="number" wire:model="due_notification_days" class="form-control" placeholder="100">
+                <small class="form-hint text-muted">Masukkan 0 untuk notifikasi pada hari H.</small>
+            </div>
+        </div>
+        <div class="card-footer bg-white text-end">
+            <button wire:click="saveSettings" class="btn btn-primary px-4">Simpan Perubahan</button>
+        </div>
+    </div>
+
+    <!-- Backup & Restore Database -->
+    <div class="card mb-3 shadow-sm border-0">
+        <div class="card-header bg-white">
+            <h3 class="card-title">Backup & Restore Database</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6 border-end">
+                    <h4 class="fw-bold mb-1">Backup Database</h4>
+                    <p class="text-secondary small mb-3">Unduh salinan database lengkap (struktur dan data) dalam format SQL. Gunakan fitur ini secara berkala untuk mengamankan data Anda.</p>
+                    <button wire:click="downloadBackup" class="btn btn-outline-primary">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                             <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
                             <path d="M7 11l5 5l5 -5"></path>
                             <path d="M12 4l0 12"></path>
                         </svg>
-                        Unduh Backup
+                        Download Backup (.zip)
                     </button>
                 </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-status-top bg-green"></div>
-                <div class="card-body">
-                    <h3 class="card-title">Restore Sistem</h3>
-                    <p class="text-secondary">Pulihkan data sistem dari file backup (.zip) yang telah diunduh sebelumnya.</p>
+                <div class="col-md-6 ps-md-4">
+                    <h4 class="fw-bold mb-1">Restore Database</h4>
+                    <p class="text-danger small mb-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-alert-triangle inline-block me-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                            <path d="M12 9v4"></path>
+                            <path d="M12 17h.01"></path>
+                            <path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75"></path>
+                        </svg>
+                        <strong>PERINGATAN:</strong> Proses ini akan <strong>MENIMPA SELURUH DATA</strong> sistem dengan data dari file backup. Tindakan ini tidak dapat dibatalkan.
+                    </p>
                     <div class="mb-3">
                         <input type="file" wire:model="backupFile" class="form-control @error('backupFile') is-invalid @enderror">
                         @error('backupFile') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
-                </div>
-                <div class="card-footer">
-                    <button wire:click="restore" class="btn btn-success w-100" wire:loading.attr="disabled">
+                    <button wire:click="restore" class="btn btn-outline-danger" wire:loading.attr="disabled">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-upload" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                             <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
                             <path d="M7 9l5 -5l5 5"></path>
                             <path d="M12 4l0 12"></path>
                         </svg>
-                        Restore Data
+                        Upload & Restore (.zip)
                     </button>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-status-top bg-danger"></div>
-                <div class="card-body">
-                    <h3 class="card-title text-danger">Reset Sistem</h3>
-                    <p class="text-secondary">Hapus semua data operasional sistem. Tindakan ini tidak dapat dibatalkan.</p>
-                </div>
-                <div class="card-footer">
-                    <button wire:click="confirmReset" class="btn btn-danger w-100">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    </div>
+
+    <!-- Reset Sistem -->
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white">
+            <h3 class="card-title text-danger">Reset Sistem</h3>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-warning border-0 shadow-none mb-0" style="background-color: #fff9e6;">
+                <div class="d-flex">
+                    <div class="me-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-alert-circle text-warning" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                            <path d="M4 7l16 0"></path>
-                            <path d="M10 11l0 6"></path>
-                            <path d="M14 11l0 6"></path>
-                            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
-                            <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
+                            <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"></path>
+                            <path d="M12 8v4"></path>
+                            <path d="M12 16h.01"></path>
                         </svg>
-                        Reset Sekarang
-                    </button>
+                    </div>
+                    <div>
+                        <p class="mb-1"><strong>PERINGATAN:</strong> Tindakan ini akan menghapus data yang Anda pilih secara permanen. Pastikan Anda telah memiliki backup sebelum melanjutkan. Sistem akan melakukan backup otomatis ke folder storage sebelum reset dijalankan.</p>
+                        <button wire:click="confirmReset" class="btn btn-danger btn-sm mt-2">Reset Sekarang</button>
+                    </div>
                 </div>
             </div>
         </div>

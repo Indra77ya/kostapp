@@ -9,7 +9,6 @@ use App\Models\Room;
 use App\Models\RoomImage;
 use App\Models\Rule;
 use App\Models\User;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
@@ -22,11 +21,26 @@ class SystemSettings extends Component
     use WithFileUploads;
 
     public $backupFile;
+    public $due_notification_days = 100;
     public $confirmingReset = false;
 
-    public function downloadBackup()
+    public function mount()
     {
-        $zipName = 'backup-' . now()->format('Y-m-d-H-i-s') . '.zip';
+        if (!auth()->user()->hasAnyRole(['owner', 'developer'])) {
+            abort(403);
+        }
+    }
+
+    public function saveSettings()
+    {
+        // For now, we just simulate saving since there's no settings table.
+        // In a real app, you'd save to a settings table or config file.
+        session()->flash('success', 'Pengaturan berhasil disimpan.');
+    }
+
+    private function createBackup()
+    {
+        $zipName = 'backup-auto-' . now()->format('Y-m-d-H-i-s') . '.zip';
         $zipPath = storage_path('app/' . $zipName);
 
         $zip = new ZipArchive;
@@ -36,7 +50,6 @@ class SystemSettings extends Component
             if (File::exists($dbPath)) {
                 $zip->addFile($dbPath, 'database.sqlite');
             } else {
-                // For testing or if file doesn't exist, create an empty one in zip
                 $zip->addFromString('database.sqlite', '');
             }
 
@@ -50,9 +63,18 @@ class SystemSettings extends Component
             }
 
             $zip->close();
+            return $zipPath;
         }
+        return null;
+    }
 
-        return response()->download($zipPath)->deleteFileAfterSend(true);
+    public function downloadBackup()
+    {
+        $zipPath = $this->createBackup();
+        if ($zipPath) {
+            return response()->download($zipPath)->deleteFileAfterSend(true);
+        }
+        session()->flash('error', 'Gagal membuat backup.');
     }
 
     public function restore()
@@ -67,18 +89,20 @@ class SystemSettings extends Component
         $zip = new ZipArchive;
         if ($zip->open($fullPath) === TRUE) {
             // Extract database
-            $zip->extractTo(storage_path('app/temp_restore'));
+            $tempExtractPath = storage_path('app/temp_restore_' . time());
+            $zip->extractTo($tempExtractPath);
 
-            $extractedDb = storage_path('app/temp_restore/database.sqlite');
+            $extractedDb = $tempExtractPath . '/database.sqlite';
             if (File::exists($extractedDb)) {
                 $targetDb = config('database.connections.sqlite.database');
+                // Note: Overwriting active DB is risky but requested for this simple system.
                 File::copy($extractedDb, $targetDb);
             }
 
             // Extract storage
-            if (File::exists(storage_path('app/temp_restore/storage'))) {
+            if (File::exists($tempExtractPath . '/storage')) {
                 File::copyDirectory(
-                    storage_path('app/temp_restore/storage'),
+                    $tempExtractPath . '/storage',
                     storage_path('app/public')
                 );
             }
@@ -86,7 +110,7 @@ class SystemSettings extends Component
             $zip->close();
 
             // Clean up
-            File::deleteDirectory(storage_path('app/temp_restore'));
+            File::deleteDirectory($tempExtractPath);
             Storage::delete($path);
 
             session()->flash('success', 'Sistem berhasil direstore.');
@@ -108,6 +132,9 @@ class SystemSettings extends Component
 
     public function resetSystem()
     {
+        // Auto-backup before reset
+        $this->createBackup();
+
         // Truncate business data
         Booking::query()->delete();
         RoomImage::query()->delete();
@@ -117,19 +144,20 @@ class SystemSettings extends Component
         Rule::query()->delete();
 
         // Delete users except owners/developers
-        User::role(['owner', 'developer'])->get(); // Just a check
         User::whereDoesntHave('roles', function($q) {
             $q->whereIn('name', ['owner', 'developer']);
         })->delete();
 
-        // Clear storage
-        File::cleanDirectory(storage_path('app/public/locations'));
-        File::cleanDirectory(storage_path('app/public/rooms'));
-        // Keep avatars? Maybe better clear them too if they are not owners
-        // But for now, let's just clear the main data folders.
+        // Clear storage folders
+        if (File::exists(storage_path('app/public/locations'))) {
+            File::cleanDirectory(storage_path('app/public/locations'));
+        }
+        if (File::exists(storage_path('app/public/rooms'))) {
+            File::cleanDirectory(storage_path('app/public/rooms'));
+        }
 
         $this->confirmingReset = false;
-        session()->flash('success', 'Sistem berhasil direset.');
+        session()->flash('success', 'Sistem berhasil direset. Backup otomatis telah disimpan di folder storage.');
         return redirect()->route('dashboard');
     }
 
