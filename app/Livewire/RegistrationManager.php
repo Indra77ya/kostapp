@@ -55,7 +55,6 @@ class RegistrationManager extends Component
     public function mount()
     {
         $this->registration_date = Carbon::now()->format('Y-m-d');
-        $this->addEmergencyContact();
         $this->generateRegistrationNumber();
     }
 
@@ -160,7 +159,13 @@ class RegistrationManager extends Component
             $this->institution_address = $reg->institution_address;
             $this->institution_phone = $reg->institution_phone;
 
-            $this->emergency_contacts = $reg->emergencyContacts->toArray();
+            $this->emergency_contacts = $reg->emergencyContacts->map(function ($contact) {
+                $contactArr = $contact->toArray();
+                if ($contactArr['birth_date']) {
+                    $contactArr['birth_date'] = Carbon::parse($contactArr['birth_date'])->format('Y-m-d');
+                }
+                return $contactArr;
+            })->toArray();
 
             $room = Room::find($this->room_id);
             $this->room_facilities = $room->facilities;
@@ -210,13 +215,12 @@ class RegistrationManager extends Component
         $this->institution_phone = '';
 
         $this->emergency_contacts = [];
-        $this->addEmergencyContact();
         $this->generateRegistrationNumber();
     }
 
     public function saveRegistration()
     {
-        $this->validate([
+        $rules = [
             'location_id' => 'required|exists:locations,id',
             'room_id' => 'required|exists:rooms,id',
             'registration_date' => 'required|date',
@@ -229,10 +233,16 @@ class RegistrationManager extends Component
             'photo_self' => $this->registrationId ? 'nullable|image|max:2048' : 'required|image|max:2048',
             'photo_identity' => $this->registrationId ? 'nullable|image|max:2048' : 'required|image|max:2048',
             'photo_family_card' => 'nullable|image|max:2048',
-            'emergency_contacts.*.name' => 'required|string',
-            'emergency_contacts.*.relationship' => 'required|string',
-            'emergency_contacts.*.phone_number' => 'required|string',
-        ]);
+        ];
+
+        // Only validate emergency contacts if they exist
+        if (!empty($this->emergency_contacts)) {
+            $rules['emergency_contacts.*.name'] = 'required|string';
+            $rules['emergency_contacts.*.relationship'] = 'required|string';
+            $rules['emergency_contacts.*.phone_number'] = 'required|string';
+        }
+
+        $this->validate($rules);
 
         DB::transaction(function () {
             // 1. Handle User
@@ -294,6 +304,10 @@ class RegistrationManager extends Component
             // 3. Emergency Contacts
             $registration->emergencyContacts()->delete();
             foreach ($this->emergency_contacts as $contact) {
+                // Ensure birth_date is null if empty string
+                if (isset($contact['birth_date']) && $contact['birth_date'] === '') {
+                    $contact['birth_date'] = null;
+                }
                 $registration->emergencyContacts()->create($contact);
             }
         });

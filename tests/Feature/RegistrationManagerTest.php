@@ -25,7 +25,7 @@ class RegistrationManagerTest extends TestCase
         Storage::fake('public');
     }
 
-    public function test_can_create_new_registration()
+    public function test_can_create_new_registration_with_emergency_contact()
     {
         $admin = User::factory()->create();
         $admin->assignRole('admin');
@@ -54,6 +54,7 @@ class RegistrationManagerTest extends TestCase
             ->set('birth_date', '1995-01-01')
             ->set('photo_self', $photoSelf)
             ->set('photo_identity', $photoIdentity)
+            ->call('addEmergencyContact')
             ->set('emergency_contacts.0.name', 'Jane Doe')
             ->set('emergency_contacts.0.relationship', 'Ibu')
             ->set('emergency_contacts.0.phone_number', '0812345')
@@ -75,5 +76,49 @@ class RegistrationManagerTest extends TestCase
             'name' => 'Jane Doe',
             'relationship' => 'Ibu',
         ]);
+    }
+
+    public function test_can_create_new_registration_without_emergency_contact()
+    {
+        $admin = User::factory()->create();
+        $admin->assignRole('admin');
+
+        $location = Location::create(['name' => 'Kost B', 'address' => 'Jl. B']);
+        $room = Room::create([
+            'location_id' => $location->id,
+            'room_number' => '202',
+            'type' => 'Deluxe',
+            'price' => 2000000,
+            'facilities' => 'TV, Fridge'
+        ]);
+
+        $photoSelf = UploadedFile::fake()->image('self2.jpg');
+        $photoIdentity = UploadedFile::fake()->image('ktp2.jpg');
+
+        Livewire::actingAs($admin)
+            ->test(RegistrationManager::class)
+            ->set('location_id', $location->id)
+            ->set('room_id', $room->id)
+            ->set('stay_start_date', '2026-07-01')
+            ->set('name', 'Jane Smith')
+            ->set('email', 'jane@example.com')
+            ->set('identity_number', '987654321')
+            ->set('birth_place', 'Bandung')
+            ->set('birth_date', '1998-05-05')
+            ->set('photo_self', $photoSelf)
+            ->set('photo_identity', $photoIdentity)
+            ->call('saveRegistration')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('registrations', [
+            'total_price' => 2000000,
+        ]);
+
+        $this->assertDatabaseHas('users', [
+            'name' => 'Jane Smith',
+            'email' => 'jane@example.com',
+        ]);
+
+        $this->assertEquals(0, \App\Models\EmergencyContact::count());
     }
 }

@@ -242,7 +242,7 @@
 
                             <!-- Section 5: Kontak Darurat -->
                             <div class="col-md-12 mb-3 mt-4 d-flex justify-content-between align-items-center">
-                                <div class="hr-text text-uppercase fw-bold text-muted small flex-grow-1">Orang yang Bisa Dihubungi (Kontak Darurat)</div>
+                                <div class="hr-text text-uppercase fw-bold text-muted small flex-grow-1">Orang yang Bisa Dihubungi (Kontak Darurat) - Opsional</div>
                                 <button type="button" class="btn btn-sm btn-outline-primary ms-3" wire:click="addEmergencyContact">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-inline" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
                                     Tambah Kontak
@@ -250,9 +250,7 @@
                             </div>
                             @foreach($emergency_contacts as $index => $contact)
                             <div class="col-md-12 mb-3 border p-3 rounded position-relative bg-surface">
-                                @if(count($emergency_contacts) > 1)
                                 <button type="button" class="btn-close position-absolute top-0 end-0 m-2" wire:click="removeEmergencyContact({{ $index }})"></button>
-                                @endif
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
                                         <label class="form-label required small fw-bold">Nama Lengkap</label>
