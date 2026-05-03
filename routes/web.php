@@ -23,34 +23,40 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
 
-    Route::middleware('role:owner|developer')->group(function () {
-        Route::get('/locations', function () {
-            return view('locations.index');
-        })->name('locations.index');
+    Route::middleware('role:owner|developer|admin')->group(function () {
+        Route::get('/tenants', function () {
+            return view('tenants.index');
+        })->name('tenants.index');
 
-        Route::get('/rooms', function () {
-            return view('rooms.index');
-        })->name('rooms.index');
+        Route::middleware('role:owner|developer')->group(function () {
+            Route::get('/locations', function () {
+                return view('locations.index');
+            })->name('locations.index');
 
-        Route::get('/users', function () {
-            return view('users.index');
-        })->name('users.index');
+            Route::get('/rooms', function () {
+                return view('rooms.index');
+            })->name('rooms.index');
 
-        Route::get('/facilities', function () {
-            return view('facilities.index');
-        })->name('facilities.index');
+            Route::get('/users', function () {
+                return view('users.index');
+            })->name('users.index');
 
-        Route::get('/rules', function () {
-            return view('rules.index');
-        })->name('rules.index');
+            Route::get('/facilities', function () {
+                return view('facilities.index');
+            })->name('facilities.index');
 
-        Route::get('/payment-methods', function () {
-            return view('payment-methods.index');
-        })->name('payment-methods.index');
+            Route::get('/rules', function () {
+                return view('rules.index');
+            })->name('rules.index');
 
-        Route::get('/settings', function () {
-            return view('settings');
-        })->name('settings');
+            Route::get('/payment-methods', function () {
+                return view('payment-methods.index');
+            })->name('payment-methods.index');
+
+            Route::get('/settings', function () {
+                return view('settings');
+            })->name('settings');
+        });
     });
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
