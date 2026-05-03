@@ -56,6 +56,7 @@ class RuleManager extends Component
         }
 
         $this->isModalOpen = true;
+        $this->dispatch('isModalOpenChanged');
     }
 
     public function closeModal()

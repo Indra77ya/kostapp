@@ -92,8 +92,8 @@
                             </label>
                         </div>
                     </div>
-                    <div class="mt-3 text-secondary small" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;" title="{{ $rule->description }}">
-                        {{ $rule->description ?: 'Tidak ada deskripsi.' }}
+                    <div class="mt-3 text-secondary small" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;" title="{{ strip_tags($rule->description) }}">
+                        {!! $rule->description ?: 'Tidak ada deskripsi.' !!}
                     </div>
                     <div class="mt-3 d-flex gap-2">
                         <button class="btn btn-primary btn-sm flex-fill" wire:click="openModal({{ $rule->id }})">Edit</button>
@@ -141,8 +141,8 @@
                             @endif
                         </td>
                         <td>
-                            <div class="small text-truncate" style="max-width: 200px;" title="{{ $rule->description }}">
-                                {{ $rule->description ?: '-' }}
+                            <div class="small text-truncate" style="max-width: 200px;" title="{{ strip_tags($rule->description) }}">
+                                {!! $rule->description ?: '-' !!}
                             </div>
                         </td>
                         <td>
@@ -220,9 +220,9 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="mb-3">
+                        <div class="mb-3" wire:ignore>
                             <label class="form-label">Deskripsi Detail</label>
-                            <textarea class="form-control @error('description') is-invalid @enderror" rows="4" wire:model="description" placeholder="Jelaskan detail peraturan ini..."></textarea>
+                            <textarea id="rule-description" class="form-control @error('description') is-invalid @enderror" rows="4" wire:model="description" placeholder="Jelaskan detail peraturan ini..."></textarea>
                             @error('description') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
                         <div class="mb-3">
@@ -243,4 +243,63 @@
             </div>
         </div>
     </div>
+    @script
+    <script>
+        let editorInstance;
+
+        const initEditor = () => {
+            if (typeof tinymce === 'undefined') return;
+
+            tinymce.init({
+                selector: '#rule-description',
+                height: 300,
+                menubar: false,
+                plugins: [
+                    'advlist', 'autolink', 'lists', 'link', 'charmap', 'preview',
+                    'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                    'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'
+                ],
+                toolbar: 'undo redo | blocks | ' +
+                    'bold italic backcolor | alignleft aligncenter ' +
+                    'alignright alignjustify | bullist numlist outdent indent | ' +
+                    'removeformat | help',
+                setup: function (editor) {
+                    editorInstance = editor;
+                    editor.on('init', function (e) {
+                        editor.setContent($wire.description || '');
+                    });
+                    editor.on('change', function (e) {
+                        $wire.description = editor.getContent();
+                    });
+                    editor.on('blur', function (e) {
+                        $wire.description = editor.getContent();
+                    });
+                }
+            });
+        };
+
+        // Initialize on first load
+        initEditor();
+
+        // Re-initialize or update content when modal opens
+        $wire.on('isModalOpenChanged', () => {
+            if ($wire.isModalOpen) {
+                setTimeout(() => {
+                    if (tinymce.get('rule-description')) {
+                        tinymce.get('rule-description').setContent($wire.description || '');
+                    } else {
+                        initEditor();
+                    }
+                }, 100);
+            }
+        });
+
+        // Cleanup on component destroy
+        return () => {
+            if (editorInstance) {
+                editorInstance.remove();
+            }
+        }
+    </script>
+    @endscript
 </div>
