@@ -268,7 +268,7 @@
                                 @else
                                     <span class="badge bg-green-lt">Global</span>
                                 @endif
-                                <span class="ms-2 badge {{ $previewRule->is_active ? 'bg-success' : 'bg-danger' }}">
+                                <span class="ms-2 badge {{ $previewRule->is_active ? 'bg-success-lt' : 'bg-danger-lt' }}">
                                     {{ $previewRule->is_active ? 'Aktif' : 'Non-aktif' }}
                                 </span>
                             </div>
