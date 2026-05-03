@@ -79,27 +79,48 @@ class SystemSettings extends Component
 
         $zip = new ZipArchive;
         if ($zip->open($fullPath) === TRUE) {
-            // Extract database
+            // Extract to temp folder
             $tempExtractPath = storage_path('app/temp_restore_' . time());
-            $zip->extractTo($tempExtractPath);
 
+            // Security: Basic ZipSlip prevention by checking entries
+            for ($i = 0; $i < $zip->numFiles; $i++) {
+                $entryName = $zip->getNameIndex($i);
+                if (strpos($entryName, '..') !== false || strpos($entryName, '/') === 0) {
+                    $zip->close();
+                    Storage::delete($path);
+                    session()->flash('error', 'File backup tidak valid (ZipSlip detected).');
+                    return;
+                }
+            }
+
+            $zip->extractTo($tempExtractPath);
+            $zip->close();
+
+            // 1. Restore Database
             $extractedDb = $tempExtractPath . '/database.sqlite';
             if (File::exists($extractedDb)) {
                 $targetDb = config('database.connections.sqlite.database');
                 File::copy($extractedDb, $targetDb);
             }
 
-            // Extract storage
+            // 2. Restore Storage Files
             if (File::exists($tempExtractPath . '/storage')) {
+                $targetStorage = storage_path('app/public');
+
+                // Clean current storage to avoid merging
+                if (File::exists($targetStorage)) {
+                    File::cleanDirectory($targetStorage);
+                } else {
+                    File::makeDirectory($targetStorage, 0755, true);
+                }
+
                 File::copyDirectory(
                     $tempExtractPath . '/storage',
-                    storage_path('app/public')
+                    $targetStorage
                 );
             }
 
-            $zip->close();
-
-            // Clean up
+            // Clean up temp
             File::deleteDirectory($tempExtractPath);
             Storage::delete($path);
 
