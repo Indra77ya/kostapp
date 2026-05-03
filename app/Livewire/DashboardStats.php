@@ -11,7 +11,6 @@ class DashboardStats extends Component
 {
     public $totalRooms;
     public $availableRooms;
-    public $totalTenants;
     public $activeBookings;
 
     protected $listeners = ['echo:stats,DatabaseUpdated' => 'refreshStats'];
@@ -25,7 +24,6 @@ class DashboardStats extends Component
     {
         $this->totalRooms = Room::count();
         $this->availableRooms = Room::where('status', 'available')->count();
-        $this->totalTenants = User::role('tenant')->count();
         $this->activeBookings = Booking::where('status', 'confirmed')->count();
     }
 

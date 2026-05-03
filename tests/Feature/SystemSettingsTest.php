@@ -18,13 +18,11 @@ class SystemSettingsTest extends TestCase
         parent::setUp();
         Role::create(['name' => 'owner']);
         Role::create(['name' => 'developer']);
-        Role::create(['name' => 'tenant']);
     }
 
     public function test_unauthorized_user_cannot_access_settings()
     {
         $user = User::factory()->create();
-        $user->assignRole('tenant');
 
         $this->actingAs($user)
             ->get(route('settings'))

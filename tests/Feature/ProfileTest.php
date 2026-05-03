@@ -18,7 +18,7 @@ class ProfileTest extends TestCase
     {
         parent::setUp();
         Role::create(['name' => 'owner']);
-        Role::create(['name' => 'tenant']);
+        Role::create(['name' => 'admin']);
     }
 
     public function test_profile_page_is_accessible()
@@ -57,10 +57,13 @@ class ProfileTest extends TestCase
         $this->assertEquals('BCA 123', $user->bank_info);
     }
 
-    public function test_tenant_cannot_update_owner_fields()
+    public function test_admin_cannot_update_owner_fields()
     {
-        $user = User::factory()->create();
-        $user->assignRole('tenant');
+        $user = User::factory()->create([
+            'address' => null,
+            'bank_info' => null,
+        ]);
+        $user->assignRole('admin');
 
         $response = $this->actingAs($user)->patch('/profile', [
             'name' => 'New Name',

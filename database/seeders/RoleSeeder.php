@@ -14,7 +14,7 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
-        $roles = ['developer', 'owner', 'admin', 'tenant'];
+        $roles = ['developer', 'owner', 'admin'];
 
         foreach ($roles as $roleName) {
             Role::create(['name' => $roleName]);
@@ -42,13 +42,6 @@ class RoleSeeder extends Seeder
                 'password' => Hash::make('password'),
                 'password_plain' => 'password',
                 'role' => 'admin',
-            ],
-            [
-                'name' => 'Tenant User',
-                'email' => 'tenant@example.com',
-                'password' => Hash::make('password'),
-                'password_plain' => 'password',
-                'role' => 'tenant',
             ],
         ];
 

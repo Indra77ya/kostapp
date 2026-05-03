@@ -14,12 +14,14 @@ class BookingSeeder extends Seeder
      */
     public function run(): void
     {
-        $tenant = User::whereEmail('tenant@example.com')->first();
+        $admin = User::whereHas('roles', function($q) {
+            $q->where('name', 'admin');
+        })->first();
         $room = Room::where('room_number', '101')->first();
 
-        if ($tenant && $room) {
+        if ($admin && $room) {
             Booking::create([
-                'user_id' => $tenant->id,
+                'user_id' => $admin->id,
                 'room_id' => $room->id,
                 'check_in' => now()->startOfMonth(),
                 'check_out' => now()->addMonth()->endOfMonth(),
