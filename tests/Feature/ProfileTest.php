@@ -17,8 +17,10 @@ class ProfileTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        Role::create(['name' => 'owner']);
-        Role::create(['name' => 'admin']);
+        if (Role::count() === 0) {
+            Role::create(['name' => 'owner']);
+            Role::create(['name' => 'admin']);
+        }
     }
 
     public function test_profile_page_is_accessible()
@@ -42,7 +44,6 @@ class ProfileTest extends TestCase
             'phone_number' => '+628123456789',
             'bio' => 'New bio content',
             'address' => 'New Address',
-            'bank_info' => 'BCA 123',
         ]);
 
         $response->assertSessionHasNoErrors();
@@ -54,14 +55,12 @@ class ProfileTest extends TestCase
         $this->assertEquals('+628123456789', $user->phone_number);
         $this->assertEquals('New bio content', $user->bio);
         $this->assertEquals('New Address', $user->address);
-        $this->assertEquals('BCA 123', $user->bank_info);
     }
 
     public function test_admin_cannot_update_owner_fields()
     {
         $user = User::factory()->create([
             'address' => null,
-            'bank_info' => null,
         ]);
         $user->assignRole('admin');
 
@@ -69,14 +68,12 @@ class ProfileTest extends TestCase
             'name' => 'New Name',
             'phone_number' => '+628123456789',
             'address' => 'Should be ignored',
-            'bank_info' => 'Should be ignored',
         ]);
 
         $user->refresh();
 
         $this->assertEquals('New Name', $user->name);
         $this->assertNull($user->address);
-        $this->assertNull($user->bank_info);
     }
 
     public function test_avatar_can_be_uploaded()

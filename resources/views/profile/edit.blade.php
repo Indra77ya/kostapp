@@ -86,17 +86,10 @@
                     </div>
 
                     @role('owner')
-                    <div class="hr-text text-muted">Informasi Pemilik (Owner)</div>
                     <div class="col-12">
                         <div class="mb-3">
                             <label class="form-label">Alamat</label>
                             <textarea name="address" class="form-control" rows="3">{{ old('address', $user->address) }}</textarea>
-                        </div>
-                    </div>
-                    <div class="col-12">
-                        <div class="mb-3">
-                            <label class="form-label">Informasi Rekening Bank (untuk Pembayaran)</label>
-                            <textarea name="bank_info" class="form-control" rows="3" placeholder="Contoh: BCA 123456789 a/n Nama Anda">{{ old('bank_info', $user->bank_info) }}</textarea>
                         </div>
                     </div>
                     @endrole
