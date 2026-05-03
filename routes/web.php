@@ -24,6 +24,10 @@ Route::middleware('auth')->group(function () {
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
 
     Route::middleware('role:owner|developer|admin')->group(function () {
+        Route::get('/registrations', function () {
+            return view('registrations.index');
+        })->name('registrations.index');
+
         Route::get('/tenants', function () {
             return view('tenants.index');
         })->name('tenants.index');
