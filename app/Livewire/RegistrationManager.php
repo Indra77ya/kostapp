@@ -308,13 +308,24 @@ class RegistrationManager extends Component
                 'institution_phone' => $this->institution_phone,
             ];
 
-            if ($this->photo_self) $data['photo_self'] = $this->photo_self->store('registrations/self', 'public');
-            if ($this->photo_identity) $data['photo_identity'] = $this->photo_identity->store('registrations/identity', 'public');
-            if ($this->photo_family_card) $data['photo_family_card'] = $this->photo_family_card->store('registrations/family_card', 'public');
-
             if ($this->registrationId) {
+                if ($this->photo_self) {
+                    if ($registration->photo_self) Storage::disk('public')->delete($registration->photo_self);
+                    $data['photo_self'] = $this->photo_self->store('registrations/self', 'public');
+                }
+                if ($this->photo_identity) {
+                    if ($registration->photo_identity) Storage::disk('public')->delete($registration->photo_identity);
+                    $data['photo_identity'] = $this->photo_identity->store('registrations/identity', 'public');
+                }
+                if ($this->photo_family_card) {
+                    if ($registration->photo_family_card) Storage::disk('public')->delete($registration->photo_family_card);
+                    $data['photo_family_card'] = $this->photo_family_card->store('registrations/family_card', 'public');
+                }
                 $registration->update($data);
             } else {
+                if ($this->photo_self) $data['photo_self'] = $this->photo_self->store('registrations/self', 'public');
+                if ($this->photo_identity) $data['photo_identity'] = $this->photo_identity->store('registrations/identity', 'public');
+                if ($this->photo_family_card) $data['photo_family_card'] = $this->photo_family_card->store('registrations/family_card', 'public');
                 $registration = Registration::create($data);
             }
 
