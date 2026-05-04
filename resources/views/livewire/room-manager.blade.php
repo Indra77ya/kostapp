@@ -19,6 +19,9 @@
         }
     </style>
     <div class="row mb-3 align-items-center">
+        <div class="col">
+            <h2 class="page-title">Manajemen Kamar</h2>
+        </div>
         <div class="col-12 col-md-auto ms-md-auto">
             <div class="btn-list justify-content-md-end">
                 <div class="btn-group">

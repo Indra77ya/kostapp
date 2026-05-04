@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('page_title', 'Manajemen Penghuni')
+@section('page_title', '')
 
 @section('content')
     @livewire('tenant-manager')
