@@ -7,6 +7,7 @@ use App\Models\EmergencyContact;
 use App\Models\Location;
 use App\Models\Room;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
@@ -252,12 +253,13 @@ class RegistrationManager extends Component
             if ($this->registrationId) {
                 $registration = Registration::find($this->registrationId);
                 $user = $registration->user;
-                $user->update([
+                $userData = [
                     'name' => $this->name,
                     'email' => $this->email,
                     'phone_number' => $this->phone_number,
                     'address' => $this->address,
-                ]);
+                ];
+                $user->update($userData);
             } else {
                 $password = '12345678';
                 $user = User::create([
@@ -311,7 +313,9 @@ class RegistrationManager extends Component
             if ($this->registrationId) {
                 if ($this->photo_self) {
                     if ($registration->photo_self) Storage::disk('public')->delete($registration->photo_self);
-                    $data['photo_self'] = $this->photo_self->store('registrations/self', 'public');
+                    $path = $this->photo_self->store('registrations/self', 'public');
+                    $data['photo_self'] = $path;
+                    $user->update(['avatar' => $path]);
                 }
                 if ($this->photo_identity) {
                     if ($registration->photo_identity) Storage::disk('public')->delete($registration->photo_identity);
@@ -323,7 +327,11 @@ class RegistrationManager extends Component
                 }
                 $registration->update($data);
             } else {
-                if ($this->photo_self) $data['photo_self'] = $this->photo_self->store('registrations/self', 'public');
+                if ($this->photo_self) {
+                    $path = $this->photo_self->store('registrations/self', 'public');
+                    $data['photo_self'] = $path;
+                    $user->update(['avatar' => $path]);
+                }
                 if ($this->photo_identity) $data['photo_identity'] = $this->photo_identity->store('registrations/identity', 'public');
                 if ($this->photo_family_card) $data['photo_family_card'] = $this->photo_family_card->store('registrations/family_card', 'public');
                 $registration = Registration::create($data);

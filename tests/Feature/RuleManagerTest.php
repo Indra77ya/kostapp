@@ -19,11 +19,9 @@ class RuleManagerTest extends TestCase
     {
         parent::setUp();
 
-        // Seed roles if not exists
-        if (Role::count() === 0) {
-            Role::create(['name' => 'owner']);
-            Role::create(['name' => 'developer']);
-        }
+        $this->app->make(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
+        Role::firstOrCreate(['name' => 'owner']);
+        Role::firstOrCreate(['name' => 'developer']);
     }
 
     public function test_rule_manager_is_accessible_by_owner()

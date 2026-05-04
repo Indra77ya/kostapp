@@ -20,11 +20,10 @@ class PaymentMethodManagerTest extends TestCase
     {
         parent::setUp();
 
-        if (Role::count() === 0) {
-            Role::create(['name' => 'owner']);
-            Role::create(['name' => 'developer']);
-            Role::create(['name' => 'admin']);
-        }
+        $this->app->make(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
+        Role::firstOrCreate(['name' => 'owner']);
+        Role::firstOrCreate(['name' => 'developer']);
+        Role::firstOrCreate(['name' => 'admin']);
     }
 
     public function test_payment_method_manager_is_accessible_by_owner()
