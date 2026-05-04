@@ -271,6 +271,20 @@ class RegistrationManager extends Component
                 $user->assignRole('tenant');
             }
 
+            // Handle Room Status Transition
+            if ($this->registrationId) {
+                $registration = Registration::find($this->registrationId);
+                if ($registration->room_id != $this->room_id) {
+                    // Revert old room status
+                    Room::where('id', $registration->room_id)->update(['status' => 'available']);
+                    // Set new room status
+                    Room::where('id', $this->room_id)->update(['status' => 'occupied']);
+                }
+            } else {
+                // Set room status to occupied for new registration
+                Room::where('id', $this->room_id)->update(['status' => 'occupied']);
+            }
+
             // 2. Handle Photos
             $data = [
                 'user_id' => $user->id,
@@ -324,7 +338,12 @@ class RegistrationManager extends Component
     {
         $reg = Registration::find($id);
         $name = $reg->user->name;
-        $reg->delete();
+
+        DB::transaction(function() use ($reg) {
+            // Revert room status to available
+            Room::where('id', $reg->room_id)->update(['status' => 'available']);
+            $reg->delete();
+        });
 
         DatabaseUpdated::dispatch();
         NotificationSent::dispatch("Pendaftaran {$name} berhasil dihapus.", 'success');
@@ -360,10 +379,26 @@ class RegistrationManager extends Component
             $query->whereDate('registration_date', '<=', $this->filterDateEnd);
         }
 
+        // Filter rooms based on location and availability
+        $rooms = [];
+        if ($this->location_id) {
+            $rooms = Room::where('location_id', $this->location_id)
+                ->where(function($q) {
+                    $q->where('status', 'available');
+                    if ($this->registrationId) {
+                        // Include current room if editing
+                        $currentRoomId = Registration::find($this->registrationId)->room_id;
+                        $q->orWhere('id', $currentRoomId);
+                    }
+                })
+                ->orderBy('room_number')
+                ->get();
+        }
+
         return view('livewire.registration-manager', [
             'registrations' => $query->latest()->paginate(10),
             'locations' => Location::all(),
-            'rooms' => Location::find($this->location_id)?->rooms ?? [],
+            'rooms' => $rooms,
         ]);
     }
 }

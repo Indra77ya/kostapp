@@ -31,7 +31,7 @@ return new class extends Migration
             $table->string('identity_type'); // KTP, SIM, etc.
             $table->string('identity_number');
             $table->enum('gender', ['Laki-laki', 'Perempuan']);
-            $table->string('birth_place');
+            $table->string('birth_place')->nullable();
             $table->date('birth_date');
 
             // Photos
