@@ -24,8 +24,11 @@ class RegistrationManager extends Component
     public $isModalOpen = false;
     public $registrationId;
 
-    // List & Search
+    // List & Search & Filters
     public $search = '';
+    public $filterLocation = '';
+    public $filterDateStart = '';
+    public $filterDateEnd = '';
 
     // Form fields - Basic
     public $location_id, $room_id, $registration_number;
@@ -327,15 +330,34 @@ class RegistrationManager extends Component
         NotificationSent::dispatch("Pendaftaran {$name} berhasil dihapus.", 'success');
     }
 
+    public function updatingSearch() { $this->resetPage(); }
+    public function updatingFilterLocation() { $this->resetPage(); }
+    public function updatingFilterDateStart() { $this->resetPage(); }
+    public function updatingFilterDateEnd() { $this->resetPage(); }
+
     public function render()
     {
         $query = Registration::with('user', 'location', 'room');
 
         if ($this->search) {
-            $query->whereHas('user', function($q) {
-                $q->where('name', 'like', '%' . $this->search . '%')
-                  ->orWhere('email', 'like', '%' . $this->search . '%');
-            })->orWhere('registration_number', 'like', '%' . $this->search . '%');
+            $query->where(function($q) {
+                $q->whereHas('user', function($sq) {
+                    $sq->where('name', 'like', '%' . $this->search . '%')
+                      ->orWhere('email', 'like', '%' . $this->search . '%');
+                })->orWhere('registration_number', 'like', '%' . $this->search . '%');
+            });
+        }
+
+        if ($this->filterLocation) {
+            $query->where('location_id', $this->filterLocation);
+        }
+
+        if ($this->filterDateStart) {
+            $query->whereDate('registration_date', '>=', $this->filterDateStart);
+        }
+
+        if ($this->filterDateEnd) {
+            $query->whereDate('registration_date', '<=', $this->filterDateEnd);
         }
 
         return view('livewire.registration-manager', [
