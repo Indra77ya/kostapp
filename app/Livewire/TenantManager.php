@@ -18,8 +18,9 @@ class TenantManager extends Component
     public $isModalOpen = false;
     public $tenantId;
 
-    // Search
+    // Search & Filters
     public $search = '';
+    public $filterStatus = 'active'; // 'active', 'checked_out', 'all'
 
     // Form fields
     public $name, $email, $phone_number, $address, $password;
@@ -134,6 +135,11 @@ class TenantManager extends Component
         $this->resetPage();
     }
 
+    public function updatingFilterStatus()
+    {
+        $this->resetPage();
+    }
+
     public function setView($type)
     {
         $this->viewType = $type;
@@ -142,6 +148,12 @@ class TenantManager extends Component
     public function render()
     {
         $query = User::role('tenant');
+
+        if ($this->filterStatus !== 'all') {
+            $query->whereHas('registrations', function($q) {
+                $q->where('status', $this->filterStatus);
+            });
+        }
 
         if ($this->search) {
             $query->where(function($q) {

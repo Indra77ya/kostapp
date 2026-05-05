@@ -32,6 +32,10 @@ Route::middleware('auth')->group(function () {
             return view('tenants.index');
         })->name('tenants.index');
 
+    Route::get('/check-outs', function () {
+        return view('check-outs.index');
+    })->name('check-outs.index');
+
         Route::middleware('role:owner|developer')->group(function () {
             Route::get('/locations', function () {
                 return view('locations.index');

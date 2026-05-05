@@ -86,7 +86,7 @@
                   </a>
                 </li>
                 @hasanyrole('owner|developer|admin')
-                <li class="nav-item dropdown {{ request()->routeIs(['registrations.*', 'tenants.*']) ? 'active' : '' }}">
+                <li class="nav-item dropdown {{ request()->routeIs(['registrations.*', 'tenants.*', 'check-outs.*']) ? 'active' : '' }}">
                   <a class="nav-link dropdown-toggle" href="#navbar-sewa" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false" >
                     <span class="nav-link-icon d-md-none d-lg-inline-block">
                       <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-key" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M16.555 3.843l3.602 3.602a2.877 2.877 0 0 1 0 4.069l-2.643 2.643a2.877 2.877 0 0 1 -4.069 0l-.301 -.301l-6.558 6.558a2 2 0 0 1 -1.239 .578l-.175 .008h-1.172a1 1 0 0 1 -1 -1v-1.172a2 2 0 0 1 .586 -1.414l6.558 -6.558l-.301 -.301a2.877 2.877 0 0 1 0 -4.069l2.643 -2.643a2.877 2.877 0 0 1 4.069 0z" /><path d="M15 9h.01" /></svg>
@@ -100,6 +100,9 @@
                       <div class="dropdown-menu-column">
                         <a class="dropdown-item {{ request()->routeIs('registrations.*') ? 'active' : '' }}" href="{{ route('registrations.index') }}">
                           Check In
+                        </a>
+                        <a class="dropdown-item {{ request()->routeIs('check-outs.*') ? 'active' : '' }}" href="{{ route('check-outs.index') }}">
+                          Check Out
                         </a>
                         <a class="dropdown-item {{ request()->routeIs('tenants.*') ? 'active' : '' }}" href="{{ route('tenants.index') }}">
                           Daftar Penghuni

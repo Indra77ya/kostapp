@@ -32,12 +32,16 @@ class Registration extends Model
         'institution_name',
         'institution_address',
         'institution_phone',
+        'status',
+        'check_out_date',
+        'check_out_notes',
     ];
 
     protected $casts = [
-        'registration_date' => 'date',
-        'stay_start_date' => 'date',
-        'birth_date' => 'date',
+        'registration_date' => 'date:Y-m-d',
+        'stay_start_date' => 'date:Y-m-d',
+        'birth_date' => 'date:Y-m-d',
+        'check_out_date' => 'date:Y-m-d',
     ];
 
     public function user()
