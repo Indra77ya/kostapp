@@ -1,12 +1,12 @@
 <div>
     <div class="row mb-3 align-items-center">
         <div class="col">
-            <h2 class="page-title">Manajemen Pendaftaran Penghuni</h2>
+            <h2 class="page-title">Manajemen Check In</h2>
         </div>
         <div class="col-auto ms-auto">
             <button class="btn btn-primary" wire:click="openModal()">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
-                Pendaftaran Baru
+                Check In Baru
             </button>
         </div>
     </div>
@@ -74,7 +74,7 @@
                         <td>
                             <div class="btn-list flex-nowrap">
                                 <button class="btn btn-white btn-sm" wire:click="openModal({{ $reg->id }})">Edit</button>
-                                <button class="btn btn-white btn-sm text-danger" wire:click="deleteRegistration({{ $reg->id }})" wire:confirm="Yakin ingin menghapus pendaftaran ini?">Hapus</button>
+                                <button class="btn btn-white btn-sm text-danger" wire:click="deleteRegistration({{ $reg->id }})" wire:confirm="Yakin ingin menghapus data check in ini?">Hapus</button>
                             </div>
                         </td>
                     </tr>
@@ -96,7 +96,7 @@
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
             <div class="modal-content">
                 <div class="modal-header border-0 pb-0">
-                    <h5 class="modal-title">{{ $registrationId ? 'Edit Pendaftaran' : 'Pendaftaran Penghuni Baru' }}</h5>
+                    <h5 class="modal-title">{{ $registrationId ? 'Edit Check In' : 'Check In Penghuni Baru' }}</h5>
                     <button type="button" class="btn-close" wire:click="closeModal()"></button>
                 </div>
                 <div class="modal-body pt-0">
@@ -320,7 +320,7 @@
                             <button type="button" class="btn btn-link link-secondary" wire:click="closeModal()">Batal</button>
                             <button type="submit" class="btn btn-primary ms-auto" wire:loading.attr="disabled">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2" /><path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M14 4l0 4l-6 0l0 -4" /></svg>
-                                <span wire:loading.remove>Simpan Pendaftaran</span>
+                                <span wire:loading.remove>Simpan Check In</span>
                                 <span wire:loading>Menyimpan...</span>
                             </button>
                         </div>

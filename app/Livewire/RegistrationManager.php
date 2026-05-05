@@ -362,7 +362,7 @@ class RegistrationManager extends Component
             }
         });
 
-        NotificationSent::dispatch("Pendaftaran {$this->name} berhasil disimpan.", 'success');
+        NotificationSent::dispatch("Check in {$this->name} berhasil disimpan.", 'success');
         DatabaseUpdated::dispatch();
         $this->closeModal();
     }
@@ -379,7 +379,7 @@ class RegistrationManager extends Component
         });
 
         DatabaseUpdated::dispatch();
-        NotificationSent::dispatch("Pendaftaran {$name} berhasil dihapus.", 'success');
+        NotificationSent::dispatch("Check in {$name} berhasil dihapus.", 'success');
     }
 
     public function updatingSearch() { $this->resetPage(); }
