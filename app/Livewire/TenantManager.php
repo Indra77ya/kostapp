@@ -32,21 +32,13 @@ class TenantManager extends Component
 
     protected function rules()
     {
-        $rules = [
+        return [
             'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $this->tenantId,
             'phone_number' => 'nullable|string|max:20',
             'address' => 'nullable|string',
+            'password' => 'nullable|min:8',
         ];
-
-        if (!$this->tenantId) {
-            $rules['email'] = 'required|email|unique:users,email';
-            $rules['password'] = 'required|min:8';
-        } else {
-            $rules['email'] = 'required|email|unique:users,email,' . $this->tenantId;
-            $rules['password'] = 'nullable|min:8';
-        }
-
-        return $rules;
     }
 
     public function togglePassword()
@@ -102,6 +94,8 @@ class TenantManager extends Component
 
     public function saveTenant()
     {
+        if (!$this->tenantId) return;
+
         $this->validate();
 
         $tenantData = [
@@ -116,17 +110,10 @@ class TenantManager extends Component
             $tenantData['password_plain'] = $this->password;
         }
 
-        if ($this->tenantId) {
-            $tenant = User::find($this->tenantId);
-            $tenant->update($tenantData);
+        $tenant = User::find($this->tenantId);
+        $tenant->update($tenantData);
 
-            NotificationSent::dispatch("Data penghuni {$tenant->name} berhasil diperbarui.", 'success');
-        } else {
-            $tenant = User::create($tenantData);
-            $tenant->assignRole('tenant');
-
-            NotificationSent::dispatch("Penghuni baru {$tenant->name} berhasil didaftarkan.", 'success');
-        }
+        NotificationSent::dispatch("Data penghuni {$tenant->name} berhasil diperbarui.", 'success');
 
         DatabaseUpdated::dispatch();
         $this->closeModal();

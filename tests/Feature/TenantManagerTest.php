@@ -24,30 +24,6 @@ class TenantManagerTest extends TestCase
         Role::firstOrCreate(['name' => 'tenant']);
     }
 
-    public function test_can_register_new_tenant()
-    {
-        $admin = User::factory()->create();
-        $admin->assignRole('admin');
-
-        Livewire::actingAs($admin)
-            ->test(TenantManager::class)
-            ->set('name', 'Budi Tenant')
-            ->set('email', 'budi@example.com')
-            ->set('phone_number', '08123456789')
-            ->set('address', 'Jl. Merdeka No. 1')
-            ->set('password', 'password123')
-            ->call('saveTenant')
-            ->assertHasNoErrors();
-
-        $this->assertDatabaseHas('users', [
-            'name' => 'Budi Tenant',
-            'email' => 'budi@example.com',
-            'phone_number' => '08123456789',
-        ]);
-
-        $tenant = User::where('email', 'budi@example.com')->first();
-        $this->assertTrue($tenant->hasRole('tenant'));
-    }
 
     public function test_can_edit_tenant()
     {
