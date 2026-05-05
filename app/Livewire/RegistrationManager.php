@@ -33,7 +33,7 @@ class RegistrationManager extends Component
 
     // Form fields - Basic
     public $location_id, $room_id, $registration_number;
-    public $registration_date, $stay_start_date;
+    public $registration_date, $stay_start_date, $currentRoomId;
 
     // Financials
     public $room_price = 0, $discount_type = 'fixed', $discount_value = 0, $total_price = 0;
@@ -125,8 +125,20 @@ class RegistrationManager extends Component
     public function generateRegistrationNumber()
     {
         $date = Carbon::now()->format('dmY');
-        $count = Registration::whereDate('created_at', Carbon::today())->count() + 1;
-        $this->registration_number = "REG-{$date}-" . str_pad($count, 4, '0', STR_PAD_LEFT);
+        $prefix = "REG-{$date}-";
+
+        $lastRegistration = Registration::where('registration_number', 'like', $prefix . '%')
+            ->orderBy('registration_number', 'desc')
+            ->first();
+
+        if ($lastRegistration) {
+            $lastNumber = (int) substr($lastRegistration->registration_number, -4);
+            $nextNumber = $lastNumber + 1;
+        } else {
+            $nextNumber = 1;
+        }
+
+        $this->registration_number = $prefix . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
     }
 
     public function openModal($id = null)
@@ -171,6 +183,7 @@ class RegistrationManager extends Component
                 return $contactArr;
             })->toArray();
 
+            $this->currentRoomId = $reg->room_id;
             $room = Room::find($this->room_id);
             $this->room_facilities = $room->facilities;
         } else {
@@ -189,6 +202,7 @@ class RegistrationManager extends Component
     private function resetForm()
     {
         $this->registrationId = null;
+        $this->currentRoomId = null;
         $this->location_id = null;
         $this->room_id = null;
         $this->registration_number = null;
@@ -404,10 +418,8 @@ class RegistrationManager extends Component
             $rooms = Room::where('location_id', $this->location_id)
                 ->where(function($q) {
                     $q->where('status', 'available');
-                    if ($this->registrationId) {
-                        // Include current room if editing
-                        $currentRoomId = Registration::find($this->registrationId)->room_id;
-                        $q->orWhere('id', $currentRoomId);
+                    if ($this->currentRoomId) {
+                        $q->orWhere('id', $this->currentRoomId);
                     }
                 })
                 ->orderBy('room_number')
