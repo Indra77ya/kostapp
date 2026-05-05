@@ -164,7 +164,9 @@ class TenantManager extends Component
         }
 
         return view('livewire.tenant-manager', [
-            'tenants' => $query->orderBy('name')->paginate(12),
+            'tenants' => $query->with(['registrations' => function($q) {
+                $q->latest();
+            }])->orderBy('name')->paginate(12),
         ]);
     }
 }

@@ -61,6 +61,18 @@
                     @else
                         <span class="avatar avatar-xl mb-3 rounded">{{ substr($tenant->name, 0, 2) }}</span>
                     @endif
+                    <div class="mb-2">
+                        @php $latestReg = $tenant->registrations->first(); @endphp
+                        @if($latestReg)
+                            @if($latestReg->status === 'active')
+                                <span class="badge bg-success-lt">Check In</span>
+                            @else
+                                <span class="badge bg-secondary-lt">Check Out</span>
+                            @endif
+                        @else
+                            <span class="badge bg-warning-lt">No Data</span>
+                        @endif
+                    </div>
                     <h3 class="m-0 mb-1 text-truncate">{{ $tenant->name }}</h3>
                     <div class="text-secondary text-truncate">{{ $tenant->email }}</div>
                     <div class="mt-2 text-secondary small">
@@ -106,6 +118,7 @@
                 <thead>
                     <tr>
                         <th>Nama</th>
+                        <th>Status</th>
                         <th>Email</th>
                         <th>Telepon</th>
                         <th>Alamat</th>
@@ -127,6 +140,18 @@
                                     <div class="font-weight-medium">{{ $tenant->name }}</div>
                                 </div>
                             </div>
+                        </td>
+                        <td>
+                            @php $latestReg = $tenant->registrations->first(); @endphp
+                            @if($latestReg)
+                                @if($latestReg->status === 'active')
+                                    <span class="badge bg-success-lt">Check In</span>
+                                @else
+                                    <span class="badge bg-secondary-lt">Check Out</span>
+                                @endif
+                            @else
+                                <span class="badge bg-warning-lt">No Data</span>
+                            @endif
                         </td>
                         <td class="text-secondary">{{ $tenant->email }}</td>
                         <td class="text-secondary">{{ $tenant->phone_number ?? '-' }}</td>
