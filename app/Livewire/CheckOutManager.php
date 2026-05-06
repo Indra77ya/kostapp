@@ -88,6 +88,12 @@ class CheckOutManager extends Component
     public function updatingSearch() { $this->resetPage(); }
     public function updatingFilterLocation() { $this->resetPage(); }
 
+    public function resetFilters()
+    {
+        $this->reset(['search', 'filterLocation']);
+        $this->resetPage();
+    }
+
     public function render()
     {
         $query = Registration::with('user', 'location', 'room')

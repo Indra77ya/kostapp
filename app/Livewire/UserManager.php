@@ -172,6 +172,12 @@ class UserManager extends Component
         $this->resetPage();
     }
 
+    public function resetFilters()
+    {
+        $this->reset(['search', 'filterRole']);
+        $this->resetPage();
+    }
+
     public function render()
     {
         $query = User::query()->whereDoesntHave('roles', function($q) {

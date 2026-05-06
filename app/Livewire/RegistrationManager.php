@@ -387,6 +387,12 @@ class RegistrationManager extends Component
     public function updatingFilterDateStart() { $this->resetPage(); }
     public function updatingFilterDateEnd() { $this->resetPage(); }
 
+    public function resetFilters()
+    {
+        $this->reset(['search', 'filterLocation', 'filterDateStart', 'filterDateEnd']);
+        $this->resetPage();
+    }
+
     public function render()
     {
         $query = Registration::with('user', 'location', 'room')->where('status', 'active');

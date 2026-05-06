@@ -101,6 +101,12 @@ class FacilityManager extends Component
         $this->resetPage();
     }
 
+    public function resetFilters()
+    {
+        $this->reset(['search', 'filterCategory']);
+        $this->resetPage();
+    }
+
     public function render()
     {
         $query = Facility::query();

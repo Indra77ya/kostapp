@@ -132,6 +132,12 @@ class LocationManager extends Component
         $this->resetPage();
     }
 
+    public function resetFilters()
+    {
+        $this->reset(['search']);
+        $this->resetPage();
+    }
+
     public function render()
     {
         $locations = Location::where('name', 'like', '%' . $this->search . '%')

@@ -140,6 +140,13 @@ class TenantManager extends Component
         $this->resetPage();
     }
 
+    public function resetFilters()
+    {
+        $this->reset(['search']);
+        $this->filterStatus = 'active';
+        $this->resetPage();
+    }
+
     public function setView($type)
     {
         $this->viewType = $type;
