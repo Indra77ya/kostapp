@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ProfileController;
 use App\Livewire\SystemSettings;
 use Illuminate\Support\Facades\Route;
@@ -31,6 +32,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/tenants', function () {
             return view('tenants.index');
         })->name('tenants.index');
+
+        Route::get('/registrations/{registration}/invoice', [InvoiceController::class, 'show'])->name('registrations.invoice');
 
     Route::get('/check-outs', function () {
         return view('check-outs.index');
