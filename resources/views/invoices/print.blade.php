@@ -3,109 +3,192 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice - {{ $registration->registration_number }}</title>
+    <title>Data Diri Penghuni - {{ $registration->registration_number }}</title>
     <style>
-        body { font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 40px; color: #333; }
-        .invoice-box { max-width: 800px; margin: auto; border: 1px solid #eee; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, .15); }
-        .header { display: flex; justify-content: space-between; border-bottom: 2px solid #3b82f6; padding-bottom: 20px; margin-bottom: 20px; }
-        .logo { font-size: 28px; font-weight: bold; color: #3b82f6; }
-        .invoice-title { font-size: 24px; text-transform: uppercase; font-weight: bold; color: #666; }
-        .info-row { display: flex; justify-content: space-between; margin-bottom: 30px; }
-        .info-col { width: 45%; }
-        .info-col h3 { font-size: 14px; text-transform: uppercase; color: #888; margin-bottom: 5px; border-bottom: 1px solid #eee; }
-        .info-col p { margin: 2px 0; font-size: 15px; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
-        th { background: #f9fafb; text-align: left; padding: 12px; border-bottom: 2px solid #eee; font-size: 13px; text-transform: uppercase; }
-        td { padding: 12px; border-bottom: 1px solid #eee; font-size: 14px; }
-        .total-section { display: flex; justify-content: flex-end; }
-        .total-table { width: 250px; }
-        .total-table td { border: none; padding: 5px 12px; }
-        .grand-total { font-weight: bold; font-size: 18px; color: #3b82f6; }
-        .footer { margin-top: 50px; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #eee; padding-top: 20px; }
+        body { font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 40px; color: #333; line-height: 1.5; }
+        .container { max-width: 850px; margin: auto; border: 1px solid #eee; padding: 40px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, .05); }
+        .header { display: flex; justify-content: space-between; border-bottom: 2px solid #3b82f6; padding-bottom: 15px; margin-bottom: 25px; align-items: center; }
+        .logo { font-size: 24px; font-weight: bold; color: #3b82f6; }
+        .document-title { font-size: 20px; text-transform: uppercase; font-weight: bold; color: #444; }
+
+        .section-title { background: #f3f4f6; padding: 8px 15px; font-weight: bold; font-size: 14px; text-transform: uppercase; margin: 25px 0 15px 0; border-left: 4px solid #3b82f6; }
+
+        .row { display: flex; flex-wrap: wrap; margin-bottom: 10px; }
+        .col { flex: 1; min-width: 200px; padding-right: 20px; }
+        .label { font-size: 12px; color: #6b7280; text-transform: uppercase; font-weight: 600; display: block; }
+        .value { font-size: 15px; color: #111827; display: block; font-weight: 500; }
+
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th { text-align: left; padding: 10px; border-bottom: 1px solid #e5e7eb; font-size: 12px; color: #6b7280; text-transform: uppercase; }
+        td { padding: 10px; border-bottom: 1px solid #f3f4f6; font-size: 14px; }
+
+        .photo-container { width: 120px; height: 160px; border: 2px dashed #e5e7eb; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 20px; border-radius: 4px; }
+        .photo-container img { width: 100%; height: 100%; object-fit: cover; }
+
+        .footer { margin-top: 40px; display: flex; justify-content: space-between; align-items: flex-end; }
+        .signature-box { text-align: center; width: 200px; }
+        .signature-line { border-top: 1px solid #333; margin-top: 80px; padding-top: 5px; font-weight: bold; }
+
         @media print {
             body { padding: 0; }
-            .invoice-box { border: none; box-shadow: none; }
+            .container { border: none; box-shadow: none; max-width: 100%; }
             .no-print { display: none; }
         }
         .print-btn { display: inline-block; background: #3b82f6; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-bottom: 20px; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="no-print">
-        <a href="javascript:window.print()" class="print-btn">Cetak Invoice</a>
+    <div class="no-print" style="text-align: center;">
+        <a href="javascript:window.print()" class="print-btn">Cetak Dokumen</a>
     </div>
 
-    <div class="invoice-box">
+    <div class="container">
         <div class="header">
             <div class="logo">KOST MANAGEMENT</div>
-            <div class="invoice-title">Invoice</div>
+            <div class="document-title">Data Diri Penghuni</div>
         </div>
 
-        <div class="info-row">
-            <div class="info-col">
-                <h3>Penghuni:</h3>
-                <p><strong>{{ $registration->user->name }}</strong></p>
-                <p>{{ $registration->user->email }}</p>
-                <p>{{ $registration->user->phone_number }}</p>
-                <p>{{ $registration->user->address }}</p>
+        <div style="display: flex; gap: 30px;">
+            <div style="flex: 1;">
+                <div class="section-title" style="margin-top: 0;">Informasi Registrasi</div>
+                <div class="row">
+                    <div class="col">
+                        <span class="label">Nomor Registrasi</span>
+                        <span class="value">{{ $registration->registration_number }}</span>
+                    </div>
+                    <div class="col">
+                        <span class="label">Status</span>
+                        <span class="value" style="color: {{ $registration->status === 'active' ? '#10b981' : '#6b7280' }}">{{ $registration->status === 'active' ? 'AKTIF' : 'SUDAH KELUAR' }}</span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <span class="label">Tanggal Daftar</span>
+                        <span class="value">{{ $registration->registration_date->format('d F Y') }}</span>
+                    </div>
+                    <div class="col">
+                        <span class="label">Mulai Menginap</span>
+                        <span class="value">{{ $registration->stay_start_date->format('d F Y') }}</span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <span class="label">Lokasi</span>
+                        <span class="value">{{ $registration->location->name }}</span>
+                    </div>
+                    <div class="col">
+                        <span class="label">Kamar / Lantai</span>
+                        <span class="value">Nomor {{ $registration->room->room_number }} / Lantai {{ $registration->room->floor }}</span>
+                    </div>
+                </div>
             </div>
-            <div class="info-col" style="text-align: right;">
-                <h3>Detail:</h3>
-                <p>No. Registrasi: <strong>{{ $registration->registration_number }}</strong></p>
-                <p>Tgl Daftar: {{ $registration->registration_date->format('d M Y') }}</p>
-                <p>Mulai Inap: {{ $registration->stay_start_date->format('d M Y') }}</p>
-                <p>Status: <span style="color: {{ $registration->status === 'active' ? '#10b981' : '#6b7280' }}; font-weight: bold;">{{ $registration->status === 'active' ? 'Aktif' : 'Check Out' }}</span></p>
+            <div style="width: 120px;">
+                <span class="label">Foto Diri</span>
+                <div class="photo-container">
+                    @if($registration->photo_self)
+                        <img src="{{ asset('storage/' . $registration->photo_self) }}" alt="Foto Diri">
+                    @else
+                        <span style="color: #ccc; font-size: 10px;">FOTO 3X4</span>
+                    @endif
+                </div>
             </div>
         </div>
 
+        <div class="section-title">Data Pribadi</div>
+        <div class="row">
+            <div class="col">
+                <span class="label">Nama Lengkap</span>
+                <span class="value">{{ $registration->user->name }}</span>
+            </div>
+            <div class="col">
+                <span class="label">Jenis Kelamin</span>
+                <span class="value">{{ $registration->gender }}</span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <span class="label">Tempat, Tanggal Lahir</span>
+                <span class="value">{{ $registration->birth_place ?? '-' }}, {{ $registration->birth_date ? $registration->birth_date->format('d F Y') : '-' }}</span>
+            </div>
+            <div class="col">
+                <span class="label">Email</span>
+                <span class="value">{{ $registration->user->email }}</span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <span class="label">Nomor Telepon</span>
+                <span class="value">{{ $registration->user->phone_number ?? '-' }}</span>
+            </div>
+            <div class="col">
+                <span class="label">Identitas ({{ $registration->identity_type }})</span>
+                <span class="value">{{ $registration->identity_number }}</span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col" style="flex: 100%;">
+                <span class="label">Alamat Lengkap</span>
+                <span class="value">{{ $registration->user->address ?? '-' }}</span>
+            </div>
+        </div>
+
+        @if($registration->institution_name)
+        <div class="section-title">Informasi Instansi (Sekolah / Kampus / Kantor)</div>
+        <div class="row">
+            <div class="col">
+                <span class="label">Nama Instansi</span>
+                <span class="value">{{ $registration->institution_name }}</span>
+            </div>
+            <div class="col">
+                <span class="label">Telepon Instansi</span>
+                <span class="value">{{ $registration->institution_phone ?? '-' }}</span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col" style="flex: 100%;">
+                <span class="label">Alamat Instansi</span>
+                <span class="value">{{ $registration->institution_address ?? '-' }}</span>
+            </div>
+        </div>
+        @endif
+
+        @if($registration->emergencyContacts->count() > 0)
+        <div class="section-title">Kontak Darurat (Emergency Contact)</div>
         <table>
             <thead>
                 <tr>
-                    <th>Deskripsi</th>
-                    <th>Lokasi</th>
-                    <th>Kamar / Lantai</th>
-                    <th style="text-align: right;">Harga</th>
+                    <th>Nama</th>
+                    <th>Hubungan</th>
+                    <th>Nomor Telepon</th>
+                    <th>Alamat</th>
                 </tr>
             </thead>
             <tbody>
+                @foreach($registration->emergencyContacts as $contact)
                 <tr>
-                    <td>Biaya Sewa Kamar (Deposit Awal / Pendaftaran)</td>
-                    <td>{{ $registration->location->name }}</td>
-                    <td>Kamar {{ $registration->room->room_number }} / Lantai {{ $registration->room->floor }} ({{ $registration->room->room_type }})</td>
-                    <td style="text-align: right;">Rp {{ number_format($registration->room_price, 0, ',', '.') }}</td>
+                    <td><strong>{{ $contact->name }}</strong></td>
+                    <td>{{ $contact->relationship }}</td>
+                    <td>{{ $contact->phone_number }}</td>
+                    <td style="font-size: 12px;">{{ $contact->address ?? '-' }}</td>
                 </tr>
+                @endforeach
             </tbody>
         </table>
-
-        <div class="total-section">
-            <table class="total-table">
-                <tr>
-                    <td>Subtotal:</td>
-                    <td style="text-align: right;">Rp {{ number_format($registration->room_price, 0, ',', '.') }}</td>
-                </tr>
-                @if($registration->discount_value > 0)
-                <tr>
-                    <td>Diskon ({{ $registration->discount_type === 'percent' ? $registration->discount_value . '%' : 'Fixed' }}):</td>
-                    <td style="text-align: right; color: #ef4444;">
-                        @php
-                            $discountAmount = $registration->discount_type === 'percent'
-                                ? $registration->room_price * ($registration->discount_value / 100)
-                                : $registration->discount_value;
-                        @endphp
-                        - Rp {{ number_format($discountAmount, 0, ',', '.') }}
-                    </td>
-                </tr>
-                @endif
-                <tr class="grand-total">
-                    <td>TOTAL:</td>
-                    <td style="text-align: right;">Rp {{ number_format($registration->total_price, 0, ',', '.') }}</td>
-                </tr>
-            </table>
-        </div>
+        @endif
 
         <div class="footer">
-            <p>Terima kasih telah memilih hunian kami. Harap simpan invoice ini sebagai bukti pembayaran yang sah.</p>
-            <p>&copy; {{ date('Y') }} KOST MANAGEMENT SYSTEM</p>
+            <div class="signature-box">
+                <p style="font-size: 13px;">Petugas / Pengelola,</p>
+                <div class="signature-line">( .................................... )</div>
+            </div>
+            <div class="signature-box">
+                <p style="font-size: 13px;">Penghuni,</p>
+                <div class="signature-line">{{ $registration->user->name }}</div>
+            </div>
+        </div>
+
+        <div style="margin-top: 30px; border-top: 1px dashed #eee; padding-top: 10px; font-size: 11px; color: #999; text-align: center;">
+            Dokumen ini dicetak secara otomatis melalui Sistem Manajemen Kost pada {{ date('d/m/Y H:i') }}.
         </div>
     </div>
 </body>

@@ -9,7 +9,7 @@ class InvoiceController extends Controller
 {
     public function show(Registration $registration)
     {
-        $registration->load(['user', 'location', 'room']);
+        $registration->load(['user', 'location', 'room', 'emergencyContacts']);
         return view('invoices.print', compact('registration'));
     }
 }
