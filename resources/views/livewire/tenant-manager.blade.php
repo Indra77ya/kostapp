@@ -22,7 +22,7 @@
     <div class="card mb-3">
         <div class="card-body">
             <div class="row g-2">
-                <div class="col-md-7">
+                <div class="col-md-3">
                     <div class="input-icon">
                         <span class="input-icon-addon">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
@@ -30,11 +30,35 @@
                         <input type="text" class="form-control" placeholder="Cari nama, email, atau telepon..." wire:model.live.debounce.300ms="search">
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-2">
                     <select class="form-select" wire:model.live="filterStatus">
-                        <option value="active">Penghuni Aktif (Check In)</option>
-                        <option value="checked_out">Arsip (Sudah Check Out)</option>
-                        <option value="all">Semua Data</option>
+                        <option value="active">Penghuni Aktif</option>
+                        <option value="checked_out">Sudah Check Out</option>
+                        <option value="all">Semua Status</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" wire:model.live="filterLocation">
+                        <option value="">Semua Lokasi</option>
+                        @foreach($locations as $loc)
+                            <option value="{{ $loc->id }}">{{ $loc->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" wire:model.live="filterType">
+                        <option value="">Semua Tipe</option>
+                        @foreach($roomTypes as $type)
+                            <option value="{{ $type }}">{{ $type }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" wire:model.live="filterFloor">
+                        <option value="">Semua Lantai</option>
+                        @foreach($floors as $floor)
+                            <option value="{{ $floor }}">Lantai {{ $floor }}</option>
+                        @endforeach
                     </select>
                 </div>
                 <div class="col-md-1">
@@ -84,6 +108,17 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-inline me-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 4h4l2 5l-2.5 1.5a11 11 0 0 0 5 5l1.5 -2.5l5 2v4a2 2 0 0 1 -2 2a16 16 0 0 1 -15 -15a2 2 0 0 1 2 -2" /></svg>
                         {{ $tenant->phone_number ?? '-' }}
                     </div>
+                    <div class="mt-2 text-secondary small">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-inline me-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /><path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z" /></svg>
+                        {{ $latestReg->location->name ?? '-' }}
+                    </div>
+                    <div class="mt-1 text-secondary small">
+                        @if($latestReg && $latestReg->room)
+                            {{ $latestReg->room->room_type ?? '-' }} - Lantai {{ $latestReg->room->floor ?? '-' }}
+                        @else
+                            -
+                        @endif
+                    </div>
                     <div class="mt-2 text-secondary small d-flex align-items-center justify-content-center">
                         <span class="me-1">Password:</span>
                         @if($peekPasswordId === $tenant->id)
@@ -124,6 +159,8 @@
                     <tr>
                         <th>Nama</th>
                         <th>Status</th>
+                        <th>Lokasi</th>
+                        <th>Tipe / Lantai</th>
                         <th>Email</th>
                         <th>Telepon</th>
                         <th>Alamat</th>
@@ -158,9 +195,19 @@
                                 <span class="badge bg-warning-lt">No Data</span>
                             @endif
                         </td>
+                        <td class="text-secondary">
+                            {{ $latestReg->location->name ?? '-' }}
+                        </td>
+                        <td class="text-secondary">
+                            @if($latestReg && $latestReg->room)
+                                {{ $latestReg->room->room_type ?? '-' }} / Lantai {{ $latestReg->room->floor ?? '-' }}
+                            @else
+                                -
+                            @endif
+                        </td>
                         <td class="text-secondary">{{ $tenant->email }}</td>
                         <td class="text-secondary">{{ $tenant->phone_number ?? '-' }}</td>
-                        <td class="text-secondary text-truncate" style="max-width: 200px;">{{ $tenant->address ?? '-' }}</td>
+                        <td class="text-secondary text-truncate" style="max-width: 150px;">{{ $tenant->address ?? '-' }}</td>
                         <td>
                             <div class="d-flex align-items-center">
                                 <span class="me-2">

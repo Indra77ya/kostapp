@@ -21,6 +21,9 @@ class TenantManager extends Component
     // Search & Filters
     public $search = '';
     public $filterStatus = 'active'; // 'active', 'checked_out', 'all'
+    public $filterLocation = '';
+    public $filterType = '';
+    public $filterFloor = '';
 
     // Form fields
     public $name, $email, $phone_number, $address, $password;
@@ -140,9 +143,13 @@ class TenantManager extends Component
         $this->resetPage();
     }
 
+    public function updatingFilterLocation() { $this->resetPage(); }
+    public function updatingFilterType() { $this->resetPage(); }
+    public function updatingFilterFloor() { $this->resetPage(); }
+
     public function resetFilters()
     {
-        $this->reset(['search']);
+        $this->reset(['search', 'filterLocation', 'filterType', 'filterFloor']);
         $this->filterStatus = 'active';
         $this->resetPage();
     }
@@ -162,6 +169,27 @@ class TenantManager extends Component
             });
         }
 
+        if ($this->filterLocation) {
+            $query->whereHas('registrations', function($q) {
+                $q->where('location_id', $this->filterLocation);
+                if ($this->filterStatus !== 'all') {
+                    $q->where('status', $this->filterStatus);
+                }
+            });
+        }
+
+        if ($this->filterType) {
+            $query->whereHas('registrations.room', function($q) {
+                $q->where('room_type', $this->filterType);
+            });
+        }
+
+        if ($this->filterFloor) {
+            $query->whereHas('registrations.room', function($q) {
+                $q->where('floor', $this->filterFloor);
+            });
+        }
+
         if ($this->search) {
             $query->where(function($q) {
                 $q->where('name', 'like', '%' . $this->search . '%')
@@ -172,8 +200,11 @@ class TenantManager extends Component
 
         return view('livewire.tenant-manager', [
             'tenants' => $query->with(['registrations' => function($q) {
-                $q->latest();
+                $q->with(['location', 'room'])->latest();
             }])->orderBy('name')->paginate(12),
+            'locations' => \App\Models\Location::orderBy('name')->get(),
+            'roomTypes' => \App\Models\Room::whereNotNull('room_type')->distinct()->pluck('room_type')->sort(),
+            'floors' => \App\Models\Room::whereNotNull('floor')->distinct()->pluck('floor')->sort(),
         ]);
     }
 }
