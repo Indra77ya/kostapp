@@ -176,6 +176,27 @@
         </table>
         @endif
 
+        @if($rules->count() > 0)
+        <div class="section-title">Tata Tertib & Peraturan</div>
+        <div style="font-size: 13px; color: #444;">
+            @foreach($rules as $category => $categoryRules)
+                <div style="margin-bottom: 12px;">
+                    <strong style="color: #1f2937; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px;">— {{ $category }}</strong>
+                    <ul style="margin: 5px 0 0 0; padding-left: 20px; list-style-type: square;">
+                        @foreach($categoryRules as $rule)
+                            <li style="margin-bottom: 5px;">
+                                <strong style="color: #374151;">{{ $rule->title }}:</strong> {!! $rule->description !!}
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endforeach
+            <p style="font-style: italic; font-size: 12px; margin-top: 20px; border-left: 3px solid #3b82f6; padding: 5px 0 5px 15px; background: #f9fafb; color: #4b5563;">
+                Saya yang bertanda tangan di bawah ini menyatakan telah membaca, memahami, dan menyetujui seluruh tata tertib dan peraturan yang berlaku di lingkungan Kost.
+            </p>
+        </div>
+        @endif
+
         <div class="footer">
             <div class="signature-box">
                 <p style="font-size: 13px;">Petugas / Pengelola,</p>
