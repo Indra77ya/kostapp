@@ -36,6 +36,10 @@ Route::middleware('auth')->group(function () {
         return view('check-outs.index');
     })->name('check-outs.index');
 
+    Route::get('/room-moves', function () {
+        return view('room-moves.index');
+    })->name('room-moves.index');
+
         Route::middleware('role:owner|developer')->group(function () {
             Route::get('/locations', function () {
                 return view('locations.index');
