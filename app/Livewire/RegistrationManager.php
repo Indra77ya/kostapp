@@ -389,7 +389,7 @@ class RegistrationManager extends Component
 
     public function render()
     {
-        $query = Registration::with('user', 'location', 'room');
+        $query = Registration::with('user', 'location', 'room')->where('status', 'active');
 
         if ($this->search) {
             $query->where(function($q) {
