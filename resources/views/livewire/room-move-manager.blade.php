@@ -16,13 +16,32 @@
     <div class="card mb-3">
         <div class="card-body">
             <div class="row g-2">
-                <div class="col-md-12">
+                <div class="col-md-4">
                     <div class="input-icon">
                         <span class="input-icon-addon">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
                         </span>
-                        <input type="text" class="form-control" placeholder="Cari nama penghuni..." wire:model.live.debounce.300ms="search">
+                        <input type="text" class="form-control" placeholder="Cari penghuni / reg..." wire:model.live.debounce.300ms="search">
                     </div>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" wire:model.live="filterLocationId">
+                        <option value="">Semua Lokasi</option>
+                        @foreach($locations as $location)
+                            <option value="{{ $location->id }}">{{ $location->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <input type="date" class="form-control" wire:model.live="filterDateStart" title="Tanggal Mulai">
+                </div>
+                <div class="col-md-2">
+                    <input type="date" class="form-control" wire:model.live="filterDateEnd" title="Tanggal Akhir">
+                </div>
+                <div class="col-md-1">
+                    <button class="btn btn-icon w-100" title="Reset Filter" wire:click="resetFilters">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-rotate" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19.95 11a8 8 0 1 0 -.5 4m.5 5v-5h-5" /></svg>
+                    </button>
                 </div>
             </div>
         </div>
@@ -89,15 +108,54 @@
                 </div>
                 <form wire:submit.prevent="saveMove">
                     <div class="modal-body">
-                        <div class="mb-3">
+                        <div class="mb-3 position-relative">
                             <label class="form-label">Pilih Penghuni</label>
-                            <select class="form-select @error('registration_id') is-invalid @enderror" wire:model.live="registration_id">
-                                <option value="">-- Pilih Penghuni --</option>
-                                @foreach($activeRegistrations as $reg)
-                                    <option value="{{ $reg->id }}">{{ $reg->user->name }} ({{ $reg->room->room_number }} - {{ $reg->location->name }})</option>
-                                @endforeach
-                            </select>
-                            @error('registration_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            @if(!$registration_id)
+                                <div class="input-icon">
+                                    <span class="input-icon-addon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
+                                    </span>
+                                    <input type="text" class="form-control @error('registration_id') is-invalid @enderror"
+                                           placeholder="Ketik nama penghuni untuk mencari..."
+                                           wire:model.live.debounce.300ms="tenant_search">
+                                </div>
+                                @if(!empty($activeRegistrations))
+                                    <div class="list-group list-group-flush position-absolute w-100 mt-1 shadow-sm border rounded" style="z-index: 1050; max-height: 200px; overflow-y: auto;">
+                                        @foreach($activeRegistrations as $reg)
+                                            <button type="button" class="list-group-item list-group-item-action py-2"
+                                                    wire:click="selectTenant({{ $reg->id }}, {{ $reg->location_id }})">
+                                                <div class="d-flex align-items-center">
+                                                    @if($reg->user->avatar)
+                                                        <span class="avatar avatar-xs me-2" style="background-image: url({{ asset('storage/' . $reg->user->avatar) }})"></span>
+                                                    @else
+                                                        <span class="avatar avatar-xs me-2">{{ substr($reg->user->name, 0, 2) }}</span>
+                                                    @endif
+                                                    <div>
+                                                        <div class="font-weight-medium">{{ $reg->user->name }}</div>
+                                                        <div class="text-secondary small">{{ $reg->room->room_number }} - {{ $reg->location->name }}</div>
+                                                    </div>
+                                                </div>
+                                            </button>
+                                        @endforeach
+                                    </div>
+                                @endif
+                            @else
+                                <div class="d-flex align-items-center border p-2 rounded bg-light">
+                                    @if($selectedRegistration->user->avatar)
+                                        <span class="avatar avatar-sm me-2" style="background-image: url({{ asset('storage/' . $selectedRegistration->user->avatar) }})"></span>
+                                    @else
+                                        <span class="avatar avatar-sm me-2">{{ substr($selectedRegistration->user->name, 0, 2) }}</span>
+                                    @endif
+                                    <div class="flex-fill">
+                                        <div class="font-weight-medium">{{ $selectedRegistration->user->name }}</div>
+                                        <div class="text-secondary small">Kamar: {{ $selectedRegistration->room->room_number }} ({{ $selectedRegistration->location->name }})</div>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-ghost-danger btn-icon" wire:click="$set('registration_id', null)">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></svg>
+                                    </button>
+                                </div>
+                            @endif
+                            @error('registration_id') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                         </div>
 
                         @if($registration_id)

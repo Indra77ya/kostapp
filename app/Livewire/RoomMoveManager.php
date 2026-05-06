@@ -22,9 +22,13 @@ class RoomMoveManager extends Component
 
     // Search & Filters
     public $search = '';
+    public $filterLocationId = '';
+    public $filterDateStart = '';
+    public $filterDateEnd = '';
 
     // Form fields
     public $registration_id, $new_room_id, $move_date, $reason;
+    public $tenant_search = '';
     public $selectedLocationId;
 
     protected $listeners = ['echo:stats,DatabaseUpdated' => '$refresh'];
@@ -114,20 +118,77 @@ class RoomMoveManager extends Component
         $this->resetPage();
     }
 
+    public function updatingFilterLocationId()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingFilterDateStart()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingFilterDateEnd()
+    {
+        $this->resetPage();
+    }
+
+    public function resetFilters()
+    {
+        $this->reset(['search', 'filterLocationId', 'filterDateStart', 'filterDateEnd']);
+        $this->resetPage();
+    }
+
+    public function selectTenant($id, $locationId)
+    {
+        $this->registration_id = $id;
+        $this->selectedLocationId = $locationId;
+        $this->new_room_id = null;
+        $this->tenant_search = '';
+    }
+
     public function render()
     {
-        $query = RoomMove::with(['registration.user', 'oldRoom', 'newRoom']);
+        $query = RoomMove::with(['registration.user', 'oldRoom', 'newRoom', 'registration.location']);
 
         if ($this->search) {
             $query->whereHas('registration.user', function($q) {
-                $q->where('name', 'like', '%' . $this->search . '%');
+                $q->where('name', 'like', '%' . $this->search . '%')
+                  ->orWhere('email', 'like', '%' . $this->search . '%');
+            })->orWhereHas('registration', function($q) {
+                $q->where('registration_number', 'like', '%' . $this->search . '%');
             });
         }
 
-        // Active registrations for the dropdown
-        $activeRegistrations = Registration::with('user', 'room')
-            ->where('status', 'active')
-            ->get();
+        if ($this->filterLocationId) {
+            $query->whereHas('oldRoom', function($q) {
+                $q->where('location_id', $this->filterLocationId);
+            });
+        }
+
+        if ($this->filterDateStart) {
+            $query->where('move_date', '>=', $this->filterDateStart);
+        }
+
+        if ($this->filterDateEnd) {
+            $query->where('move_date', '<=', $this->filterDateEnd);
+        }
+
+        // Active registrations for the search dropdown in modal
+        $activeRegistrations = [];
+        if ($this->tenant_search) {
+            $activeRegistrations = Registration::with('user', 'room', 'location')
+                ->where('status', 'active')
+                ->whereHas('user', function($q) {
+                    $q->where('name', 'like', '%' . $this->tenant_search . '%');
+                })
+                ->get();
+        } elseif (!$this->registration_id) {
+            $activeRegistrations = Registration::with('user', 'room', 'location')
+                ->where('status', 'active')
+                ->limit(5)
+                ->get();
+        }
 
         // Available rooms for the selected location
         $availableRooms = [];
@@ -142,6 +203,8 @@ class RoomMoveManager extends Component
             'moves' => $query->latest()->paginate(10),
             'activeRegistrations' => $activeRegistrations,
             'availableRooms' => $availableRooms,
+            'locations' => Location::orderBy('name')->get(),
+            'selectedRegistration' => $this->registration_id ? Registration::with('user', 'room', 'location')->find($this->registration_id) : null,
         ]);
     }
 }
