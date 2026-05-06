@@ -119,8 +119,8 @@
                                            placeholder="Ketik nama penghuni untuk mencari..."
                                            wire:model.live.debounce.300ms="tenant_search">
                                 </div>
-                                @if(!empty($activeRegistrations))
-                                    <div class="list-group list-group-flush position-absolute w-100 mt-1 shadow-sm border rounded" style="z-index: 1050; max-height: 200px; overflow-y: auto;">
+                                @if(strlen($tenant_search) >= 1 && !empty($activeRegistrations))
+                                    <div class="list-group list-group-flush position-absolute w-100 mt-1 shadow-lg border rounded bg-white" style="z-index: 1060; max-height: 200px; overflow-y: auto;">
                                         @foreach($activeRegistrations as $reg)
                                             <button type="button" class="list-group-item list-group-item-action py-2"
                                                     wire:click="selectTenant({{ $reg->id }}, {{ $reg->location_id }})">

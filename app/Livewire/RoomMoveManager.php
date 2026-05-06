@@ -176,17 +176,12 @@ class RoomMoveManager extends Component
 
         // Active registrations for the search dropdown in modal
         $activeRegistrations = [];
-        if ($this->tenant_search) {
+        if (strlen($this->tenant_search) >= 1) {
             $activeRegistrations = Registration::with('user', 'room', 'location')
                 ->where('status', 'active')
                 ->whereHas('user', function($q) {
                     $q->where('name', 'like', '%' . $this->tenant_search . '%');
                 })
-                ->get();
-        } elseif (!$this->registration_id) {
-            $activeRegistrations = Registration::with('user', 'room', 'location')
-                ->where('status', 'active')
-                ->limit(5)
                 ->get();
         }
 
