@@ -189,9 +189,17 @@ class RoomMoveManager extends Component
         $availableRooms = [];
         if ($this->selectedLocationId) {
             $availableRooms = Room::where('location_id', $this->selectedLocationId)
-                ->where('status', 'available')
-                ->orderBy('room_number')
-                ->get();
+                ->where('status', 'available');
+
+            // Exclude current room if a registration is selected
+            if ($this->registration_id) {
+                $currentReg = Registration::find($this->registration_id);
+                if ($currentReg) {
+                    $availableRooms->where('id', '!=', $currentReg->room_id);
+                }
+            }
+
+            $availableRooms = $availableRooms->orderBy('room_number')->get();
         }
 
         return view('livewire.room-move-manager', [
