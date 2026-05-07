@@ -28,6 +28,7 @@ class RoomMoveManager extends Component
 
     // Form fields
     public $registration_id, $new_room_id, $move_date, $reason;
+    public $room_price = 0, $discount_type = 'fixed', $discount_value = 0, $total_price = 0;
     public $tenant_search = '';
     public $selectedLocationId;
 
@@ -43,10 +44,43 @@ class RoomMoveManager extends Component
         if ($value) {
             $reg = Registration::find($value);
             $this->selectedLocationId = $reg->location_id;
+            // Pre-fill with current registration pricing as baseline
+            $this->discount_type = $reg->discount_type;
+            $this->discount_value = $reg->discount_value;
         } else {
             $this->selectedLocationId = null;
         }
         $this->new_room_id = null;
+        $this->room_price = 0;
+        $this->calculateTotalPrice();
+    }
+
+    public function updatedNewRoomId($value)
+    {
+        if ($value) {
+            $room = Room::find($value);
+            $this->room_price = $room ? $room->price : 0;
+        } else {
+            $this->room_price = 0;
+        }
+        $this->calculateTotalPrice();
+    }
+
+    public function updatedDiscountType() { $this->calculateTotalPrice(); }
+    public function updatedDiscountValue() { $this->calculateTotalPrice(); }
+    public function updatedRoomPrice() { $this->calculateTotalPrice(); }
+
+    public function calculateTotalPrice()
+    {
+        $this->total_price = (float) $this->room_price;
+
+        if ($this->discount_type === 'fixed') {
+            $this->total_price -= (float) $this->discount_value;
+        } elseif ($this->discount_type === 'percent') {
+            $this->total_price -= ($this->total_price * ((float) $this->discount_value / 100));
+        }
+
+        if ($this->total_price < 0) $this->total_price = 0;
     }
 
     public function openModal()
@@ -69,6 +103,10 @@ class RoomMoveManager extends Component
         $this->move_date = Carbon::now()->format('Y-m-d');
         $this->reason = '';
         $this->selectedLocationId = null;
+        $this->room_price = 0;
+        $this->discount_type = 'fixed';
+        $this->discount_value = 0;
+        $this->total_price = 0;
     }
 
     public function saveMove()
@@ -78,6 +116,8 @@ class RoomMoveManager extends Component
             'new_room_id' => 'required|exists:rooms,id',
             'move_date' => 'required|date',
             'reason' => 'nullable|string',
+            'room_price' => 'required|numeric|min:0',
+            'discount_value' => 'required|numeric|min:0',
         ]);
 
         $registration = Registration::find($this->registration_id);
@@ -100,8 +140,14 @@ class RoomMoveManager extends Component
                 'reason' => $this->reason,
             ]);
 
-            // 2. Update Registration
-            $registration->update(['room_id' => $this->new_room_id]);
+            // 2. Update Registration with new room and pricing
+            $registration->update([
+                'room_id' => $this->new_room_id,
+                'room_price' => $this->room_price,
+                'discount_type' => $this->discount_type,
+                'discount_value' => $this->discount_value,
+                'total_price' => $this->total_price,
+            ]);
 
             // 3. Update Room Statuses
             Room::where('id', $oldRoomId)->update(['status' => 'available']);

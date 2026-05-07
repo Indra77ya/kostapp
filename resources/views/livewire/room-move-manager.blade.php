@@ -161,7 +161,7 @@
                         @if($registration_id)
                         <div class="mb-3">
                             <label class="form-label">Pilih Kamar Baru</label>
-                            <select class="form-select @error('new_room_id') is-invalid @enderror" wire:model="new_room_id">
+                            <select class="form-select @error('new_room_id') is-invalid @enderror" wire:model.live="new_room_id">
                                 <option value="">-- Pilih Kamar Tersedia --</option>
                                 @foreach($availableRooms as $room)
                                     <option value="{{ $room->id }}">{{ $room->room_number }} (Rp {{ number_format($room->price, 0, ',', '.') }})</option>
@@ -169,6 +169,36 @@
                             </select>
                             @error('new_room_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             <small class="form-hint">Hanya menampilkan kamar tersedia di lokasi yang sama.</small>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Harga Kamar Baru</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">Rp</span>
+                                    <input type="number" class="form-control @error('room_price') is-invalid @enderror" wire:model.live="room_price">
+                                </div>
+                                @error('room_price') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Tipe Diskon</label>
+                                <select class="form-select" wire:model.live="discount_type">
+                                    <option value="fixed">Fixed (Rp)</option>
+                                    <option value="percent">Persen (%)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Nilai Diskon</label>
+                                <input type="number" class="form-control @error('discount_value') is-invalid @enderror" wire:model.live="discount_value">
+                                @error('discount_value') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Total Harga Baru</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light">Rp</span>
+                                    <input type="text" class="form-control fw-bold bg-light" value="{{ number_format($total_price, 0, ',', '.') }}" readonly>
+                                </div>
+                            </div>
                         </div>
                         @endif
 
