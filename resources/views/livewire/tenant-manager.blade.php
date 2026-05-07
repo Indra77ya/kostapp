@@ -134,11 +134,15 @@
                             @endif
                         </a>
                     </div>
-                    <div class="mt-3">
+                    <div class="mt-3 btn-list">
+                        <button class="btn btn-sm btn-outline-primary w-100" wire:click="viewDetails({{ $tenant->id }})">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-info-circle" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" /><path d="M12 9h.01" /><path d="M11 12h1v4h1" /></svg>
+                            Lihat Data
+                        </button>
                         @if($latestReg)
                             <a href="{{ route('registrations.invoice', $latestReg->id) }}" target="_blank" class="btn btn-sm btn-outline-info w-100">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-printer" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" /><path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" /><path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" /></svg>
-                                Cetak Data Diri
+                                Cetak
                             </a>
                         @endif
                     </div>
@@ -237,6 +241,7 @@
                         </td>
                         <td>
                             <div class="btn-list flex-nowrap">
+                                <button class="btn btn-white btn-sm" wire:click="viewDetails({{ $tenant->id }})">Lihat Data</button>
                                 @if($latestReg)
                                     <a href="{{ route('registrations.invoice', $latestReg->id) }}" target="_blank" class="btn btn-white btn-sm" title="Cetak Data Diri">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-printer" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" /><path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" /><path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" /></svg>
@@ -259,6 +264,153 @@
         </div>
     </div>
     @endif
+
+    <!-- Detail Modal -->
+    <div class="modal modal-blur fade {{ $isDetailModalOpen ? 'show d-block' : '' }}" tabindex="-1" role="dialog" aria-hidden="true" style="{{ $isDetailModalOpen ? 'background: rgba(0,0,0,0.5)' : '' }}">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detail Penghuni: {{ $viewingRegistration->user->name ?? '' }}</h5>
+                    <button type="button" class="btn-close" wire:click="closeDetailModal()" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    @if($viewingRegistration)
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="card card-sm">
+                                <div class="card-body p-2 text-center">
+                                    <div class="mb-2">
+                                        <strong>Foto Diri</strong>
+                                    </div>
+                                    @if($viewingRegistration->photo_self)
+                                        <img src="{{ asset('storage/' . $viewingRegistration->photo_self) }}" class="img-fluid rounded border" style="max-height: 200px; width: 100%; object-fit: cover;">
+                                    @else
+                                        <div class="bg-light d-flex align-items-center justify-content-center rounded border" style="height: 200px;">
+                                            <span class="text-secondary small">Tidak ada foto</span>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card mb-3">
+                                <div class="card-header"><h3 class="card-title">Informasi Pribadi</h3></div>
+                                <div class="card-body p-0">
+                                    <table class="table table-vcenter card-table">
+                                        <tr><td class="text-secondary w-25">No. Registrasi</td><td><span class="badge bg-blue-lt">{{ $viewingRegistration->registration_number }}</span></td></tr>
+                                        <tr><td class="text-secondary">Nama Lengkap</td><td>{{ $viewingRegistration->user->name }}</td></tr>
+                                        <tr><td class="text-secondary">Email</td><td>{{ $viewingRegistration->user->email }}</td></tr>
+                                        <tr><td class="text-secondary">No. Telepon</td><td>{{ $viewingRegistration->user->phone_number ?? '-' }}</td></tr>
+                                        <tr><td class="text-secondary">Jenis Kelamin</td><td>{{ $viewingRegistration->gender }}</td></tr>
+                                        <tr><td class="text-secondary">Tempat, Tgl Lahir</td><td>{{ $viewingRegistration->birth_place ?? '-' }}, {{ $viewingRegistration->birth_date ? $viewingRegistration->birth_date->format('d M Y') : '-' }}</td></tr>
+                                        <tr><td class="text-secondary">Alamat</td><td>{{ $viewingRegistration->user->address ?? '-' }}</td></tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100">
+                                <div class="card-header"><h3 class="card-title">Informasi Kamar & Biaya</h3></div>
+                                <div class="card-body p-0">
+                                    <table class="table table-vcenter card-table">
+                                        <tr><td class="text-secondary w-50">Lokasi</td><td>{{ $viewingRegistration->location->name }}</td></tr>
+                                        <tr><td class="text-secondary">Kamar</td><td>{{ $viewingRegistration->room->room_number }} ({{ $viewingRegistration->room->room_type }})</td></tr>
+                                        <tr><td class="text-secondary">Lantai</td><td>Lantai {{ $viewingRegistration->room->floor }}</td></tr>
+                                        <tr><td class="text-secondary">Tgl Mulai Kost</td><td>{{ $viewingRegistration->stay_start_date->format('d M Y') }}</td></tr>
+                                        <tr><td class="text-secondary">Harga Kamar</td><td>Rp {{ number_format($viewingRegistration->room_price, 0, ',', '.') }}</td></tr>
+                                        <tr><td class="text-secondary">Diskon</td><td>{{ $viewingRegistration->discount_type === 'percent' ? $viewingRegistration->discount_value . '%' : 'Rp ' . number_format($viewingRegistration->discount_value, 0, ',', '.') }}</td></tr>
+                                        <tr><td class="text-secondary">Total Biaya/Bulan</td><td><strong class="text-primary">Rp {{ number_format($viewingRegistration->total_price, 0, ',', '.') }}</strong></td></tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100">
+                                <div class="card-header"><h3 class="card-title">Identitas & Instansi</h3></div>
+                                <div class="card-body p-0">
+                                    <table class="table table-vcenter card-table">
+                                        <tr><td class="text-secondary w-50">Tipe Identitas</td><td>{{ $viewingRegistration->identity_type }}</td></tr>
+                                        <tr><td class="text-secondary">No. Identitas</td><td>{{ $viewingRegistration->identity_number }}</td></tr>
+                                        <tr><td class="text-secondary">No. KK</td><td>{{ $viewingRegistration->family_card_number ?? '-' }}</td></tr>
+                                        <tr><td class="text-secondary">Nama Instansi</td><td>{{ $viewingRegistration->institution_name ?? '-' }}</td></tr>
+                                        <tr><td class="text-secondary">No. Telp Instansi</td><td>{{ $viewingRegistration->institution_phone ?? '-' }}</td></tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mb-3">
+                        <div class="card-header"><h3 class="card-title">Kontak Darurat</h3></div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-vcenter card-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Nama</th>
+                                            <th>Hubungan</th>
+                                            <th>No. Telepon</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse($viewingRegistration->emergencyContacts as $contact)
+                                        <tr>
+                                            <td>{{ $contact->name }}</td>
+                                            <td>{{ $contact->relationship }}</td>
+                                            <td>{{ $contact->phone_number }}</td>
+                                        </tr>
+                                        @empty
+                                        <tr>
+                                            <td colspan="3" class="text-center text-secondary py-3">Tidak ada data kontak darurat</td>
+                                        </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="card">
+                                <div class="card-header"><h3 class="card-title">Foto Identitas ({{ $viewingRegistration->identity_type }})</h3></div>
+                                <div class="card-body p-2 text-center">
+                                    @if($viewingRegistration->photo_identity)
+                                        <img src="{{ asset('storage/' . $viewingRegistration->photo_identity) }}" class="img-fluid rounded border" style="max-height: 250px;">
+                                    @else
+                                        <div class="bg-light d-flex align-items-center justify-content-center rounded border" style="height: 150px;">
+                                            <span class="text-secondary small">Tidak ada foto identitas</span>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="card">
+                                <div class="card-header"><h3 class="card-title">Foto Kartu Keluarga</h3></div>
+                                <div class="card-body p-2 text-center">
+                                    @if($viewingRegistration->photo_family_card)
+                                        <img src="{{ asset('storage/' . $viewingRegistration->photo_family_card) }}" class="img-fluid rounded border" style="max-height: 250px;">
+                                    @else
+                                        <div class="bg-light d-flex align-items-center justify-content-center rounded border" style="height: 150px;">
+                                            <span class="text-secondary small">Tidak ada foto KK</span>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary ms-auto" wire:click="closeDetailModal()">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal -->
     <div class="modal modal-blur fade {{ $isModalOpen ? 'show d-block' : '' }}" tabindex="-1" role="dialog" aria-hidden="true" style="{{ $isModalOpen ? 'background: rgba(0,0,0,0.5)' : '' }}">

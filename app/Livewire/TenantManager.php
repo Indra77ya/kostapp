@@ -16,7 +16,9 @@ class TenantManager extends Component
     protected $paginationTheme = 'bootstrap';
     public $viewType = 'table'; // 'grid' or 'table'
     public $isModalOpen = false;
+    public $isDetailModalOpen = false;
     public $tenantId;
+    public $viewingRegistrationId;
 
     // Search & Filters
     public $search = '';
@@ -83,6 +85,29 @@ class TenantManager extends Component
     {
         $this->isModalOpen = false;
         $this->resetForm();
+    }
+
+    public function viewDetails($id)
+    {
+        $tenant = User::find($id);
+        if (!$tenant) return;
+
+        $registration = \App\Models\Registration::where('user_id', $id)
+            ->latest()
+            ->first();
+
+        if ($registration) {
+            $this->viewingRegistrationId = $registration->id;
+            $this->isDetailModalOpen = true;
+        } else {
+            NotificationSent::dispatch("Data registrasi untuk {$tenant->name} tidak ditemukan.", 'warning');
+        }
+    }
+
+    public function closeDetailModal()
+    {
+        $this->isDetailModalOpen = false;
+        $this->viewingRegistrationId = null;
     }
 
     private function resetForm()
@@ -202,6 +227,9 @@ class TenantManager extends Component
             'tenants' => $query->with(['registrations' => function($q) {
                 $q->with(['location', 'room'])->latest();
             }])->orderBy('name')->paginate(12),
+            'viewingRegistration' => $this->viewingRegistrationId
+                ? \App\Models\Registration::with(['user', 'location', 'room', 'emergencyContacts'])->find($this->viewingRegistrationId)
+                : null,
             'locations' => \App\Models\Location::orderBy('name')->get(),
             'roomTypes' => \App\Models\Room::whereNotNull('room_type')->distinct()->pluck('room_type')->sort(),
             'floors' => \App\Models\Room::whereNotNull('floor')->distinct()->pluck('floor')->sort(),
