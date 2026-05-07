@@ -148,7 +148,10 @@
                                     @endif
                                     <div class="flex-fill">
                                         <div class="font-weight-medium">{{ $selectedRegistration->user->name }}</div>
-                                        <div class="text-secondary small">Kamar: {{ $selectedRegistration->room->room_number }} ({{ $selectedRegistration->location->name }})</div>
+                                        <div class="text-secondary small">
+                                            Kamar: {{ $selectedRegistration->room->room_number }} ({{ $selectedRegistration->location->name }})
+                                            <span class="badge bg-blue-lt ms-1">Rp {{ number_format($selectedRegistration->total_price, 0, ',', '.') }}</span>
+                                        </div>
                                     </div>
                                     <button type="button" class="btn btn-sm btn-ghost-danger btn-icon" wire:click="$set('registration_id', null)">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></svg>
