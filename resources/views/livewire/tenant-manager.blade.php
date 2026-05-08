@@ -283,7 +283,11 @@
                                         <strong>Foto Diri</strong>
                                     </div>
                                     @if($viewingRegistration->photo_self)
-                                        <img src="{{ asset('storage/' . $viewingRegistration->photo_self) }}" class="img-fluid rounded border" style="max-height: 200px; width: 100%; object-fit: cover;">
+                                        <img src="{{ asset('storage/' . $viewingRegistration->photo_self) }}"
+                                             class="img-fluid rounded border cursor-pointer"
+                                             style="max-height: 200px; width: 100%; object-fit: cover;"
+                                             wire:click="openPreview('{{ asset('storage/' . $viewingRegistration->photo_self) }}')"
+                                             title="Klik untuk memperbesar">
                                     @else
                                         <div class="bg-light d-flex align-items-center justify-content-center rounded border" style="height: 200px;">
                                             <span class="text-secondary small">Tidak ada foto</span>
@@ -379,7 +383,11 @@
                                 <div class="card-header"><h3 class="card-title">Foto Identitas ({{ $viewingRegistration->identity_type }})</h3></div>
                                 <div class="card-body p-2 text-center">
                                     @if($viewingRegistration->photo_identity)
-                                        <img src="{{ asset('storage/' . $viewingRegistration->photo_identity) }}" class="img-fluid rounded border" style="max-height: 250px;">
+                                        <img src="{{ asset('storage/' . $viewingRegistration->photo_identity) }}"
+                                             class="img-fluid rounded border cursor-pointer"
+                                             style="max-height: 250px;"
+                                             wire:click="openPreview('{{ asset('storage/' . $viewingRegistration->photo_identity) }}')"
+                                             title="Klik untuk memperbesar">
                                     @else
                                         <div class="bg-light d-flex align-items-center justify-content-center rounded border" style="height: 150px;">
                                             <span class="text-secondary small">Tidak ada foto identitas</span>
@@ -393,7 +401,11 @@
                                 <div class="card-header"><h3 class="card-title">Foto Kartu Keluarga</h3></div>
                                 <div class="card-body p-2 text-center">
                                     @if($viewingRegistration->photo_family_card)
-                                        <img src="{{ asset('storage/' . $viewingRegistration->photo_family_card) }}" class="img-fluid rounded border" style="max-height: 250px;">
+                                        <img src="{{ asset('storage/' . $viewingRegistration->photo_family_card) }}"
+                                             class="img-fluid rounded border cursor-pointer"
+                                             style="max-height: 250px;"
+                                             wire:click="openPreview('{{ asset('storage/' . $viewingRegistration->photo_family_card) }}')"
+                                             title="Klik untuk memperbesar">
                                     @else
                                         <div class="bg-light d-flex align-items-center justify-content-center rounded border" style="height: 150px;">
                                             <span class="text-secondary small">Tidak ada foto KK</span>
@@ -407,6 +419,20 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary ms-auto" wire:click="closeDetailModal()">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Preview Modal -->
+    <div class="modal modal-blur fade {{ $isPreviewModalOpen ? 'show d-block' : '' }}" tabindex="-1" role="dialog" aria-hidden="true" style="{{ $isPreviewModalOpen ? 'background: rgba(0,0,0,0.8); z-index: 1070;' : '' }}">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content bg-transparent border-0 shadow-none">
+                <div class="modal-body p-0 text-center position-relative">
+                    <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" wire:click="closePreview()" aria-label="Close" style="z-index: 1080;"></button>
+                    @if($previewImageUrl)
+                        <img src="{{ $previewImageUrl }}" class="img-fluid rounded shadow-lg" style="max-height: 90vh;">
+                    @endif
                 </div>
             </div>
         </div>
