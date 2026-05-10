@@ -1,194 +1,142 @@
-# KostApp - Sistem Manajemen Kost Real-Time
+# KostApp - Sistem Manajemen Kost Modern & Real-Time
 
-Selamat datang di **KostApp**! Sebuah platform manajemen rumah kost yang modern, cepat, dan interaktif. Aplikasi ini dibangun dengan teknologi terbaru di ekosistem Laravel untuk memastikan pengelolaan kost menjadi lebih mudah bagi pemilik dan nyaman bagi penghuni.
+[![Laravel](https://img.shields.io/badge/Laravel-11-FF2D20?style=for-the-badge&logo=laravel)](https://laravel.com)
+[![Livewire](https://img.shields.io/badge/Livewire-3-FB70A9?style=for-the-badge&logo=livewire)](https://livewire.laravel.com)
+[![Reverb](https://img.shields.io/badge/Laravel-Reverb-00D1FF?style=for-the-badge&logo=laravel)](https://laravel.com/docs/11.x/reverb)
 
-Aplikasi ini sangat spesial karena mendukung fitur **Real-Time**. Artinya, semua perubahan data (seperti penambahan kamar atau konfirmasi pembayaran) akan muncul secara instan di layar tanpa perlu menekan tombol refresh halaman (F5).
-
----
-
-## 🚀 Fitur Unggulan
-
--   **Pendaftaran Penghuni Lengkap**: Proses onboarding penghuni baru dengan data detail (Identitas, Foto, Instansi, Kontak Darurat) dan otomatis membuatkan akun login.
--   **Manajemen Penghuni**: Modul khusus untuk mengelola data penghuni yang terpisah dari staf administrasi.
--   **Dashboard Interaktif**: Statistik jumlah kamar dan booking yang terupdate otomatis secara instan.
--   **Notifikasi Instan**: Muncul lonceng notifikasi di pojok kanan atas setiap kali ada aktivitas penting.
--   **Multi-Role**: Sistem akses berbeda untuk Owner (Pemilik), Admin (Pengelola), dan Penghuni (Tenant). *Catatan: Role Developer memiliki tingkat akses yang setara dengan Owner.*
--   **Tanpa Refresh**: Berkat teknologi Livewire dan Laravel Reverb, aplikasi terasa seperti aplikasi mobile yang responsif.
--   **Desain Modern**: Menggunakan framework Tabler yang bersih, profesional, dan nyaman di mata.
+**KostApp** adalah solusi manajemen operasional rumah kost yang dirancang untuk memberikan kemudahan bagi pemilik (Owner) dan efisiensi bagi pengelola (Admin). Dibangun dengan teknologi terbaru, aplikasi ini menawarkan pengalaman pengguna yang interaktif dan responsif secara *real-time*.
 
 ---
 
-## 🛠️ Teknologi yang Digunakan
+## 🌟 Fitur Utama (Modul Lengkap)
 
--   **Laravel 11**: Framework PHP tercanggih saat ini.
--   **Livewire 3**: Untuk membuat antarmuka yang dinamis tanpa menulis banyak kode JavaScript.
--   **Laravel Reverb**: Mesin utama di balik fitur real-time (WebSocket).
--   **Tabler Dashboard**: Template dashboard premium yang elegan.
--   **Spatie Permission**: Untuk mengelola hak akses setiap role.
--   **SQLite/MySQL**: Pilihan database yang fleksibel.
+Aplikasi ini mencakup seluruh siklus manajemen kost, mulai dari manajemen aset hingga operasional harian:
 
----
+### 1. Operasional Sewa (Sewa)
+-   **Check In (Registrasi)**:
+    -   Pendaftaran penghuni baru dengan data lengkap (Foto Diri, KTP, KK).
+    -   Pencatatan data instansi/kampus dan kontak darurat.
+    -   Otomatisasi pembuatan akun login untuk penghuni.
+    -   Generasi nomor registrasi otomatis (REG-DDMMYYYY-XXXX).
+    -   Sinkronisasi otomatis status kamar menjadi 'Terisi'.
+-   **Check Out**:
+    -   Proses keluar penghuni dengan pencatatan tanggal dan catatan tambahan.
+    -   Otomatisasi pengembalian status kamar menjadi 'Tersedia'.
+-   **Pindah Kamar**:
+    -   Manajemen transisi penghuni antar kamar dalam satu lokasi atau antar lokasi.
+    -   Riwayat perpindahan yang tercatat lengkap.
+    -   Penyesuaian harga sewa dan diskon secara dinamis.
+-   **Daftar Penghuni**:
+    -   Direktori lengkap seluruh penghuni aktif maupun yang sudah check-out.
+    -   Fitur 'Lihat Data' untuk meninjau profil lengkap penghuni.
+    -   Cetak Invoice dan Data Diri penghuni.
 
-## 💻 Panduan Instalasi (Untuk Pemula)
+### 2. Master Data (Aset & Konfigurasi)
+-   **Manajemen Lokasi**: Pengelolaan gedung atau cabang kost di berbagai titik.
+-   **Manajemen Kamar**: Pengaturan nomor kamar, harga, tipe, dan fasilitas per kamar.
+-   **Manajemen Fasilitas**: Daftar fasilitas (AC, WiFi, Kamar Mandi Dalam, dll) yang bisa dikaitkan ke kamar.
+-   **Manajemen Aturan (Rules)**: Pengaturan tata tertib kost yang akan muncul di dokumen printout penghuni.
+-   **Metode Pembayaran**: Pengaturan rekening bank, e-wallet, atau tunai untuk pembayaran sewa.
+-   **Manajemen Pengguna**: Pengelolaan staf (Admin & Owner) dengan sistem hak akses yang ketat.
 
-Bagi Anda yang baru pertama kali menjalankan proyek Laravel, ikuti langkah-langkah detail berikut ini:
-
-### 1. Persiapan Awal
-Pastikan komputer Anda sudah terinstall:
--   **PHP** (Versi 8.2 atau lebih tinggi)
--   **Composer** (Manajer paket untuk PHP)
--   **Node.js & NPM** (Untuk memproses tampilan/frontend)
--   **Git** (Untuk mendownload kode)
-
-### 2. Persiapkan Folder Proyek
-Buka terminal atau Command Prompt (CMD), lalu masuk ke folder proyek Anda:
-```bash
-cd kostapp
-```
-
-### 3. Instal 'Otak' Aplikasi (Backend)
-Perintah ini akan mendownload semua pustaka yang dibutuhkan oleh Laravel:
-```bash
-composer install
-```
-
-### 4. Setup File Konfigurasi (.env)
-Buat file rahasia untuk pengaturan aplikasi:
-```bash
-cp .env.example .env
-```
-Setelah itu, buat "Kunci Keamanan" untuk aplikasi Anda:
-```bash
-php artisan key:generate
-```
-
-### 5. Setup Database & Storage
-Buat file database kosong (jika menggunakan SQLite):
-```bash
-touch database/database.sqlite
-```
-Kemudian buat tabel-tabel dan isi data contoh (seperti akun login):
-```bash
-php artisan migrate:fresh --seed
-```
-Aktifkan link untuk penyimpanan file (foto kamar):
-```bash
-php artisan storage:link
-```
-
-### 6. Instal 'Tampilan' Aplikasi (Frontend)
-Download dan bangun aset tampilan seperti CSS dan JavaScript:
-```bash
-npm install
-npm run build
-```
+### 3. Dashboard & Notifikasi
+-   **Statistik Interaktif**: Pantau jumlah kamar total, kamar tersedia, dan pesanan aktif secara visual.
+-   **Notifikasi Real-Time**: Pemberitahuan instan untuk aktivitas penting (seperti pendaftaran baru) tanpa perlu refresh halaman.
 
 ---
 
-## 🚦 Cara Menjalankan Aplikasi di Lokal
+## 🖼️ Tampilan Aplikasi (Screenshots)
 
-Untuk melihat fitur real-time berjalan sempurna, Anda perlu membuka **TIGA TERMINAL** sekaligus:
+> *Ganti placeholder di bawah ini dengan gambar asli aplikasi Anda untuk presentasi yang lebih baik.*
 
-### Terminal 1: Menjalankan Server Web
-```bash
-php artisan serve
-```
-Buka browser dan ketik: `http://127.0.0.1:8000`
-
-### Terminal 2: Menjalankan Mesin Real-Time (Reverb)
-```bash
-php artisan reverb:start
-```
-*Pastikan terminal ini tetap terbuka agar notifikasi bisa muncul secara otomatis.*
-
-### Terminal 3: Menjalankan Antrean (Queue)
-```bash
-php artisan queue:listen
-```
-*Gunakan terminal ini jika Anda memiliki proses latar belakang seperti pengiriman email atau pengolahan data berat.*
+| Dashboard Utama | Daftar Kamar | Form Check-In |
+| :---: | :---: | :---: |
+| ![Dashboard](https://via.placeholder.com/400x250?text=Dashboard+Stats) | ![Kamar](https://via.placeholder.com/400x250?text=Manajemen+Kamar) | ![CheckIn](https://via.placeholder.com/400x250?text=Form+Registrasi) |
 
 ---
 
-## ☁️ Panduan Deployment ke Server (Produksi)
+## 🏗️ Arsitektur & Teknologi
 
-Jika Anda ingin mengonlinekan aplikasi ini agar bisa diakses orang lain melalui internet, ikuti panduan ini:
+### Logika Bisnis Utama
+1.  **Sinkronisasi Status Kamar**: Sistem menjamin integritas data kamar. Saat pendaftaran (Check-in) berhasil, status kamar otomatis berubah menjadi `occupied`. Saat Check-out atau penghapusan data registrasi, status kembali ke `available`.
+2.  **Real-Time Engine**: Menggunakan **Laravel Reverb** (WebSocket) untuk mendorong pembaruan data dan notifikasi ke browser pengguna secara instan melalui event broadcasting.
+3.  **Sistem Keamanan & Role**: Menggunakan **Spatie Permission**.
+    -   `Developer/Owner`: Akses penuh ke seluruh sistem termasuk pengaturan sistem.
+    -   `Admin`: Akses operasional (Check-in, Check-out, Pindah Kamar, Penghuni).
+    -   `Tenant (Penghuni)`: Akses terbatas untuk melihat profil sendiri (dalam pengembangan).
 
-### 1. Persiapan VPS
-Gunakan VPS (Ubuntu 22.04 ke atas sangat direkomendasikan) dan install **Nginx**, **PHP-FPM**, **MySQL**, dan **Node.js**.
-
-### 2. Konfigurasi .env (Sangat Penting!)
-Ubah variabel berikut di server:
-```env
-APP_ENV=production
-APP_DEBUG=false
-APP_URL=https://domain-anda.com
-
-# Reverb untuk Server
-REVERB_HOST=domain-anda.com
-REVERB_PORT=443
-REVERB_SCHEME=https
-```
-
-### 3. Konfigurasi Nginx (Reverse Proxy)
-Agar Reverb bisa diakses melalui port 443 (HTTPS), Anda perlu menambahkan konfigurasi proxy di Nginx untuk path `/app`:
-```nginx
-location /app {
-    proxy_http_version 1.1;
-    proxy_set_header Host $http_host;
-    proxy_set_header Scheme $scheme;
-    proxy_set_header SERVER_PORT $server_port;
-    proxy_set_header REMOTE_ADDR $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header Upgrade $http_upgrade;
-    proxy_set_header Connection "Upgrade";
-
-    proxy_pass http://127.0.0.1:8080;
-}
-```
-
-### 4. Menjalankan Reverb sebagai Background Service
-Gunakan **Supervisor** agar server Reverb tetap berjalan meskipun Anda keluar dari server:
-1. Buat file `/etc/supervisor/conf.d/reverb.conf`:
-```ini
-[program:reverb]
-process_name=%(program_name)s_%(process_num)02d
-command=php /var/www/kostapp/artisan reverb:start
-autostart=true
-autorestart=true
-user=www-data
-redirect_stderr=true
-stdout_logfile=/var/www/kostapp/storage/logs/reverb.log
-```
-2. Update supervisor: `supervisorctl update && supervisorctl start reverb`.
-
-### 5. Menjalankan Queue Worker di Server
-Sama seperti Reverb, Queue juga harus dijalankan di latar belakang:
-1. Buat file `/etc/supervisor/conf.d/queue.conf`:
-```ini
-[program:queue]
-process_name=%(program_name)s_%(process_num)02d
-command=php /var/www/kostapp/artisan queue:work --sleep=3 --tries=3
-autostart=true
-autorestart=true
-user=www-data
-redirect_stderr=true
-stdout_logfile=/var/www/kostapp/storage/logs/queue.log
-```
-2. Jalankan: `supervisorctl update && supervisorctl start queue`.
+### Struktur Database Utama
+-   `users`: Menyimpan data staf dan penghuni (beserta `password_plain` untuk kemudahan admin).
+-   `locations`: Data gedung kost.
+-   `rooms`: Data kamar beserta status dan relasi ke lokasi.
+-   `registrations`: Data transaksi sewa aktif.
+-   `room_moves`: Log riwayat perpindahan kamar.
+-   `payment_methods`: Pilihan metode pembayaran.
 
 ---
 
-## 🔑 Akun Demo Login
-- **Email**: `admin@example.com`
-- **Password**: `password`
+## ⚙️ Pengaturan & Pemeliharaan Sistem
+
+Aplikasi ini dilengkapi dengan modul **Pengaturan Sistem** (khusus Owner/Developer) untuk menjaga keberlangsungan data:
+
+-   **Statistik Data**: Melihat jumlah total User, Lokasi, Kamar, Fasilitas, dan Aturan.
+-   **Backup Data**: Membuat file `.zip` yang berisi database dan seluruh foto unggahan (KTP, Foto Kamar, dll).
+-   **Restore Data**: Mengembalikan kondisi aplikasi dari file backup yang telah dibuat sebelumnya.
+-   **Reset Sistem**: Menghapus seluruh data operasional (transaksi, kamar, lokasi) dan menyisakan akun Owner/Developer untuk memulai dari awal.
 
 ---
 
-## ❓ FAQ & Troubleshooting
+## 🛠️ Panduan Instalasi (Lokal)
 
-- **Error: Database file does not exist**: Pastikan Anda sudah menjalankan `touch database/database.sqlite` dan variabel `DB_DATABASE` di `.env` sudah dikosongkan.
-- **Notifikasi Tidak Muncul**: Pastikan perintah `php artisan reverb:start` sedang berjalan di terminal Anda.
-- **Tampilan Berantakan**: Pastikan Anda sudah menjalankan `npm install` dan `npm run build`.
+### Persyaratan
+- PHP >= 8.2
+- Composer
+- Node.js & NPM
+- SQLite (Default) atau MySQL
+
+### Langkah-langkah
+1.  **Clone & Install**:
+    ```bash
+    git clone https://github.com/username/kostapp.git
+    cd kostapp
+    composer install
+    npm install
+    ```
+2.  **Environment**:
+    ```bash
+    cp .env.example .env
+    php artisan key:generate
+    ```
+3.  **Database**:
+    ```bash
+    touch database/database.sqlite
+    php artisan migrate:fresh --seed
+    php artisan storage:link
+    ```
+4.  **Build Assets**:
+    ```bash
+    npm run build
+    ```
 
 ---
-Dibuat dengan ❤️ untuk kemudahan manajemen kost Anda.
+
+## 🚦 Menjalankan Aplikasi
+
+Untuk fitur real-time, jalankan 3 perintah ini di terminal terpisah:
+1.  **Web Server**: `php artisan serve`
+2.  **WebSocket**: `php artisan reverb:start`
+3.  **Queue**: `php artisan queue:listen`
+
+Akses di: `http://127.0.0.1:8000`
+**Login Default**: `admin@example.com` / `password`
+
+---
+
+## 🌐 Panduan Deployment (Produksi)
+
+1.  Gunakan **Nginx** sebagai reverse proxy untuk port 80/443 ke port Reverb (8080).
+2.  Gunakan **Supervisor** untuk menjaga `reverb:start` dan `queue:work` tetap berjalan di latar belakang.
+3.  Pastikan `APP_DEBUG=false` dan `APP_URL` sudah sesuai di file `.env`.
+
+---
+Dibuat dengan ❤️ untuk efisiensi bisnis Kost Anda.
