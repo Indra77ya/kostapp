@@ -149,6 +149,12 @@ class RuleManager extends Component
         $this->resetPage();
     }
 
+    public function resetFilters()
+    {
+        $this->reset(['search', 'filterCategory', 'filterLocation', 'filterStatus']);
+        $this->resetPage();
+    }
+
     public function render()
     {
         $query = Rule::query();

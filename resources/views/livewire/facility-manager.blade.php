@@ -1,5 +1,8 @@
 <div>
     <div class="row mb-3 align-items-center">
+        <div class="col">
+            <h2 class="page-title">Manajemen Fasilitas</h2>
+        </div>
         <div class="col-12 col-md-auto ms-md-auto text-end">
             <button class="btn btn-success" wire:click="openModal()">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
@@ -11,7 +14,7 @@
     <div class="card mb-3">
         <div class="card-body">
             <div class="row g-2">
-                <div class="col-md-8">
+                <div class="col-md-7">
                     <div class="input-icon">
                         <span class="input-icon-addon">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
@@ -25,6 +28,11 @@
                         <option value="Kamar">Fasilitas Kamar</option>
                         <option value="Umum">Fasilitas Umum</option>
                     </select>
+                </div>
+                <div class="col-md-1">
+                    <button class="btn btn-icon w-100" title="Reset Filter" wire:click="resetFilters">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-rotate" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19.95 11a8 8 0 1 0 -.5 4m.5 5v-5h-5" /></svg>
+                    </button>
                 </div>
             </div>
         </div>

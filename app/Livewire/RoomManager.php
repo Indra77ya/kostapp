@@ -205,6 +205,12 @@ class RoomManager extends Component
         $this->resetPage();
     }
 
+    public function resetFilters()
+    {
+        $this->reset(['search', 'filterStatus', 'filterFloor']);
+        $this->resetPage();
+    }
+
     public function render()
     {
         $query = Room::query();

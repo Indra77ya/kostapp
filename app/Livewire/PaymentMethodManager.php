@@ -161,6 +161,12 @@ class PaymentMethodManager extends Component
         $this->resetPage();
     }
 
+    public function resetFilters()
+    {
+        $this->reset(['search', 'filterCategory', 'filterStatus']);
+        $this->resetPage();
+    }
+
     public function render()
     {
         $query = PaymentMethod::query();

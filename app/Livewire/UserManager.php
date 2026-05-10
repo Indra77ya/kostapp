@@ -172,10 +172,16 @@ class UserManager extends Component
         $this->resetPage();
     }
 
+    public function resetFilters()
+    {
+        $this->reset(['search', 'filterRole']);
+        $this->resetPage();
+    }
+
     public function render()
     {
         $query = User::query()->whereDoesntHave('roles', function($q) {
-            $q->where('name', 'developer');
+            $q->whereIn('name', ['developer', 'tenant']);
         });
 
         if ($this->search) {
@@ -189,7 +195,7 @@ class UserManager extends Component
             $query->role($this->filterRole);
         }
 
-        $roles = Role::where('name', '!=', 'developer')->get();
+        $roles = Role::whereNotIn('name', ['developer', 'tenant'])->get();
 
         return view('livewire.user-manager', [
             'users' => $query->with('roles')->orderBy('name')->paginate(12),
