@@ -234,17 +234,35 @@
                             <div class="col-md-4 mb-3">
                                 <label class="form-label required small fw-bold">Foto Diri</label>
                                 <input type="file" class="form-control @error('photo_self') is-invalid @enderror" wire:model="photo_self">
-                                @if($photo_self && method_exists($photo_self, 'temporaryUrl')) <div class="mt-2"><img src="{{ $photo_self->temporaryUrl() }}" style="height: 100px;" class="border rounded"></div> @endif
+                                @if($photo_self && method_exists($photo_self, 'temporaryUrl'))
+                                    <div class="mt-2">
+                                        <a href="{{ $photo_self->temporaryUrl() }}" target="_blank">
+                                            <img src="{{ $photo_self->temporaryUrl() }}" style="height: 100px;" class="border rounded" title="Klik untuk memperbesar (Tab Baru)">
+                                        </a>
+                                    </div>
+                                @endif
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label class="form-label required small fw-bold">Foto Identitas</label>
                                 <input type="file" class="form-control @error('photo_identity') is-invalid @enderror" wire:model="photo_identity">
-                                @if($photo_identity && method_exists($photo_identity, 'temporaryUrl')) <div class="mt-2"><img src="{{ $photo_identity->temporaryUrl() }}" style="height: 100px;" class="border rounded"></div> @endif
+                                @if($photo_identity && method_exists($photo_identity, 'temporaryUrl'))
+                                    <div class="mt-2">
+                                        <a href="{{ $photo_identity->temporaryUrl() }}" target="_blank">
+                                            <img src="{{ $photo_identity->temporaryUrl() }}" style="height: 100px;" class="border rounded" title="Klik untuk memperbesar (Tab Baru)">
+                                        </a>
+                                    </div>
+                                @endif
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label class="form-label small fw-bold">Foto Kartu Keluarga</label>
                                 <input type="file" class="form-control" wire:model="photo_family_card">
-                                @if($photo_family_card && method_exists($photo_family_card, 'temporaryUrl')) <div class="mt-2"><img src="{{ $photo_family_card->temporaryUrl() }}" style="height: 100px;" class="border rounded"></div> @endif
+                                @if($photo_family_card && method_exists($photo_family_card, 'temporaryUrl'))
+                                    <div class="mt-2">
+                                        <a href="{{ $photo_family_card->temporaryUrl() }}" target="_blank">
+                                            <img src="{{ $photo_family_card->temporaryUrl() }}" style="height: 100px;" class="border rounded" title="Klik untuk memperbesar (Tab Baru)">
+                                        </a>
+                                    </div>
+                                @endif
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label class="form-label small fw-bold">No. Kartu Keluarga</label>

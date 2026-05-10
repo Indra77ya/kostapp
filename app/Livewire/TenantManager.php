@@ -17,8 +17,6 @@ class TenantManager extends Component
     public $viewType = 'table'; // 'grid' or 'table'
     public $isModalOpen = false;
     public $isDetailModalOpen = false;
-    public $isPreviewModalOpen = false;
-    public $previewImageUrl = '';
     public $tenantId;
     public $viewingRegistrationId;
 
@@ -110,18 +108,6 @@ class TenantManager extends Component
     {
         $this->isDetailModalOpen = false;
         $this->viewingRegistrationId = null;
-    }
-
-    public function openPreview($url)
-    {
-        $this->previewImageUrl = $url;
-        $this->isPreviewModalOpen = true;
-    }
-
-    public function closePreview()
-    {
-        $this->isPreviewModalOpen = false;
-        $this->previewImageUrl = '';
     }
 
     private function resetForm()
