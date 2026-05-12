@@ -185,9 +185,15 @@
                                 </select>
                             </div>
                             <div class="col-md-3 mb-3">
-                                <label class="form-label required small fw-bold">Durasi</label>
+                                <label class="form-label required small fw-bold d-flex justify-content-between align-items-center">
+                                    Durasi
+                                    <label class="form-check form-check-inline mb-0 small" style="font-weight: normal;">
+                                        <input class="form-check-input" type="checkbox" wire:model.live="is_open_ended">
+                                        <span class="form-check-label">Hingga Keluar</span>
+                                    </label>
+                                </label>
                                 <div class="input-group">
-                                    <input type="number" class="form-control" wire:model.live="duration_value" min="1">
+                                    <input type="number" class="form-control" wire:model.live="duration_value" min="1" {{ $is_open_ended ? 'disabled' : '' }}>
                                     <span class="input-group-text">
                                         @if($duration_type == 'daily') Hari
                                         @elseif($duration_type == 'weekly') Minggu

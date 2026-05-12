@@ -96,11 +96,15 @@
                     <div class="col">
                         <span class="label">Durasi Sewa</span>
                         <span class="value">
-                            {{ $registration->duration_value }}
-                            @if($registration->duration_type == 'daily') Hari
-                            @elseif($registration->duration_type == 'weekly') Minggu
-                            @elseif($registration->duration_type == 'monthly') Bulan
-                            @elseif($registration->duration_type == 'yearly') Tahun
+                            @if($registration->is_open_ended)
+                                Hingga Keluar
+                            @else
+                                {{ $registration->duration_value }}
+                                @if($registration->duration_type == 'daily') Hari
+                                @elseif($registration->duration_type == 'weekly') Minggu
+                                @elseif($registration->duration_type == 'monthly') Bulan
+                                @elseif($registration->duration_type == 'yearly') Tahun
+                                @endif
                             @endif
                         </span>
                     </div>

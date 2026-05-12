@@ -28,7 +28,7 @@ class RoomMoveManager extends Component
 
     // Form fields
     public $registration_id, $new_room_id, $move_date, $reason;
-    public $duration_type = 'monthly', $duration_value = 1;
+    public $duration_type = 'monthly', $duration_value = 1, $is_open_ended = false;
     public $room_price = 0, $discount_type = 'fixed', $discount_value = 0, $total_price = 0;
     public $tenant_search = '';
     public $selectedLocationId;
@@ -50,6 +50,7 @@ class RoomMoveManager extends Component
             $this->discount_value = $reg->discount_value;
             $this->duration_type = $reg->duration_type;
             $this->duration_value = $reg->duration_value;
+            $this->is_open_ended = (bool) $reg->is_open_ended;
         } else {
             $this->selectedLocationId = null;
         }
@@ -80,6 +81,14 @@ class RoomMoveManager extends Component
 
     public function updatedDurationValue()
     {
+        $this->calculateTotalPrice();
+    }
+
+    public function updatedIsOpenEnded($value)
+    {
+        if ($value) {
+            $this->duration_value = 1;
+        }
         $this->calculateTotalPrice();
     }
 
@@ -145,6 +154,7 @@ class RoomMoveManager extends Component
         $this->selectedLocationId = null;
         $this->duration_type = 'monthly';
         $this->duration_value = 1;
+        $this->is_open_ended = false;
         $this->room_price = 0;
         $this->discount_type = 'fixed';
         $this->discount_value = 0;
@@ -187,6 +197,7 @@ class RoomMoveManager extends Component
                 'room_id' => $this->new_room_id,
                 'duration_type' => $this->duration_type,
                 'duration_value' => $this->duration_value,
+                'is_open_ended' => $this->is_open_ended,
                 'room_price' => $this->room_price,
                 'discount_type' => $this->discount_type,
                 'discount_value' => $this->discount_value,

@@ -18,6 +18,7 @@ class Registration extends Model
         'stay_start_date',
         'duration_type',
         'duration_value',
+        'is_open_ended',
         'room_price',
         'discount_type',
         'discount_value',

@@ -34,7 +34,7 @@ class RegistrationManager extends Component
     // Form fields - Basic
     public $location_id, $room_id, $registration_number;
     public $registration_date, $stay_start_date, $currentRoomId;
-    public $duration_type = 'monthly', $duration_value = 1;
+    public $duration_type = 'monthly', $duration_value = 1, $is_open_ended = false;
 
     // Financials
     public $room_price = 0, $discount_type = 'fixed', $discount_value = 0, $total_price = 0;
@@ -119,6 +119,14 @@ class RegistrationManager extends Component
         $this->calculateTotal();
     }
 
+    public function updatedIsOpenEnded($value)
+    {
+        if ($value) {
+            $this->duration_value = 1;
+        }
+        $this->calculateTotal();
+    }
+
     private function setRoomPriceByDuration($room)
     {
         if (!$room) return;
@@ -193,6 +201,7 @@ class RegistrationManager extends Component
             $this->stay_start_date = $reg->stay_start_date->format('Y-m-d');
             $this->duration_type = $reg->duration_type;
             $this->duration_value = $reg->duration_value;
+            $this->is_open_ended = (bool) $reg->is_open_ended;
             $this->room_price = $reg->room_price;
             $this->discount_type = $reg->discount_type;
             $this->discount_value = $reg->discount_value;
@@ -249,6 +258,7 @@ class RegistrationManager extends Component
         $this->stay_start_date = null;
         $this->duration_type = 'monthly';
         $this->duration_value = 1;
+        $this->is_open_ended = false;
         $this->room_price = 0;
         $this->discount_type = 'fixed';
         $this->discount_value = 0;
@@ -352,6 +362,7 @@ class RegistrationManager extends Component
                 'stay_start_date' => $this->stay_start_date,
                 'duration_type' => $this->duration_type,
                 'duration_value' => $this->duration_value,
+                'is_open_ended' => $this->is_open_ended,
                 'room_price' => $this->room_price,
                 'discount_type' => $this->discount_type,
                 'discount_value' => $this->discount_value,
