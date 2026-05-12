@@ -310,7 +310,7 @@
                             </div>
                             <div class="col-lg-6">
                                 <div class="mb-3">
-                                    <label class="form-label small fw-bold text-primary">Harga Bulanan (Utama)</label>
+                                    <label class="form-label small fw-bold">Harga Bulanan</label>
                                     <div class="input-group">
                                         <span class="input-group-text">Rp</span>
                                         <input type="number" class="form-control @error('price_monthly') is-invalid @enderror" wire:model="price_monthly">
