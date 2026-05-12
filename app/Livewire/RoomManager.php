@@ -26,7 +26,7 @@ class RoomManager extends Component
     public $filterFloor = '';
 
     // Form fields
-    public $location_id, $room_number, $price, $price_daily, $price_weekly, $price_yearly, $status, $description, $image, $facilities = [], $room_type, $floor;
+    public $location_id, $room_number, $price_monthly, $price_daily, $price_weekly, $price_yearly, $status, $description, $image, $facilities = [], $room_type, $floor;
     public $newImage;
     public $gallery = [];
     public $newGallery = [];
@@ -36,7 +36,7 @@ class RoomManager extends Component
     protected $rules = [
         'location_id' => 'nullable|exists:locations,id',
         'room_number' => 'required|unique:rooms,room_number',
-        'price' => 'required|numeric',
+        'price_monthly' => 'required|numeric',
         'price_daily' => 'nullable|numeric',
         'price_weekly' => 'nullable|numeric',
         'price_yearly' => 'nullable|numeric',
@@ -63,7 +63,7 @@ class RoomManager extends Component
             $room = Room::with('images')->find($id);
             $this->location_id = $room->location_id;
             $this->room_number = $room->room_number;
-            $this->price = $room->price;
+            $this->price_monthly = $room->price_monthly;
             $this->price_daily = $room->price_daily;
             $this->price_weekly = $room->price_weekly;
             $this->price_yearly = $room->price_yearly;
@@ -102,7 +102,7 @@ class RoomManager extends Component
         $this->roomId = null;
         $this->location_id = null;
         $this->room_number = '';
-        $this->price = '';
+        $this->price_monthly = '';
         $this->price_daily = '';
         $this->price_weekly = '';
         $this->price_yearly = '';
@@ -129,7 +129,7 @@ class RoomManager extends Component
         $data = [
             'location_id' => $this->location_id ?: null,
             'room_number' => $this->room_number,
-            'price' => $this->price,
+            'price_monthly' => $this->price_monthly,
             'price_daily' => $this->price_daily ?: null,
             'price_weekly' => $this->price_weekly ?: null,
             'price_yearly' => $this->price_yearly ?: null,

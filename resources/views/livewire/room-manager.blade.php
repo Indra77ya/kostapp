@@ -152,7 +152,7 @@
                                 </span>
                             </div>
                             <div class="mt-2">
-                                <div class="h3 mb-0">Rp {{ number_format($room->price, 0, ',', '.') }} <small class="text-muted" style="font-size: 0.6em">/Bulan</small></div>
+                                <div class="h3 mb-0">Rp {{ number_format($room->price_monthly, 0, ',', '.') }} <small class="text-muted" style="font-size: 0.6em">/Bulan</small></div>
                                 @if($room->price_daily)
                                     <div class="small text-secondary">Rp {{ number_format($room->price_daily, 0, ',', '.') }} <small>/Hari</small></div>
                                 @endif
@@ -231,7 +231,7 @@
                             </span>
                         </td>
                         <td>
-                            <div>Rp {{ number_format($room->price, 0, ',', '.') }} <small class="text-muted">/Bln</small></div>
+                            <div>Rp {{ number_format($room->price_monthly, 0, ',', '.') }} <small class="text-muted">/Bln</small></div>
                             @if($room->price_daily) <div class="small text-muted">Rp {{ number_format($room->price_daily, 0, ',', '.') }} /Hari</div> @endif
                             @if($room->price_weekly) <div class="small text-muted">Rp {{ number_format($room->price_weekly, 0, ',', '.') }} /Mgg</div> @endif
                             @if($room->price_yearly) <div class="small text-muted">Rp {{ number_format($room->price_yearly, 0, ',', '.') }} /Thn</div> @endif
@@ -313,9 +313,9 @@
                                     <label class="form-label small fw-bold text-primary">Harga Bulanan (Utama)</label>
                                     <div class="input-group">
                                         <span class="input-group-text">Rp</span>
-                                        <input type="number" class="form-control @error('price') is-invalid @enderror" wire:model="price">
+                                        <input type="number" class="form-control @error('price_monthly') is-invalid @enderror" wire:model="price_monthly">
                                     </div>
-                                    @error('price') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                    @error('price_monthly') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
                             </div>
                             <div class="col-lg-6">

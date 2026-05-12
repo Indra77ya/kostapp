@@ -30,7 +30,7 @@ class RoomManagerFacilityIntegrationTest extends TestCase
         Livewire::actingAs($owner)
             ->test(\App\Livewire\RoomManager::class)
             ->set('room_number', '101')
-            ->set('price', 1000000)
+            ->set('price_monthly', 1000000)
             ->set('status', 'available')
             ->set('facilities', ['AC', 'WiFi'])
             ->call('saveRoom');
@@ -48,7 +48,7 @@ class RoomManagerFacilityIntegrationTest extends TestCase
 
         $room = Room::create([
             'room_number' => '102',
-            'price' => 1000000,
+            'price_monthly' => 1000000,
             'status' => 'available',
             'facilities' => 'AC, WiFi'
         ]);

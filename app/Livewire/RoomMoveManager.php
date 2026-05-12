@@ -98,16 +98,16 @@ class RoomMoveManager extends Component
 
         switch ($this->duration_type) {
             case 'daily':
-                $this->room_price = $room->price_daily ?: $room->price;
+                $this->room_price = $room->price_daily ?: $room->price_monthly;
                 break;
             case 'weekly':
-                $this->room_price = $room->price_weekly ?: $room->price;
+                $this->room_price = $room->price_weekly ?: $room->price_monthly;
                 break;
             case 'yearly':
-                $this->room_price = $room->price_yearly ?: $room->price;
+                $this->room_price = $room->price_yearly ?: $room->price_monthly;
                 break;
             default:
-                $this->room_price = $room->price;
+                $this->room_price = $room->price_monthly;
                 break;
         }
     }

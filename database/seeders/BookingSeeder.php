@@ -25,7 +25,7 @@ class BookingSeeder extends Seeder
                 'room_id' => $room->id,
                 'check_in' => now()->startOfMonth(),
                 'check_out' => now()->addMonth()->endOfMonth(),
-                'total_price' => $room->price,
+                'total_price' => $room->price_monthly,
                 'status' => 'confirmed',
             ]);
         }

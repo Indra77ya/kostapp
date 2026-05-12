@@ -168,7 +168,7 @@
                                 <select class="form-select @error('new_room_id') is-invalid @enderror" wire:model.live="new_room_id">
                                     <option value="">-- Pilih Kamar Tersedia --</option>
                                     @foreach($availableRooms as $room)
-                                        <option value="{{ $room->id }}">{{ $room->room_number }} (Rp {{ number_format($room->price, 0, ',', '.') }})</option>
+                                    <option value="{{ $room->id }}">{{ $room->room_number }} (Rp {{ number_format($room->price_monthly, 0, ',', '.') }})</option>
                                     @endforeach
                                 </select>
                                 @error('new_room_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
