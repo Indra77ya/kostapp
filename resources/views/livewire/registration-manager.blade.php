@@ -175,6 +175,28 @@
                                 <label class="form-label required small fw-bold">Tgl Mulai Inap</label>
                                 <input type="date" class="form-control @error('stay_start_date') is-invalid @enderror" wire:model="stay_start_date">
                             </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label required small fw-bold">Jenis Sewa</label>
+                                <select class="form-select" wire:model.live="duration_type">
+                                    <option value="daily">Harian</option>
+                                    <option value="weekly">Mingguan</option>
+                                    <option value="monthly">Bulanan</option>
+                                    <option value="yearly">Tahunan</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label required small fw-bold">Durasi</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" wire:model.live="duration_value" min="1">
+                                    <span class="input-group-text">
+                                        @if($duration_type == 'daily') Hari
+                                        @elseif($duration_type == 'weekly') Minggu
+                                        @elseif($duration_type == 'monthly') Bulan
+                                        @elseif($duration_type == 'yearly') Tahun
+                                        @endif
+                                    </span>
+                                </div>
+                            </div>
 
                             <!-- Section 2: Data Penghuni -->
                             <div class="col-md-12 mb-3 mt-4">

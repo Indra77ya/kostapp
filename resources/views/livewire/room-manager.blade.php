@@ -151,7 +151,18 @@
                                     {{ $room->status === 'available' ? 'Tersedia' : ($room->status === 'occupied' ? 'Terisi' : 'Perbaikan') }}
                                 </span>
                             </div>
-                            <div class="mt-2 h3 mb-1">Rp {{ number_format($room->price, 0, ',', '.') }}</div>
+                            <div class="mt-2">
+                                <div class="h3 mb-0">Rp {{ number_format($room->price, 0, ',', '.') }} <small class="text-muted" style="font-size: 0.6em">/Bulan</small></div>
+                                @if($room->price_daily)
+                                    <div class="small text-secondary">Rp {{ number_format($room->price_daily, 0, ',', '.') }} <small>/Hari</small></div>
+                                @endif
+                                @if($room->price_weekly)
+                                    <div class="small text-secondary">Rp {{ number_format($room->price_weekly, 0, ',', '.') }} <small>/Minggu</small></div>
+                                @endif
+                                @if($room->price_yearly)
+                                    <div class="small text-secondary">Rp {{ number_format($room->price_yearly, 0, ',', '.') }} <small>/Tahun</small></div>
+                                @endif
+                            </div>
                             @if($room->facilities)
                             <div class="mt-2">
                                 @foreach(explode(',', $room->facilities) as $facility)
@@ -219,7 +230,12 @@
                                 {{ $room->status === 'available' ? 'Tersedia' : ($room->status === 'occupied' ? 'Terisi' : 'Perbaikan') }}
                             </span>
                         </td>
-                        <td>Rp {{ number_format($room->price, 0, ',', '.') }}</td>
+                        <td>
+                            <div>Rp {{ number_format($room->price, 0, ',', '.') }} <small class="text-muted">/Bln</small></div>
+                            @if($room->price_daily) <div class="small text-muted">Rp {{ number_format($room->price_daily, 0, ',', '.') }} /Hari</div> @endif
+                            @if($room->price_weekly) <div class="small text-muted">Rp {{ number_format($room->price_weekly, 0, ',', '.') }} /Mgg</div> @endif
+                            @if($room->price_yearly) <div class="small text-muted">Rp {{ number_format($room->price_yearly, 0, ',', '.') }} /Thn</div> @endif
+                        </td>
                         <td>
                             <div class="btn-list flex-nowrap">
                                 <button class="btn btn-white btn-sm" wire:click="openModal({{ $room->id }})">Edit</button>
@@ -265,18 +281,51 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-lg-6">
+                            <div class="col-lg-4">
                                 <div class="mb-3">
-                                    <label class="form-label">Nomor Kamar</label>
+                                    <label class="form-label small fw-bold">Nomor Kamar</label>
                                     <input type="text" class="form-control @error('room_number') is-invalid @enderror" wire:model="room_number">
                                     @error('room_number') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
                             </div>
+                            <div class="col-lg-4">
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold">Harga Harian</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">Rp</span>
+                                        <input type="number" class="form-control @error('price_daily') is-invalid @enderror" wire:model="price_daily">
+                                    </div>
+                                    @error('price_daily') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold">Harga Mingguan</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">Rp</span>
+                                        <input type="number" class="form-control @error('price_weekly') is-invalid @enderror" wire:model="price_weekly">
+                                    </div>
+                                    @error('price_weekly') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                            </div>
                             <div class="col-lg-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Harga (Bulan)</label>
-                                    <input type="number" class="form-control @error('price') is-invalid @enderror" wire:model="price">
+                                    <label class="form-label small fw-bold text-primary">Harga Bulanan (Utama)</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">Rp</span>
+                                        <input type="number" class="form-control @error('price') is-invalid @enderror" wire:model="price">
+                                    </div>
                                     @error('price') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold">Harga Tahunan</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">Rp</span>
+                                        <input type="number" class="form-control @error('price_yearly') is-invalid @enderror" wire:model="price_yearly">
+                                    </div>
+                                    @error('price_yearly') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
                             </div>
                         </div>

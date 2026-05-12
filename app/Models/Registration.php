@@ -16,6 +16,8 @@ class Registration extends Model
         'registration_number',
         'registration_date',
         'stay_start_date',
+        'duration_type',
+        'duration_value',
         'room_price',
         'discount_type',
         'discount_value',

@@ -81,6 +81,30 @@
                         <span class="value">Nomor {{ $registration->room->room_number }} / Lantai {{ $registration->room->floor }}</span>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col">
+                        <span class="label">Jenis Sewa</span>
+                        <span class="value">
+                            @if($registration->duration_type == 'daily') Harian
+                            @elseif($registration->duration_type == 'weekly') Mingguan
+                            @elseif($registration->duration_type == 'monthly') Bulanan
+                            @elseif($registration->duration_type == 'yearly') Tahunan
+                            @else {{ ucfirst($registration->duration_type) }}
+                            @endif
+                        </span>
+                    </div>
+                    <div class="col">
+                        <span class="label">Durasi Sewa</span>
+                        <span class="value">
+                            {{ $registration->duration_value }}
+                            @if($registration->duration_type == 'daily') Hari
+                            @elseif($registration->duration_type == 'weekly') Minggu
+                            @elseif($registration->duration_type == 'monthly') Bulan
+                            @elseif($registration->duration_type == 'yearly') Tahun
+                            @endif
+                        </span>
+                    </div>
+                </div>
             </div>
             <div style="width: 120px;">
                 <span class="label">Foto Diri</span>
