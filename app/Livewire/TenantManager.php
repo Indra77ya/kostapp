@@ -26,6 +26,8 @@ class TenantManager extends Component
     public $filterLocation = '';
     public $filterType = '';
     public $filterFloor = '';
+    public $filterDurationType = '';
+    public $filterIsOpenEnded = '';
 
     // Form fields
     public $name, $email, $phone_number, $address, $password;
@@ -171,10 +173,12 @@ class TenantManager extends Component
     public function updatingFilterLocation() { $this->resetPage(); }
     public function updatingFilterType() { $this->resetPage(); }
     public function updatingFilterFloor() { $this->resetPage(); }
+    public function updatingFilterDurationType() { $this->resetPage(); }
+    public function updatingFilterIsOpenEnded() { $this->resetPage(); }
 
     public function resetFilters()
     {
-        $this->reset(['search', 'filterLocation', 'filterType', 'filterFloor']);
+        $this->reset(['search', 'filterLocation', 'filterType', 'filterFloor', 'filterDurationType', 'filterIsOpenEnded']);
         $this->filterStatus = 'active';
         $this->resetPage();
     }
@@ -212,6 +216,24 @@ class TenantManager extends Component
         if ($this->filterFloor) {
             $query->whereHas('registrations.room', function($q) {
                 $q->where('floor', $this->filterFloor);
+            });
+        }
+
+        if ($this->filterDurationType) {
+            $query->whereHas('registrations', function($q) {
+                $q->where('duration_type', $this->filterDurationType);
+                if ($this->filterStatus !== 'all') {
+                    $q->where('status', $this->filterStatus);
+                }
+            });
+        }
+
+        if ($this->filterIsOpenEnded !== '') {
+            $query->whereHas('registrations', function($q) {
+                $q->where('is_open_ended', $this->filterIsOpenEnded);
+                if ($this->filterStatus !== 'all') {
+                    $q->where('status', $this->filterStatus);
+                }
             });
         }
 

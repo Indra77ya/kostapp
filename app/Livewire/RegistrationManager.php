@@ -30,6 +30,8 @@ class RegistrationManager extends Component
     public $filterLocation = '';
     public $filterDateStart = '';
     public $filterDateEnd = '';
+    public $filterDurationType = '';
+    public $filterIsOpenEnded = '';
 
     // Form fields - Basic
     public $location_id, $room_id, $registration_number;
@@ -440,10 +442,12 @@ class RegistrationManager extends Component
     public function updatingFilterLocation() { $this->resetPage(); }
     public function updatingFilterDateStart() { $this->resetPage(); }
     public function updatingFilterDateEnd() { $this->resetPage(); }
+    public function updatingFilterDurationType() { $this->resetPage(); }
+    public function updatingFilterIsOpenEnded() { $this->resetPage(); }
 
     public function resetFilters()
     {
-        $this->reset(['search', 'filterLocation', 'filterDateStart', 'filterDateEnd']);
+        $this->reset(['search', 'filterLocation', 'filterDateStart', 'filterDateEnd', 'filterDurationType', 'filterIsOpenEnded']);
         $this->resetPage();
     }
 
@@ -470,6 +474,14 @@ class RegistrationManager extends Component
 
         if ($this->filterDateEnd) {
             $query->whereDate('registration_date', '<=', $this->filterDateEnd);
+        }
+
+        if ($this->filterDurationType) {
+            $query->where('duration_type', $this->filterDurationType);
+        }
+
+        if ($this->filterIsOpenEnded !== '') {
+            $query->where('is_open_ended', $this->filterIsOpenEnded);
         }
 
         // Filter rooms based on location and availability

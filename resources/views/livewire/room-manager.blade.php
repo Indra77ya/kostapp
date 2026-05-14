@@ -53,7 +53,7 @@
                         <input type="text" class="form-control" placeholder="Cari nomor kamar, tipe, atau fasilitas..." wire:model.live.debounce.300ms="search">
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <select class="form-select" wire:model.live="filterStatus">
                         <option value="">Semua Status</option>
                         <option value="available">Tersedia</option>
@@ -61,12 +61,21 @@
                         <option value="maintenance">Perbaikan</option>
                     </select>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <select class="form-select" wire:model.live="filterFloor">
                         <option value="">Semua Lantai</option>
                         @foreach($floors as $floor)
                             <option value="{{ $floor }}">Lantai {{ $floor }}</option>
                         @endforeach
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" wire:model.live="filterRentalType">
+                        <option value="">Tipe Sewa: Semua</option>
+                        <option value="daily">Harian</option>
+                        <option value="weekly">Mingguan</option>
+                        <option value="monthly">Bulanan</option>
+                        <option value="yearly">Tahunan</option>
                     </select>
                 </div>
                 <div class="col-md-1">

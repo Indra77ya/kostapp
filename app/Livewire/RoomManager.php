@@ -24,6 +24,7 @@ class RoomManager extends Component
     public $search = '';
     public $filterStatus = '';
     public $filterFloor = '';
+    public $filterRentalType = '';
 
     // Form fields
     public $location_id, $room_number, $price_monthly, $price_daily, $price_weekly, $price_yearly, $status, $description, $image, $facilities = [], $room_type, $floor;
@@ -217,9 +218,14 @@ class RoomManager extends Component
         $this->resetPage();
     }
 
+    public function updatingFilterRentalType()
+    {
+        $this->resetPage();
+    }
+
     public function resetFilters()
     {
-        $this->reset(['search', 'filterStatus', 'filterFloor']);
+        $this->reset(['search', 'filterStatus', 'filterFloor', 'filterRentalType']);
         $this->resetPage();
     }
 
@@ -241,6 +247,11 @@ class RoomManager extends Component
 
         if ($this->filterFloor) {
             $query->where('floor', $this->filterFloor);
+        }
+
+        if ($this->filterRentalType) {
+            $column = 'price_' . $this->filterRentalType;
+            $query->whereNotNull($column)->where($column, '>', 0);
         }
 
         $floors = Room::whereNotNull('floor')->distinct()->pluck('floor')->sort();

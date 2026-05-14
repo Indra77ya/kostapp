@@ -43,6 +43,22 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-rotate" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19.95 11a8 8 0 1 0 -.5 4m.5 5v-5h-5" /></svg>
                     </button>
                 </div>
+                <div class="col-md-4">
+                    <select class="form-select" wire:model.live="filterDurationType">
+                        <option value="">Jenis Sewa: Semua</option>
+                        <option value="daily">Harian</option>
+                        <option value="weekly">Mingguan</option>
+                        <option value="monthly">Bulanan</option>
+                        <option value="yearly">Tahunan</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <select class="form-select" wire:model.live="filterIsOpenEnded">
+                        <option value="">Status Durasi: Semua</option>
+                        <option value="1">Hingga Keluar</option>
+                        <option value="0">Durasi Tetap</option>
+                    </select>
+                </div>
             </div>
         </div>
     </div>
