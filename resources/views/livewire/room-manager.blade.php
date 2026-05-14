@@ -152,13 +152,13 @@
                                 </span>
                             </div>
                             <div class="mt-2">
-                                <div class="h3 mb-0">Rp {{ number_format($room->price_monthly, 0, ',', '.') }} <small class="text-muted" style="font-size: 0.6em">/Bulan</small></div>
                                 @if($room->price_daily)
                                     <div class="small text-secondary">Rp {{ number_format($room->price_daily, 0, ',', '.') }} <small>/Hari</small></div>
                                 @endif
                                 @if($room->price_weekly)
                                     <div class="small text-secondary">Rp {{ number_format($room->price_weekly, 0, ',', '.') }} <small>/Minggu</small></div>
                                 @endif
+                                <div class="small text-secondary">Rp {{ number_format($room->price_monthly, 0, ',', '.') }} <small>/Bulan</small></div>
                                 @if($room->price_yearly)
                                     <div class="small text-secondary">Rp {{ number_format($room->price_yearly, 0, ',', '.') }} <small>/Tahun</small></div>
                                 @endif
@@ -231,9 +231,9 @@
                             </span>
                         </td>
                         <td>
-                            <div>Rp {{ number_format($room->price_monthly, 0, ',', '.') }} <small class="text-muted">/Bln</small></div>
                             @if($room->price_daily) <div class="small text-muted">Rp {{ number_format($room->price_daily, 0, ',', '.') }} /Hari</div> @endif
                             @if($room->price_weekly) <div class="small text-muted">Rp {{ number_format($room->price_weekly, 0, ',', '.') }} /Mgg</div> @endif
+                            <div>Rp {{ number_format($room->price_monthly, 0, ',', '.') }} <small class="text-muted">/Bln</small></div>
                             @if($room->price_yearly) <div class="small text-muted">Rp {{ number_format($room->price_yearly, 0, ',', '.') }} /Thn</div> @endif
                         </td>
                         <td>
@@ -281,14 +281,14 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-lg-4">
+                            <div class="col-lg-12">
                                 <div class="mb-3">
                                     <label class="form-label small fw-bold">Nomor Kamar</label>
                                     <input type="text" class="form-control @error('room_number') is-invalid @enderror" wire:model="room_number">
                                     @error('room_number') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
                             </div>
-                            <div class="col-lg-4">
+                            <div class="col-lg-3">
                                 <div class="mb-3">
                                     <label class="form-label small fw-bold">Harga Harian</label>
                                     <div class="input-group">
@@ -298,7 +298,7 @@
                                     @error('price_daily') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
                             </div>
-                            <div class="col-lg-4">
+                            <div class="col-lg-3">
                                 <div class="mb-3">
                                     <label class="form-label small fw-bold">Harga Mingguan</label>
                                     <div class="input-group">
@@ -308,7 +308,7 @@
                                     @error('price_weekly') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
                             </div>
-                            <div class="col-lg-6">
+                            <div class="col-lg-3">
                                 <div class="mb-3">
                                     <label class="form-label small fw-bold">Harga Bulanan</label>
                                     <div class="input-group">
@@ -318,7 +318,7 @@
                                     @error('price_monthly') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
                             </div>
-                            <div class="col-lg-6">
+                            <div class="col-lg-3">
                                 <div class="mb-3">
                                     <label class="form-label small fw-bold">Harga Tahunan</label>
                                     <div class="input-group">
