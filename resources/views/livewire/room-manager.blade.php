@@ -63,9 +63,9 @@
                 </div>
                 <div class="col-md-2">
                     <select class="form-select" wire:model.live="filterFloor">
-                        <option value="">Lantai</option>
+                        <option value="">Semua Lantai</option>
                         @foreach($floors as $floor)
-                            <option value="{{ $floor }}">Lt {{ $floor }}</option>
+                            <option value="{{ $floor }}">Lantai {{ $floor }}</option>
                         @endforeach
                     </select>
                 </div>

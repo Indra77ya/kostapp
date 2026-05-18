@@ -9,16 +9,15 @@ class NotificationBell extends Component
     public $notifications = [];
     public $unreadCount = 0;
 
-    protected $listeners = ['echo:notifications,NotificationSent' => 'addNotification'];
+    protected $listeners = [
+        'echo:notifications,NotificationSent' => 'addNotification',
+        'notify' => 'addNotification'
+    ];
 
-    public function addNotification($event)
+    public function addNotification($data)
     {
+        $event = is_array($data) ? $data : (array) $data;
         $type = $event['type'] ?? 'info';
-
-        // Filter out success and error/danger from notification bell history
-        if (in_array($type, ['success', 'error', 'danger'])) {
-            return;
-        }
 
         array_unshift($this->notifications, [
             'message' => $event['message'],
