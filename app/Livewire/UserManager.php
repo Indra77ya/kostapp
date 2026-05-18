@@ -122,12 +122,18 @@ class UserManager extends Component
             $user->update($userData);
             $user->syncRoles([$this->role]);
 
-            NotificationSent::dispatch("Pengguna {$user->name} berhasil diperbarui.", 'success');
+            $message = "Pengguna {$user->name} berhasil diperbarui.";
+            $type = 'success';
+            $this->dispatch('notify', message: $message, type: $type);
+            broadcast(new NotificationSent($message, $type))->toOthers();
         } else {
             $user = User::create($userData);
             $user->assignRole($this->role);
 
-            NotificationSent::dispatch("Pengguna baru {$user->name} berhasil ditambahkan.", 'success');
+            $message = "Pengguna baru {$user->name} berhasil ditambahkan.";
+            $type = 'success';
+            $this->dispatch('notify', message: $message, type: $type);
+            broadcast(new NotificationSent($message, $type))->toOthers();
         }
 
         DatabaseUpdated::dispatch();
@@ -144,13 +150,19 @@ class UserManager extends Component
         ]);
 
         DatabaseUpdated::dispatch();
-        NotificationSent::dispatch("Password {$user->name} berhasil direset ke 12345678.", 'info');
+        $message = "Password {$user->name} berhasil direset ke 12345678.";
+        $type = 'info';
+        $this->dispatch('notify', message: $message, type: $type);
+        broadcast(new NotificationSent($message, $type))->toOthers();
     }
 
     public function deleteUser($id)
     {
         if ($id === auth()->id()) {
-            NotificationSent::dispatch("Anda tidak bisa menghapus diri sendiri!", 'danger');
+            $message = "Anda tidak bisa menghapus diri sendiri!";
+            $type = 'danger';
+            $this->dispatch('notify', message: $message, type: $type);
+            broadcast(new NotificationSent($message, $type))->toOthers();
             return;
         }
 
@@ -159,7 +171,10 @@ class UserManager extends Component
         $user->delete();
 
         DatabaseUpdated::dispatch();
-        NotificationSent::dispatch("Pengguna {$name} berhasil dihapus.", 'success');
+        $message = "Pengguna {$name} berhasil dihapus.";
+        $type = 'success';
+        $this->dispatch('notify', message: $message, type: $type);
+        broadcast(new NotificationSent($message, $type))->toOthers();
     }
 
     public function updatingSearch()

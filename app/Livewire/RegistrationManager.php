@@ -418,7 +418,10 @@ class RegistrationManager extends Component
             }
         });
 
-        NotificationSent::dispatch("Check in {$this->name} berhasil disimpan.", 'success');
+        $message = "Check in {$this->name} berhasil disimpan.";
+        $type = 'success';
+        $this->dispatch('notify', message: $message, type: $type);
+        broadcast(new NotificationSent($message, $type))->toOthers();
         DatabaseUpdated::dispatch();
         $this->closeModal();
     }
@@ -441,7 +444,10 @@ class RegistrationManager extends Component
         });
 
         DatabaseUpdated::dispatch();
-        NotificationSent::dispatch("Check in dan data penghuni {$name} berhasil dihapus.", 'success');
+        $message = "Check in dan data penghuni {$name} berhasil dihapus.";
+        $type = 'success';
+        $this->dispatch('notify', message: $message, type: $type);
+        broadcast(new NotificationSent($message, $type))->toOthers();
     }
 
     public function updatingSearch() { $this->resetPage(); }

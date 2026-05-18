@@ -30,16 +30,19 @@
             }
         };
 
-        // Handle Livewire events
-        $wire.on('notification-received', (event) => {
-            showNotification(event.message, event.type);
+        // Handle Global Livewire events (for faster response)
+        Livewire.on('notify', (data) => {
+            const payload = Array.isArray(data) ? data[0] : data;
+            showNotification(payload.message, payload.type || 'info');
         });
 
-        // Handle Session Flash
-        const sessionData = @js($sessionData);
-        if (sessionData) {
-            showNotification(sessionData.message, sessionData.type);
-        }
+        // Handle Session Flash and generic browser events
+        window.addEventListener('DOMContentLoaded', () => {
+            @if(session('success')) showNotification(@json(session('success')), 'success'); @endif
+            @if(session('error')) showNotification(@json(session('error')), 'error'); @endif
+            @if(session('info')) showNotification(@json(session('info')), 'info'); @endif
+            @if(session('warning')) showNotification(@json(session('warning')), 'warning'); @endif
+        });
     </script>
     @endscript
 </div>

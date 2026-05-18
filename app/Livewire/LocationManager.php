@@ -104,11 +104,16 @@ class LocationManager extends Component
         if ($this->locationId) {
             $location = Location::find($this->locationId);
             $location->update($data);
-            NotificationSent::dispatch("Lokasi {$location->name} telah diperbarui.", 'info');
+            $message = "Lokasi {$location->name} telah diperbarui.";
+            $type = 'info';
         } else {
             $location = Location::create($data);
-            NotificationSent::dispatch("Lokasi baru {$location->name} telah ditambahkan.", 'success');
+            $message = "Lokasi baru {$location->name} telah ditambahkan.";
+            $type = 'success';
         }
+
+        $this->dispatch('notify', message: $message, type: $type);
+        broadcast(new NotificationSent($message, $type))->toOthers();
 
         DatabaseUpdated::dispatch();
         $this->closeModal();
@@ -119,7 +124,10 @@ class LocationManager extends Component
         $location = Location::withCount('rooms')->find($id);
 
         if ($location->rooms_count > 0) {
-            NotificationSent::dispatch("Gagal menghapus! Lokasi {$location->name} masih memiliki {$location->rooms_count} kamar terdaftar.", 'error');
+            $message = "Gagal menghapus! Lokasi {$location->name} masih memiliki {$location->rooms_count} kamar terdaftar.";
+            $type = 'error';
+            $this->dispatch('notify', message: $message, type: $type);
+            broadcast(new NotificationSent($message, $type))->toOthers();
             return;
         }
 
@@ -130,7 +138,10 @@ class LocationManager extends Component
         $locationName = $location->name;
         $location->delete();
 
-        NotificationSent::dispatch("Lokasi {$locationName} telah dihapus.", 'warning');
+        $message = "Lokasi {$locationName} telah dihapus.";
+        $type = 'warning';
+        $this->dispatch('notify', message: $message, type: $type);
+        broadcast(new NotificationSent($message, $type))->toOthers();
         DatabaseUpdated::dispatch();
     }
 

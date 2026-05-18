@@ -106,9 +106,16 @@ class RuleManager extends Component
         if ($this->ruleId) {
             $rule = Rule::findOrFail($this->ruleId);
             $rule->update($data);
+            $message = "Peraturan '{$rule->title}' telah diperbarui.";
+            $type = 'info';
         } else {
-            Rule::create($data);
+            $rule = Rule::create($data);
+            $message = "Peraturan baru '{$rule->title}' telah ditambahkan.";
+            $type = 'success';
         }
+
+        $this->dispatch('notify', message: $message, type: $type);
+        broadcast(new NotificationSent($message, $type))->toOthers();
 
         $this->closeModal();
     }
@@ -117,7 +124,13 @@ class RuleManager extends Component
     {
         $rule = Rule::find($id);
         if ($rule) {
+            $title = $rule->title;
             $rule->delete();
+
+            $message = "Peraturan '{$title}' telah dihapus.";
+            $type = 'warning';
+            $this->dispatch('notify', message: $message, type: $type);
+            broadcast(new NotificationSent($message, $type))->toOthers();
         }
     }
 

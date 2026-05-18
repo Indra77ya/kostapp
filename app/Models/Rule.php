@@ -27,17 +27,14 @@ class Rule extends Model
     {
         static::created(function ($rule) {
             DatabaseUpdated::dispatch();
-            NotificationSent::dispatch("Peraturan baru '{$rule->title}' telah ditambahkan.", 'success');
         });
 
         static::updated(function ($rule) {
             DatabaseUpdated::dispatch();
-            NotificationSent::dispatch("Peraturan '{$rule->title}' telah diperbarui.", 'info');
         });
 
         static::deleted(function ($rule) {
             DatabaseUpdated::dispatch();
-            NotificationSent::dispatch("Peraturan '{$rule->title}' telah dihapus.", 'warning');
         });
     }
 

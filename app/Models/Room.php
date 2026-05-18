@@ -30,17 +30,14 @@ class Room extends Model
     {
         static::created(function ($room) {
             DatabaseUpdated::dispatch();
-            NotificationSent::dispatch("Kamar baru #{$room->room_number} telah ditambahkan.", 'success');
         });
 
         static::updated(function ($room) {
             DatabaseUpdated::dispatch();
-            NotificationSent::dispatch("Kamar #{$room->room_number} telah diperbarui.", 'info');
         });
 
         static::deleted(function ($room) {
             DatabaseUpdated::dispatch();
-            NotificationSent::dispatch("Kamar #{$room->room_number} telah dihapus.", 'warning');
         });
     }
 
