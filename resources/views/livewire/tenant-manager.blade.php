@@ -189,9 +189,9 @@
                         <th>Status</th>
                         <th>Lokasi</th>
                         <th>Tipe / Lantai</th>
+                        <th>No. Kamar</th>
                         <th>Email</th>
                         <th>Telepon</th>
-                        <th>Alamat</th>
                         <th>Password</th>
                         <th class="w-1"></th>
                     </tr>
@@ -234,9 +234,15 @@
                                 -
                             @endif
                         </td>
+                        <td class="text-secondary">
+                            @if($latestReg && $latestReg->room)
+                                {{ $latestReg->room->room_number }}
+                            @else
+                                -
+                            @endif
+                        </td>
                         <td class="text-secondary">{{ $tenant->email }}</td>
                         <td class="text-secondary">{{ $tenant->phone_number ?? '-' }}</td>
-                        <td class="text-secondary text-truncate" style="max-width: 150px;">{{ $tenant->address ?? '-' }}</td>
                         <td>
                             <div class="d-flex align-items-center">
                                 <span class="me-2">
