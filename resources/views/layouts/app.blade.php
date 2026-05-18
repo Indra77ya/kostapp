@@ -197,6 +197,7 @@
     <!-- Libs JS -->
     <script src="{{ asset('assets/tabler/js/tabler.min.js') }}" defer></script>
     @vite(['resources/js/app.js'])
+    @livewire('notification-handler')
     @livewireScripts
     @stack('scripts')
   </body>
