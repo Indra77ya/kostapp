@@ -427,15 +427,21 @@ class RegistrationManager extends Component
     {
         $reg = Registration::find($id);
         $name = $reg->user->name;
+        $userId = $reg->user_id;
 
-        DB::transaction(function() use ($reg) {
+        DB::transaction(function() use ($reg, $userId) {
             // Revert room status to available
             Room::where('id', $reg->room_id)->update(['status' => 'available']);
+
+            // Delete registration
             $reg->delete();
+
+            // Automatically delete the associated User (tenant)
+            User::where('id', $userId)->delete();
         });
 
         DatabaseUpdated::dispatch();
-        NotificationSent::dispatch("Check in {$name} berhasil dihapus.", 'success');
+        NotificationSent::dispatch("Check in dan data penghuni {$name} berhasil dihapus.", 'success');
     }
 
     public function updatingSearch() { $this->resetPage(); }

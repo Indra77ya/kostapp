@@ -8,6 +8,8 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\Storage;
+use App\Events\NotificationSent;
+use App\Events\DatabaseUpdated;
 
 class RoomManager extends Component
 {
@@ -177,6 +179,11 @@ class RoomManager extends Component
     {
         $room = Room::with('images')->find($id);
 
+        if ($room->status === 'occupied') {
+            NotificationSent::dispatch("Gagal menghapus! Kamar #{$room->room_number} masih terisi oleh penghuni.", 'error');
+            return;
+        }
+
         // Delete main image
         if ($room->image) {
             Storage::disk('public')->delete($room->image);
@@ -188,6 +195,7 @@ class RoomManager extends Component
         }
 
         $room->delete();
+        // DatabaseUpdated and NotificationSent are handled by Room model booted method
     }
 
     public function deleteGalleryImage($imageId)

@@ -152,7 +152,15 @@ class TenantManager extends Component
 
     public function deleteTenant($id)
     {
-        $tenant = User::find($id);
+        $tenant = User::withCount(['registrations' => function($q) {
+            $q->where('status', 'active');
+        }])->find($id);
+
+        if ($tenant->registrations_count > 0) {
+            NotificationSent::dispatch("Gagal menghapus! Penghuni {$tenant->name} masih memiliki registrasi aktif.", 'error');
+            return;
+        }
+
         $name = $tenant->name;
         $tenant->delete();
 
