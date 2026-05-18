@@ -25,6 +25,7 @@ class RoomManager extends Component
     public $filterStatus = '';
     public $filterFloor = '';
     public $filterRentalType = '';
+    public $sortOrder = 'room_number_asc';
 
     // Form fields
     public $location_id, $room_number, $price_monthly, $price_daily, $price_weekly, $price_yearly, $status, $description, $image, $facilities = [], $room_type, $floor;
@@ -223,9 +224,15 @@ class RoomManager extends Component
         $this->resetPage();
     }
 
+    public function updatingSortOrder()
+    {
+        $this->resetPage();
+    }
+
     public function resetFilters()
     {
-        $this->reset(['search', 'filterStatus', 'filterFloor', 'filterRentalType']);
+        $this->reset(['search', 'filterStatus', 'filterFloor', 'filterRentalType', 'sortOrder']);
+        $this->sortOrder = 'room_number_asc';
         $this->resetPage();
     }
 
@@ -254,12 +261,33 @@ class RoomManager extends Component
             $query->whereNotNull($column)->where($column, '>', 0);
         }
 
+        // Sorting
+        switch ($this->sortOrder) {
+            case 'room_number_asc':
+                $query->orderBy('room_number', 'asc');
+                break;
+            case 'room_number_desc':
+                $query->orderBy('room_number', 'desc');
+                break;
+            case 'price_asc':
+                $priceColumn = $this->filterRentalType ? 'price_' . $this->filterRentalType : 'price_daily';
+                $query->orderBy($priceColumn, 'asc');
+                break;
+            case 'price_desc':
+                $priceColumn = $this->filterRentalType ? 'price_' . $this->filterRentalType : 'price_daily';
+                $query->orderBy($priceColumn, 'desc');
+                break;
+            default:
+                $query->orderBy('room_number', 'asc');
+                break;
+        }
+
         $floors = Room::whereNotNull('floor')->distinct()->pluck('floor')->sort();
         $locations = \App\Models\Location::orderBy('name')->get();
         $allFacilities = \App\Models\Facility::orderBy('category')->orderBy('name')->get()->groupBy('category');
 
         return view('livewire.room-manager', [
-            'rooms' => $query->with(['images', 'location'])->orderBy('room_number')->paginate(12),
+            'rooms' => $query->with(['images', 'location'])->paginate(12),
             'floors' => $floors,
             'locations' => $locations,
             'allFacilities' => $allFacilities
