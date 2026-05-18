@@ -35,7 +35,7 @@ class RegistrationManagerTest extends TestCase
             'location_id' => $location->id,
             'room_number' => '101',
             'type' => 'Standard',
-            'price' => 1000000,
+            'price_monthly' => 1000000,
             'facilities' => 'Bed, AC'
         ]);
 
@@ -88,7 +88,7 @@ class RegistrationManagerTest extends TestCase
             'location_id' => $location->id,
             'room_number' => '202',
             'type' => 'Deluxe',
-            'price' => 2000000,
+            'price_monthly' => 2000000,
             'facilities' => 'TV, Fridge'
         ]);
 

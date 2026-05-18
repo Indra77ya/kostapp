@@ -28,6 +28,7 @@ class RoomMoveManager extends Component
 
     // Form fields
     public $registration_id, $new_room_id, $move_date, $reason;
+    public $duration_type = 'monthly', $duration_value = 1, $is_open_ended = false;
     public $room_price = 0, $discount_type = 'fixed', $discount_value = 0, $total_price = 0;
     public $tenant_search = '';
     public $selectedLocationId;
@@ -47,6 +48,9 @@ class RoomMoveManager extends Component
             // Pre-fill with current registration pricing as baseline
             $this->discount_type = $reg->discount_type;
             $this->discount_value = $reg->discount_value;
+            $this->duration_type = $reg->duration_type;
+            $this->duration_value = $reg->duration_value;
+            $this->is_open_ended = (bool) $reg->is_open_ended;
         } else {
             $this->selectedLocationId = null;
         }
@@ -59,11 +63,53 @@ class RoomMoveManager extends Component
     {
         if ($value) {
             $room = Room::find($value);
-            $this->room_price = $room ? $room->price : 0;
+            $this->setRoomPriceByDuration($room);
         } else {
             $this->room_price = 0;
         }
         $this->calculateTotalPrice();
+    }
+
+    public function updatedDurationType()
+    {
+        if ($this->new_room_id) {
+            $room = Room::find($this->new_room_id);
+            $this->setRoomPriceByDuration($room);
+        }
+        $this->calculateTotalPrice();
+    }
+
+    public function updatedDurationValue()
+    {
+        $this->calculateTotalPrice();
+    }
+
+    public function updatedIsOpenEnded($value)
+    {
+        if ($value) {
+            $this->duration_value = 1;
+        }
+        $this->calculateTotalPrice();
+    }
+
+    private function setRoomPriceByDuration($room)
+    {
+        if (!$room) return;
+
+        switch ($this->duration_type) {
+            case 'daily':
+                $this->room_price = $room->price_daily ?: $room->price_monthly;
+                break;
+            case 'weekly':
+                $this->room_price = $room->price_weekly ?: $room->price_monthly;
+                break;
+            case 'yearly':
+                $this->room_price = $room->price_yearly ?: $room->price_monthly;
+                break;
+            default:
+                $this->room_price = $room->price_monthly;
+                break;
+        }
     }
 
     public function updatedDiscountType() { $this->calculateTotalPrice(); }
@@ -72,12 +118,15 @@ class RoomMoveManager extends Component
 
     public function calculateTotalPrice()
     {
-        $this->total_price = (float) $this->room_price;
+        $price = (float) $this->room_price;
+        $duration = (int) ($this->duration_value ?: 1);
+        $subtotal = $price * $duration;
+        $discount = (float) $this->discount_value;
 
-        if ($this->discount_type === 'fixed') {
-            $this->total_price -= (float) $this->discount_value;
-        } elseif ($this->discount_type === 'percent') {
-            $this->total_price -= ($this->total_price * ((float) $this->discount_value / 100));
+        if ($this->discount_type === 'percent') {
+            $this->total_price = $subtotal - ($subtotal * ($discount / 100));
+        } else {
+            $this->total_price = $subtotal - $discount;
         }
 
         if ($this->total_price < 0) $this->total_price = 0;
@@ -103,6 +152,9 @@ class RoomMoveManager extends Component
         $this->move_date = Carbon::now()->format('Y-m-d');
         $this->reason = '';
         $this->selectedLocationId = null;
+        $this->duration_type = 'monthly';
+        $this->duration_value = 1;
+        $this->is_open_ended = false;
         $this->room_price = 0;
         $this->discount_type = 'fixed';
         $this->discount_value = 0;
@@ -143,6 +195,9 @@ class RoomMoveManager extends Component
             // 2. Update Registration with new room and pricing
             $registration->update([
                 'room_id' => $this->new_room_id,
+                'duration_type' => $this->duration_type,
+                'duration_value' => $this->duration_value,
+                'is_open_ended' => $this->is_open_ended,
                 'room_price' => $this->room_price,
                 'discount_type' => $this->discount_type,
                 'discount_value' => $this->discount_value,

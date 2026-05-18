@@ -34,7 +34,7 @@ class CheckOutManagerTest extends TestCase
             'room_number' => '101',
             'location_id' => $location->id,
             'type' => 'Standard',
-            'price' => 1000000,
+            'price_monthly' => 1000000,
             'status' => 'occupied'
         ]);
 

@@ -25,8 +25,8 @@ class RealtimeDashboardTest extends TestCase
         $user = User::factory()->create();
         $user->assignRole('admin');
 
-        Room::create(['room_number' => '101', 'price' => 1000, 'status' => 'available']);
-        Room::create(['room_number' => '102', 'price' => 1000, 'status' => 'occupied']);
+        Room::create(['room_number' => '101', 'price_monthly' => 1000, 'status' => 'available']);
+        Room::create(['room_number' => '102', 'price_monthly' => 1000, 'status' => 'occupied']);
 
         Livewire::actingAs($user)
             ->test(\App\Livewire\DashboardStats::class)

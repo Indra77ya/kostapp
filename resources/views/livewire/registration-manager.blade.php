@@ -43,6 +43,22 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-rotate" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19.95 11a8 8 0 1 0 -.5 4m.5 5v-5h-5" /></svg>
                     </button>
                 </div>
+                <div class="col-md-4">
+                    <select class="form-select" wire:model.live="filterDurationType">
+                        <option value="">Jenis Sewa: Semua</option>
+                        <option value="daily">Harian</option>
+                        <option value="weekly">Mingguan</option>
+                        <option value="monthly">Bulanan</option>
+                        <option value="yearly">Tahunan</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <select class="form-select" wire:model.live="filterIsOpenEnded">
+                        <option value="">Status Durasi: Semua</option>
+                        <option value="1">Hingga Keluar</option>
+                        <option value="0">Durasi Tetap</option>
+                    </select>
+                </div>
             </div>
         </div>
     </div>
@@ -174,6 +190,34 @@
                             <div class="col-md-3 mb-3">
                                 <label class="form-label required small fw-bold">Tgl Mulai Inap</label>
                                 <input type="date" class="form-control @error('stay_start_date') is-invalid @enderror" wire:model="stay_start_date">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label required small fw-bold">Jenis Sewa</label>
+                                <select class="form-select" wire:model.live="duration_type">
+                                    <option value="daily">Harian</option>
+                                    <option value="weekly">Mingguan</option>
+                                    <option value="monthly">Bulanan</option>
+                                    <option value="yearly">Tahunan</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label required small fw-bold d-flex justify-content-between align-items-center">
+                                    Durasi
+                                    <label class="form-check form-check-inline mb-0 small" style="font-weight: normal;">
+                                        <input class="form-check-input" type="checkbox" wire:model.live="is_open_ended">
+                                        <span class="form-check-label">Hingga Keluar</span>
+                                    </label>
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" wire:model.live="duration_value" min="1" {{ $is_open_ended ? 'disabled' : '' }}>
+                                    <span class="input-group-text">
+                                        @if($duration_type == 'daily') Hari
+                                        @elseif($duration_type == 'weekly') Minggu
+                                        @elseif($duration_type == 'monthly') Bulan
+                                        @elseif($duration_type == 'yearly') Tahun
+                                        @endif
+                                    </span>
+                                </div>
                             </div>
 
                             <!-- Section 2: Data Penghuni -->

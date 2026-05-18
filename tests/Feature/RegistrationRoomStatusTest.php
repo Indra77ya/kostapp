@@ -32,7 +32,7 @@ class RegistrationRoomStatusTest extends TestCase
         $room = Room::create([
             'location_id' => $location->id,
             'room_number' => '101',
-            'price' => 1000000,
+            'price_monthly' => 1000000,
             'status' => 'available'
         ]);
 
@@ -60,7 +60,7 @@ class RegistrationRoomStatusTest extends TestCase
         $room = Room::create([
             'location_id' => $location->id,
             'room_number' => '101',
-            'price' => 1000000,
+            'price_monthly' => 1000000,
             'status' => 'occupied'
         ]);
 
@@ -94,13 +94,13 @@ class RegistrationRoomStatusTest extends TestCase
         $roomAvailable = Room::create([
             'location_id' => $location->id,
             'room_number' => '101',
-            'price' => 1000000,
+            'price_monthly' => 1000000,
             'status' => 'available'
         ]);
         $roomOccupied = Room::create([
             'location_id' => $location->id,
             'room_number' => '102',
-            'price' => 1000000,
+            'price_monthly' => 1000000,
             'status' => 'occupied'
         ]);
 

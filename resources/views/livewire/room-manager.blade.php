@@ -45,7 +45,7 @@
     <div class="card mb-3">
         <div class="card-body">
             <div class="row g-2">
-                <div class="col-md-5">
+                <div class="col-md-4">
                     <div class="input-icon">
                         <span class="input-icon-addon">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
@@ -53,7 +53,7 @@
                         <input type="text" class="form-control" placeholder="Cari nomor kamar, tipe, atau fasilitas..." wire:model.live.debounce.300ms="search">
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <select class="form-select" wire:model.live="filterStatus">
                         <option value="">Semua Status</option>
                         <option value="available">Tersedia</option>
@@ -61,12 +61,29 @@
                         <option value="maintenance">Perbaikan</option>
                     </select>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-1">
                     <select class="form-select" wire:model.live="filterFloor">
-                        <option value="">Semua Lantai</option>
+                        <option value="">Lantai</option>
                         @foreach($floors as $floor)
-                            <option value="{{ $floor }}">Lantai {{ $floor }}</option>
+                            <option value="{{ $floor }}">Lt {{ $floor }}</option>
                         @endforeach
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" wire:model.live="filterRentalType">
+                        <option value="">Tipe Sewa: Semua</option>
+                        <option value="daily">Harian</option>
+                        <option value="weekly">Mingguan</option>
+                        <option value="monthly">Bulanan</option>
+                        <option value="yearly">Tahunan</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" wire:model.live="sortOrder">
+                        <option value="room_number_asc">No. Kamar (↑)</option>
+                        <option value="room_number_desc">No. Kamar (↓)</option>
+                        <option value="price_asc">Harga Termurah</option>
+                        <option value="price_desc">Harga Termahal</option>
                     </select>
                 </div>
                 <div class="col-md-1">
@@ -151,7 +168,18 @@
                                     {{ $room->status === 'available' ? 'Tersedia' : ($room->status === 'occupied' ? 'Terisi' : 'Perbaikan') }}
                                 </span>
                             </div>
-                            <div class="mt-2 h3 mb-1">Rp {{ number_format($room->price, 0, ',', '.') }}</div>
+                            <div class="mt-2">
+                                @if($room->price_daily)
+                                    <div class="small text-secondary">Rp {{ number_format($room->price_daily, 0, ',', '.') }} <small>/Hari</small></div>
+                                @endif
+                                @if($room->price_weekly)
+                                    <div class="small text-secondary">Rp {{ number_format($room->price_weekly, 0, ',', '.') }} <small>/Minggu</small></div>
+                                @endif
+                                <div class="small text-secondary">Rp {{ number_format($room->price_monthly, 0, ',', '.') }} <small>/Bulan</small></div>
+                                @if($room->price_yearly)
+                                    <div class="small text-secondary">Rp {{ number_format($room->price_yearly, 0, ',', '.') }} <small>/Tahun</small></div>
+                                @endif
+                            </div>
                             @if($room->facilities)
                             <div class="mt-2">
                                 @foreach(explode(',', $room->facilities) as $facility)
@@ -219,7 +247,12 @@
                                 {{ $room->status === 'available' ? 'Tersedia' : ($room->status === 'occupied' ? 'Terisi' : 'Perbaikan') }}
                             </span>
                         </td>
-                        <td>Rp {{ number_format($room->price, 0, ',', '.') }}</td>
+                        <td>
+                            @if($room->price_daily) <div class="small text-muted">Rp {{ number_format($room->price_daily, 0, ',', '.') }} /Hari</div> @endif
+                            @if($room->price_weekly) <div class="small text-muted">Rp {{ number_format($room->price_weekly, 0, ',', '.') }} /Mgg</div> @endif
+                            <div class="small text-muted">Rp {{ number_format($room->price_monthly, 0, ',', '.') }} /Bln</div>
+                            @if($room->price_yearly) <div class="small text-muted">Rp {{ number_format($room->price_yearly, 0, ',', '.') }} /Thn</div> @endif
+                        </td>
                         <td>
                             <div class="btn-list flex-nowrap">
                                 <button class="btn btn-white btn-sm" wire:click="openModal({{ $room->id }})">Edit</button>
@@ -265,18 +298,51 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-lg-6">
+                            <div class="col-lg-12">
                                 <div class="mb-3">
-                                    <label class="form-label">Nomor Kamar</label>
+                                    <label class="form-label small fw-bold">Nomor Kamar</label>
                                     <input type="text" class="form-control @error('room_number') is-invalid @enderror" wire:model="room_number">
                                     @error('room_number') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
                             </div>
-                            <div class="col-lg-6">
+                            <div class="col-lg-3">
                                 <div class="mb-3">
-                                    <label class="form-label">Harga (Bulan)</label>
-                                    <input type="number" class="form-control @error('price') is-invalid @enderror" wire:model="price">
-                                    @error('price') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                    <label class="form-label small fw-bold">Harga Harian</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">Rp</span>
+                                        <input type="number" class="form-control @error('price_daily') is-invalid @enderror" wire:model="price_daily">
+                                    </div>
+                                    @error('price_daily') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold">Harga Mingguan</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">Rp</span>
+                                        <input type="number" class="form-control @error('price_weekly') is-invalid @enderror" wire:model="price_weekly">
+                                    </div>
+                                    @error('price_weekly') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold">Harga Bulanan</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">Rp</span>
+                                        <input type="number" class="form-control @error('price_monthly') is-invalid @enderror" wire:model="price_monthly">
+                                    </div>
+                                    @error('price_monthly') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold">Harga Tahunan</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">Rp</span>
+                                        <input type="number" class="form-control @error('price_yearly') is-invalid @enderror" wire:model="price_yearly">
+                                    </div>
+                                    @error('price_yearly') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
                             </div>
                         </div>

@@ -35,8 +35,8 @@ class RoomMoveManagerTest extends TestCase
         $owner->assignRole('owner');
 
         $location = Location::create(['name' => 'Test Kost', 'address' => 'Test Address']);
-        $room1 = Room::create(['location_id' => $location->id, 'room_number' => '101', 'price' => 1000000, 'status' => 'occupied']);
-        $room2 = Room::create(['location_id' => $location->id, 'room_number' => '102', 'price' => 1000000, 'status' => 'available']);
+        $room1 = Room::create(['location_id' => $location->id, 'room_number' => '101', 'price_monthly' => 1000000, 'status' => 'occupied']);
+        $room2 = Room::create(['location_id' => $location->id, 'room_number' => '102', 'price_monthly' => 1000000, 'status' => 'available']);
 
         $tenant = User::factory()->create();
         $tenant->assignRole('tenant');

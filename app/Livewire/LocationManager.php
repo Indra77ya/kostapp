@@ -116,10 +116,17 @@ class LocationManager extends Component
 
     public function deleteLocation($id)
     {
-        $location = Location::find($id);
+        $location = Location::withCount('rooms')->find($id);
+
+        if ($location->rooms_count > 0) {
+            NotificationSent::dispatch("Gagal menghapus! Lokasi {$location->name} masih memiliki {$location->rooms_count} kamar terdaftar.", 'error');
+            return;
+        }
+
         if ($location->image) {
             Storage::disk('public')->delete($location->image);
         }
+
         $locationName = $location->name;
         $location->delete();
 

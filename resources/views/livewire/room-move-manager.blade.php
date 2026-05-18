@@ -162,16 +162,45 @@
                         </div>
 
                         @if($registration_id)
-                        <div class="mb-3">
-                            <label class="form-label">Pilih Kamar Baru</label>
-                            <select class="form-select @error('new_room_id') is-invalid @enderror" wire:model.live="new_room_id">
-                                <option value="">-- Pilih Kamar Tersedia --</option>
-                                @foreach($availableRooms as $room)
-                                    <option value="{{ $room->id }}">{{ $room->room_number }} (Rp {{ number_format($room->price, 0, ',', '.') }})</option>
-                                @endforeach
-                            </select>
-                            @error('new_room_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                            <small class="form-hint">Hanya menampilkan kamar tersedia di lokasi yang sama.</small>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Pilih Kamar Baru</label>
+                                <select class="form-select @error('new_room_id') is-invalid @enderror" wire:model.live="new_room_id">
+                                    <option value="">-- Pilih Kamar Tersedia --</option>
+                                    @foreach($availableRooms as $room)
+                                    <option value="{{ $room->id }}">{{ $room->room_number }} (Rp {{ number_format($room->price_monthly, 0, ',', '.') }})</option>
+                                    @endforeach
+                                </select>
+                                @error('new_room_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Jenis Sewa</label>
+                                <select class="form-select" wire:model.live="duration_type">
+                                    <option value="daily">Harian</option>
+                                    <option value="weekly">Mingguan</option>
+                                    <option value="monthly">Bulanan</option>
+                                    <option value="yearly">Tahunan</option>
+                                </select>
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label d-flex justify-content-between align-items-center">
+                                    Durasi
+                                    <label class="form-check form-check-inline mb-0 small" style="font-weight: normal;">
+                                        <input class="form-check-input" type="checkbox" wire:model.live="is_open_ended">
+                                        <span class="form-check-label">Hingga Keluar</span>
+                                    </label>
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" wire:model.live="duration_value" min="1" {{ $is_open_ended ? 'disabled' : '' }}>
+                                    <span class="input-group-text">
+                                        @if($duration_type == 'daily') Hari
+                                        @elseif($duration_type == 'weekly') Minggu
+                                        @elseif($duration_type == 'monthly') Bulan
+                                        @elseif($duration_type == 'yearly') Tahun
+                                        @endif
+                                    </span>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="row">

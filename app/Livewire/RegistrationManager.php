@@ -30,10 +30,13 @@ class RegistrationManager extends Component
     public $filterLocation = '';
     public $filterDateStart = '';
     public $filterDateEnd = '';
+    public $filterDurationType = '';
+    public $filterIsOpenEnded = '';
 
     // Form fields - Basic
     public $location_id, $room_id, $registration_number;
     public $registration_date, $stay_start_date, $currentRoomId;
+    public $duration_type = 'monthly', $duration_value = 1, $is_open_ended = false;
 
     // Financials
     public $room_price = 0, $discount_type = 'fixed', $discount_value = 0, $total_price = 0;
@@ -95,13 +98,55 @@ class RegistrationManager extends Component
     {
         if ($value) {
             $room = Room::find($value);
-            $this->room_price = $room->price;
+            $this->setRoomPriceByDuration($room);
             $this->room_facilities = $room->facilities;
         } else {
             $this->room_price = 0;
             $this->room_facilities = '';
         }
         $this->calculateTotal();
+    }
+
+    public function updatedDurationType()
+    {
+        if ($this->room_id) {
+            $room = Room::find($this->room_id);
+            $this->setRoomPriceByDuration($room);
+        }
+        $this->calculateTotal();
+    }
+
+    public function updatedDurationValue()
+    {
+        $this->calculateTotal();
+    }
+
+    public function updatedIsOpenEnded($value)
+    {
+        if ($value) {
+            $this->duration_value = 1;
+        }
+        $this->calculateTotal();
+    }
+
+    private function setRoomPriceByDuration($room)
+    {
+        if (!$room) return;
+
+        switch ($this->duration_type) {
+            case 'daily':
+                $this->room_price = $room->price_daily ?: $room->price_monthly;
+                break;
+            case 'weekly':
+                $this->room_price = $room->price_weekly ?: $room->price_monthly;
+                break;
+            case 'yearly':
+                $this->room_price = $room->price_yearly ?: $room->price_monthly;
+                break;
+            default:
+                $this->room_price = $room->price_monthly;
+                break;
+        }
     }
 
     public function updatedDiscountType() { $this->calculateTotal(); }
@@ -111,12 +156,14 @@ class RegistrationManager extends Component
     public function calculateTotal()
     {
         $price = (float) $this->room_price;
+        $duration = (int) ($this->duration_value ?: 1);
+        $subtotal = $price * $duration;
         $discount = (float) $this->discount_value;
 
         if ($this->discount_type === 'percent') {
-            $this->total_price = $price - ($price * ($discount / 100));
+            $this->total_price = $subtotal - ($subtotal * ($discount / 100));
         } else {
-            $this->total_price = $price - $discount;
+            $this->total_price = $subtotal - $discount;
         }
 
         if ($this->total_price < 0) $this->total_price = 0;
@@ -154,6 +201,9 @@ class RegistrationManager extends Component
             $this->registration_number = $reg->registration_number;
             $this->registration_date = $reg->registration_date->format('Y-m-d');
             $this->stay_start_date = $reg->stay_start_date->format('Y-m-d');
+            $this->duration_type = $reg->duration_type;
+            $this->duration_value = $reg->duration_value;
+            $this->is_open_ended = (bool) $reg->is_open_ended;
             $this->room_price = $reg->room_price;
             $this->discount_type = $reg->discount_type;
             $this->discount_value = $reg->discount_value;
@@ -208,6 +258,9 @@ class RegistrationManager extends Component
         $this->registration_number = null;
         $this->registration_date = Carbon::now()->format('Y-m-d');
         $this->stay_start_date = null;
+        $this->duration_type = 'monthly';
+        $this->duration_value = 1;
+        $this->is_open_ended = false;
         $this->room_price = 0;
         $this->discount_type = 'fixed';
         $this->discount_value = 0;
@@ -309,6 +362,9 @@ class RegistrationManager extends Component
                 'registration_number' => $this->registration_number,
                 'registration_date' => $this->registration_date,
                 'stay_start_date' => $this->stay_start_date,
+                'duration_type' => $this->duration_type,
+                'duration_value' => $this->duration_value,
+                'is_open_ended' => $this->is_open_ended,
                 'room_price' => $this->room_price,
                 'discount_type' => $this->discount_type,
                 'discount_value' => $this->discount_value,
@@ -371,25 +427,33 @@ class RegistrationManager extends Component
     {
         $reg = Registration::find($id);
         $name = $reg->user->name;
+        $userId = $reg->user_id;
 
-        DB::transaction(function() use ($reg) {
+        DB::transaction(function() use ($reg, $userId) {
             // Revert room status to available
             Room::where('id', $reg->room_id)->update(['status' => 'available']);
+
+            // Delete registration
             $reg->delete();
+
+            // Automatically delete the associated User (tenant)
+            User::where('id', $userId)->delete();
         });
 
         DatabaseUpdated::dispatch();
-        NotificationSent::dispatch("Check in {$name} berhasil dihapus.", 'success');
+        NotificationSent::dispatch("Check in dan data penghuni {$name} berhasil dihapus.", 'success');
     }
 
     public function updatingSearch() { $this->resetPage(); }
     public function updatingFilterLocation() { $this->resetPage(); }
     public function updatingFilterDateStart() { $this->resetPage(); }
     public function updatingFilterDateEnd() { $this->resetPage(); }
+    public function updatingFilterDurationType() { $this->resetPage(); }
+    public function updatingFilterIsOpenEnded() { $this->resetPage(); }
 
     public function resetFilters()
     {
-        $this->reset(['search', 'filterLocation', 'filterDateStart', 'filterDateEnd']);
+        $this->reset(['search', 'filterLocation', 'filterDateStart', 'filterDateEnd', 'filterDurationType', 'filterIsOpenEnded']);
         $this->resetPage();
     }
 
@@ -416,6 +480,14 @@ class RegistrationManager extends Component
 
         if ($this->filterDateEnd) {
             $query->whereDate('registration_date', '<=', $this->filterDateEnd);
+        }
+
+        if ($this->filterDurationType) {
+            $query->where('duration_type', $this->filterDurationType);
+        }
+
+        if ($this->filterIsOpenEnded !== '') {
+            $query->where('is_open_ended', $this->filterIsOpenEnded);
         }
 
         // Filter rooms based on location and availability

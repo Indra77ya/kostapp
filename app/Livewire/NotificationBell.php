@@ -15,7 +15,7 @@ class NotificationBell extends Component
     {
         array_unshift($this->notifications, [
             'message' => $event['message'],
-            'time' => now()->diffForHumans(),
+            'timestamp' => now()->toIso8601String(),
             'type' => $event['type'] ?? 'info'
         ]);
         $this->unreadCount++;

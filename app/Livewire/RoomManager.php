@@ -8,6 +8,8 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\Storage;
+use App\Events\NotificationSent;
+use App\Events\DatabaseUpdated;
 
 class RoomManager extends Component
 {
@@ -24,9 +26,11 @@ class RoomManager extends Component
     public $search = '';
     public $filterStatus = '';
     public $filterFloor = '';
+    public $filterRentalType = '';
+    public $sortOrder = 'room_number_asc';
 
     // Form fields
-    public $location_id, $room_number, $price, $status, $description, $image, $facilities = [], $room_type, $floor;
+    public $location_id, $room_number, $price_monthly, $price_daily, $price_weekly, $price_yearly, $status, $description, $image, $facilities = [], $room_type, $floor;
     public $newImage;
     public $gallery = [];
     public $newGallery = [];
@@ -36,7 +40,10 @@ class RoomManager extends Component
     protected $rules = [
         'location_id' => 'nullable|exists:locations,id',
         'room_number' => 'required|unique:rooms,room_number',
-        'price' => 'required|numeric',
+        'price_monthly' => 'required|numeric',
+        'price_daily' => 'nullable|numeric',
+        'price_weekly' => 'nullable|numeric',
+        'price_yearly' => 'nullable|numeric',
         'status' => 'required|in:available,occupied,maintenance',
         'description' => 'nullable',
         'facilities' => 'nullable',
@@ -60,7 +67,10 @@ class RoomManager extends Component
             $room = Room::with('images')->find($id);
             $this->location_id = $room->location_id;
             $this->room_number = $room->room_number;
-            $this->price = $room->price;
+            $this->price_monthly = $room->price_monthly;
+            $this->price_daily = $room->price_daily;
+            $this->price_weekly = $room->price_weekly;
+            $this->price_yearly = $room->price_yearly;
             $this->status = $room->status;
             $this->description = $room->description;
             $this->facilities = $room->facilities;
@@ -96,7 +106,10 @@ class RoomManager extends Component
         $this->roomId = null;
         $this->location_id = null;
         $this->room_number = '';
-        $this->price = '';
+        $this->price_monthly = '';
+        $this->price_daily = '';
+        $this->price_weekly = '';
+        $this->price_yearly = '';
         $this->status = 'available';
         $this->description = '';
         $this->facilities = [];
@@ -120,7 +133,10 @@ class RoomManager extends Component
         $data = [
             'location_id' => $this->location_id ?: null,
             'room_number' => $this->room_number,
-            'price' => $this->price,
+            'price_monthly' => $this->price_monthly,
+            'price_daily' => $this->price_daily ?: null,
+            'price_weekly' => $this->price_weekly ?: null,
+            'price_yearly' => $this->price_yearly ?: null,
             'status' => $this->status,
             'description' => $this->description,
             'facilities' => is_array($this->facilities) ? implode(', ', $this->facilities) : $this->facilities,
@@ -163,6 +179,11 @@ class RoomManager extends Component
     {
         $room = Room::with('images')->find($id);
 
+        if ($room->status === 'occupied') {
+            NotificationSent::dispatch("Gagal menghapus! Kamar #{$room->room_number} masih terisi oleh penghuni.", 'error');
+            return;
+        }
+
         // Delete main image
         if ($room->image) {
             Storage::disk('public')->delete($room->image);
@@ -174,6 +195,7 @@ class RoomManager extends Component
         }
 
         $room->delete();
+        // DatabaseUpdated and NotificationSent are handled by Room model booted method
     }
 
     public function deleteGalleryImage($imageId)
@@ -205,9 +227,20 @@ class RoomManager extends Component
         $this->resetPage();
     }
 
+    public function updatingFilterRentalType()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingSortOrder()
+    {
+        $this->resetPage();
+    }
+
     public function resetFilters()
     {
-        $this->reset(['search', 'filterStatus', 'filterFloor']);
+        $this->reset(['search', 'filterStatus', 'filterFloor', 'filterRentalType', 'sortOrder']);
+        $this->sortOrder = 'room_number_asc';
         $this->resetPage();
     }
 
@@ -231,12 +264,38 @@ class RoomManager extends Component
             $query->where('floor', $this->filterFloor);
         }
 
+        if ($this->filterRentalType) {
+            $column = 'price_' . $this->filterRentalType;
+            $query->whereNotNull($column)->where($column, '>', 0);
+        }
+
+        // Sorting
+        switch ($this->sortOrder) {
+            case 'room_number_asc':
+                $query->orderBy('room_number', 'asc');
+                break;
+            case 'room_number_desc':
+                $query->orderBy('room_number', 'desc');
+                break;
+            case 'price_asc':
+                $priceColumn = $this->filterRentalType ? 'price_' . $this->filterRentalType : 'price_daily';
+                $query->orderBy($priceColumn, 'asc');
+                break;
+            case 'price_desc':
+                $priceColumn = $this->filterRentalType ? 'price_' . $this->filterRentalType : 'price_daily';
+                $query->orderBy($priceColumn, 'desc');
+                break;
+            default:
+                $query->orderBy('room_number', 'asc');
+                break;
+        }
+
         $floors = Room::whereNotNull('floor')->distinct()->pluck('floor')->sort();
         $locations = \App\Models\Location::orderBy('name')->get();
         $allFacilities = \App\Models\Facility::orderBy('category')->orderBy('name')->get()->groupBy('category');
 
         return view('livewire.room-manager', [
-            'rooms' => $query->with(['images', 'location'])->orderBy('room_number')->paginate(12),
+            'rooms' => $query->with(['images', 'location'])->paginate(12),
             'floors' => $floors,
             'locations' => $locations,
             'allFacilities' => $allFacilities
