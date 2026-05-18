@@ -250,7 +250,7 @@
                         <td>
                             @if($room->price_daily) <div class="small text-muted">Rp {{ number_format($room->price_daily, 0, ',', '.') }} /Hari</div> @endif
                             @if($room->price_weekly) <div class="small text-muted">Rp {{ number_format($room->price_weekly, 0, ',', '.') }} /Mgg</div> @endif
-                            <div>Rp {{ number_format($room->price_monthly, 0, ',', '.') }} <small class="text-muted">/Bln</small></div>
+                            <div class="small text-muted">Rp {{ number_format($room->price_monthly, 0, ',', '.') }} /Bln</div>
                             @if($room->price_yearly) <div class="small text-muted">Rp {{ number_format($room->price_yearly, 0, ',', '.') }} /Thn</div> @endif
                         </td>
                         <td>
