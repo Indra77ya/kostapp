@@ -13,10 +13,17 @@ class NotificationBell extends Component
 
     public function addNotification($event)
     {
+        $type = $event['type'] ?? 'info';
+
+        // Filter out success and error/danger from notification bell history
+        if (in_array($type, ['success', 'error', 'danger'])) {
+            return;
+        }
+
         array_unshift($this->notifications, [
             'message' => $event['message'],
             'timestamp' => now()->toIso8601String(),
-            'type' => $event['type'] ?? 'info'
+            'type' => $type
         ]);
         $this->unreadCount++;
     }
