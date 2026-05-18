@@ -209,7 +209,10 @@ class RoomMoveManager extends Component
             Room::where('id', $this->new_room_id)->update(['status' => 'occupied']);
         });
 
-        NotificationSent::dispatch("Perpindahan kamar berhasil diproses.", 'success');
+        $message = "Perpindahan kamar berhasil diproses.";
+        $type = 'success';
+        $this->dispatch('notify', message: $message, type: $type);
+        broadcast(new NotificationSent($message, $type))->toOthers();
         DatabaseUpdated::dispatch();
         $this->closeModal();
     }

@@ -71,10 +71,16 @@ class FacilityManager extends Component
         if ($this->facilityId) {
             $facility = Facility::find($this->facilityId);
             $facility->update($data);
-            NotificationSent::dispatch("Fasilitas {$facility->name} telah diperbarui.", 'info');
+            $message = "Fasilitas {$facility->name} telah diperbarui.";
+            $type = 'info';
+            $this->dispatch('notify', message: $message, type: $type);
+            broadcast(new NotificationSent($message, $type))->toOthers();
         } else {
             $facility = Facility::create($data);
-            NotificationSent::dispatch("Fasilitas baru {$facility->name} telah ditambahkan.", 'success');
+            $message = "Fasilitas baru {$facility->name} telah ditambahkan.";
+            $type = 'success';
+            $this->dispatch('notify', message: $message, type: $type);
+            broadcast(new NotificationSent($message, $type))->toOthers();
         }
 
         DatabaseUpdated::dispatch();
@@ -87,7 +93,10 @@ class FacilityManager extends Component
         $facilityName = $facility->name;
         $facility->delete();
 
-        NotificationSent::dispatch("Fasilitas {$facilityName} telah dihapus.", 'warning');
+        $message = "Fasilitas {$facilityName} telah dihapus.";
+        $type = 'warning';
+        $this->dispatch('notify', message: $message, type: $type);
+        broadcast(new NotificationSent($message, $type))->toOthers();
         DatabaseUpdated::dispatch();
     }
 

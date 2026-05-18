@@ -102,7 +102,10 @@ class TenantManager extends Component
             $this->viewingRegistrationId = $registration->id;
             $this->isDetailModalOpen = true;
         } else {
-            NotificationSent::dispatch("Data registrasi untuk {$tenant->name} tidak ditemukan.", 'warning');
+            $message = "Data registrasi untuk {$tenant->name} tidak ditemukan.";
+            $type = 'warning';
+            $this->dispatch('notify', message: $message, type: $type);
+            broadcast(new NotificationSent($message, $type))->toOthers();
         }
     }
 
@@ -144,7 +147,10 @@ class TenantManager extends Component
         $tenant = User::find($this->tenantId);
         $tenant->update($tenantData);
 
-        NotificationSent::dispatch("Data penghuni {$tenant->name} berhasil diperbarui.", 'success');
+        $message = "Data penghuni {$tenant->name} berhasil diperbarui.";
+        $type = 'success';
+        $this->dispatch('notify', message: $message, type: $type);
+        broadcast(new NotificationSent($message, $type))->toOthers();
 
         DatabaseUpdated::dispatch();
         $this->closeModal();
@@ -157,7 +163,10 @@ class TenantManager extends Component
         }])->find($id);
 
         if ($tenant->registrations_count > 0) {
-            NotificationSent::dispatch("Gagal menghapus! Penghuni {$tenant->name} masih memiliki registrasi aktif.", 'error');
+            $message = "Gagal menghapus! Penghuni {$tenant->name} masih memiliki registrasi aktif.";
+            $type = 'error';
+            $this->dispatch('notify', message: $message, type: $type);
+            broadcast(new NotificationSent($message, $type))->toOthers();
             return;
         }
 
@@ -165,7 +174,10 @@ class TenantManager extends Component
         $tenant->delete();
 
         DatabaseUpdated::dispatch();
-        NotificationSent::dispatch("Penghuni {$name} berhasil dihapus.", 'success');
+        $message = "Penghuni {$name} berhasil dihapus.";
+        $type = 'success';
+        $this->dispatch('notify', message: $message, type: $type);
+        broadcast(new NotificationSent($message, $type))->toOthers();
     }
 
     public function updatingSearch()

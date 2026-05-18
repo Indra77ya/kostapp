@@ -80,7 +80,10 @@ class CheckOutManager extends Component
             Room::where('id', $reg->room_id)->update(['status' => 'available']);
         });
 
-        NotificationSent::dispatch("Penghuni {$name} berhasil check out.", 'success');
+        $message = "Penghuni {$name} berhasil check out.";
+        $type = 'success';
+        $this->dispatch('notify', message: $message, type: $type);
+        broadcast(new NotificationSent($message, $type))->toOthers();
         DatabaseUpdated::dispatch();
         $this->closeModal();
     }

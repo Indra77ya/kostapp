@@ -160,9 +160,16 @@ class RoomManager extends Component
         if ($this->roomId) {
             $room = Room::find($this->roomId);
             $room->update($data);
+            $message = "Kamar #{$room->room_number} telah diperbarui.";
+            $type = 'info';
         } else {
             $room = Room::create($data);
+            $message = "Kamar baru #{$room->room_number} telah ditambahkan.";
+            $type = 'success';
         }
+
+        $this->dispatch('notify', message: $message, type: $type);
+        broadcast(new NotificationSent($message, $type))->toOthers();
 
         // Handle Gallery
         if ($this->newGallery) {
@@ -180,7 +187,10 @@ class RoomManager extends Component
         $room = Room::with('images')->find($id);
 
         if ($room->status === 'occupied') {
-            NotificationSent::dispatch("Gagal menghapus! Kamar #{$room->room_number} masih terisi oleh penghuni.", 'error');
+            $message = "Gagal menghapus! Kamar #{$room->room_number} masih terisi oleh penghuni.";
+            $type = 'error';
+            $this->dispatch('notify', message: $message, type: $type);
+            broadcast(new NotificationSent($message, $type))->toOthers();
             return;
         }
 
@@ -194,8 +204,13 @@ class RoomManager extends Component
             Storage::disk('public')->delete($img->image_path);
         }
 
+        $roomNumber = $room->room_number;
         $room->delete();
-        // DatabaseUpdated and NotificationSent are handled by Room model booted method
+
+        $message = "Kamar #{$roomNumber} telah dihapus.";
+        $type = 'warning';
+        $this->dispatch('notify', message: $message, type: $type);
+        broadcast(new NotificationSent($message, $type))->toOthers();
     }
 
     public function deleteGalleryImage($imageId)
