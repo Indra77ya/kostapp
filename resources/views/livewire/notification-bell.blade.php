@@ -14,14 +14,14 @@
                 </div>
             </div>
             <div class="list-group list-group-flush list-group-hoverable">
-                @forelse($notifications as $notification)
-                    <div class="list-group-item">
+                @forelse($notifications as $index => $notification)
+                    <div class="list-group-item" wire:key="notification-{{ $index }}-{{ $notification['timestamp'] }}">
                         <div class="row align-items-center">
                             <div class="col-auto"><span class="status-dot status-dot-animated bg-{{ $notification['type'] }} d-block"></span></div>
                             <div class="col text-truncate">
                                 <div class="text-body d-block">{{ $notification['message'] }}</div>
-                                <div class="d-block text-secondary text-truncate mt-n1">
-                                    {{ $notification['time'] }}
+                                <div class="d-block text-secondary text-truncate mt-n1 timeago" data-timestamp="{{ $notification['timestamp'] }}">
+                                    Just now
                                 </div>
                             </div>
                         </div>
@@ -34,4 +34,48 @@
             </div>
         </div>
     </div>
+
+    @script
+    <script>
+        const updateTimeago = () => {
+            document.querySelectorAll('.timeago').forEach(el => {
+                const timestamp = el.getAttribute('data-timestamp');
+                if (!timestamp) return;
+
+                const date = new Date(timestamp);
+                const now = new Date();
+                const diffInSeconds = Math.floor((now - date) / 1000);
+
+                let text = '';
+                if (diffInSeconds < 1) {
+                    text = 'Just now';
+                } else if (diffInSeconds < 60) {
+                    text = `${diffInSeconds} second${diffInSeconds > 1 ? 's' : ''} ago`;
+                } else if (diffInSeconds < 3600) {
+                    const minutes = Math.floor(diffInSeconds / 60);
+                    text = `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+                } else if (diffInSeconds < 86400) {
+                    const hours = Math.floor(diffInSeconds / 3600);
+                    text = `${hours} hour${hours > 1 ? 's' : ''} ago`;
+                } else {
+                    const days = Math.floor(diffInSeconds / 86400);
+                    text = `${days} day${days > 1 ? 's' : ''} ago`;
+                }
+
+                el.innerText = text;
+            });
+        };
+
+        // Initial call
+        updateTimeago();
+
+        // Update every second
+        const interval = setInterval(updateTimeago, 1000);
+
+        // Cleanup on component destroy
+        $wire.on('livewire:navigating', () => {
+            clearInterval(interval);
+        });
+    </script>
+    @endscript
 </div>
