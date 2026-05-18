@@ -196,6 +196,7 @@
     </div>
     <!-- Libs JS -->
     <script src="{{ asset('assets/tabler/js/tabler.min.js') }}" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @vite(['resources/js/app.js'])
     @livewire('notification-handler')
     @livewireScripts
