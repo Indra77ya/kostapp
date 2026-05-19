@@ -41,6 +41,7 @@ class RegistrationManager extends Component
 
     // Financials
     public $room_price = 0, $discount_type = 'fixed', $discount_value = 0, $discount_duration = 0, $total_price = 0;
+    public $is_discount_open_ended = false;
     public $room_facilities = '';
 
     // Personal Info
@@ -153,6 +154,13 @@ class RegistrationManager extends Component
     public function updatedDiscountType() { $this->calculateTotal(); }
     public function updatedDiscountValue() { $this->calculateTotal(); }
     public function updatedDiscountDuration() { $this->calculateTotal(); }
+    public function updatedIsDiscountOpenEnded($value)
+    {
+        if ($value) {
+            $this->discount_duration = 0;
+        }
+        $this->calculateTotal();
+    }
     public function updatedRoomPrice() { $this->calculateTotal(); }
 
     public function calculateTotal()
@@ -169,7 +177,7 @@ class RegistrationManager extends Component
         $total = 0;
         for ($i = 1; $i <= $duration; $i++) {
             $currentPeriodPrice = $price;
-            if ($i <= $discountDur) {
+            if ($this->is_discount_open_ended || $i <= $discountDur) {
                 if ($this->discount_type === 'percent') {
                     $currentPeriodPrice -= ($price * ($discountVal / 100));
                 } else {
@@ -221,6 +229,7 @@ class RegistrationManager extends Component
             $this->discount_type = $reg->discount_type;
             $this->discount_value = $reg->discount_value;
             $this->discount_duration = $reg->discount_duration;
+            $this->is_discount_open_ended = (bool) $reg->is_discount_open_ended;
             $this->total_price = $reg->total_price;
 
             $this->name = $reg->user->name;
@@ -279,6 +288,7 @@ class RegistrationManager extends Component
         $this->discount_type = 'fixed';
         $this->discount_value = 0;
         $this->discount_duration = 0;
+        $this->is_discount_open_ended = false;
         $this->total_price = 0;
         $this->room_facilities = '';
 
@@ -384,6 +394,7 @@ class RegistrationManager extends Component
                 'discount_type' => $this->discount_type,
                 'discount_value' => $this->discount_value,
                 'discount_duration' => $this->discount_duration,
+                'is_discount_open_ended' => $this->is_discount_open_ended,
                 'total_price' => $this->total_price,
                 'identity_type' => $this->identity_type,
                 'identity_number' => $this->identity_number,
@@ -481,7 +492,7 @@ class RegistrationManager extends Component
             $billNumber = 'BILL-' . $registration->id . '-' . $billDate->format('dmY') . '-' . str_pad($i + 1, 2, '0', STR_PAD_LEFT);
 
             $billAmount = (float) $registration->room_price;
-            if ($i < (int) $registration->discount_duration) {
+            if ($registration->is_discount_open_ended || $i < (int) $registration->discount_duration) {
                 if ($registration->discount_type === 'percent') {
                     $billAmount -= ($billAmount * ((float) $registration->discount_value / 100));
                 } else {

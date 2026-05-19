@@ -23,6 +23,7 @@ class Registration extends Model
         'discount_type',
         'discount_value',
         'discount_duration',
+        'is_discount_open_ended',
         'total_price',
         'identity_type',
         'identity_number',

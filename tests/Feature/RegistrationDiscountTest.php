@@ -126,4 +126,53 @@ class RegistrationDiscountTest extends TestCase
         $this->assertEquals(1000000, $bills[1]->amount);
         $this->assertEquals(1000000, $bills[11]->amount);
     }
+
+    public function test_indefinite_discount_applies_to_all_bills()
+    {
+        $admin = User::factory()->create();
+        $admin->assignRole('admin');
+
+        $location = Location::create(['name' => 'Kost E', 'address' => 'Jl. E']);
+        $room = Room::create([
+            'location_id' => $location->id,
+            'room_number' => '505',
+            'type' => 'Standard',
+            'price_monthly' => 1000000,
+        ]);
+
+        $photoSelf = UploadedFile::fake()->image('self.jpg');
+        $photoIdentity = UploadedFile::fake()->image('ktp.jpg');
+
+        // Case: 6 months stay, Indefinite discount of Rp 100k
+        // Expected total price: 900,000 * 6 = 5,400,000
+        Livewire::actingAs($admin)
+            ->test(RegistrationManager::class)
+            ->set('location_id', $location->id)
+            ->set('room_id', $room->id)
+            ->set('duration_value', 6)
+            ->set('discount_type', 'fixed')
+            ->set('discount_value', 100000)
+            ->set('is_discount_open_ended', true)
+            ->set('stay_start_date', '2026-06-01')
+            ->set('name', 'Indefinite Tester')
+            ->set('email', 'indefinite@example.com')
+            ->set('identity_number', '13579')
+            ->set('birth_date', '1995-01-01')
+            ->set('photo_self', $photoSelf)
+            ->set('photo_identity', $photoIdentity)
+            ->call('saveRegistration')
+            ->assertHasNoErrors();
+
+        $registration = Registration::whereHas('user', function($q) {
+            $q->where('email', 'indefinite@example.com');
+        })->first();
+        $this->assertEquals(5400000, $registration->total_price);
+
+        // Check all 6 bills
+        $bills = Bill::where('registration_id', $registration->id)->orderBy('due_date')->get();
+        $this->assertCount(6, $bills);
+        foreach ($bills as $bill) {
+            $this->assertEquals(900000, $bill->amount);
+        }
+    }
 }

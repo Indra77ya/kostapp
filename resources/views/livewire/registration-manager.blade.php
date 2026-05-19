@@ -177,9 +177,15 @@
                                 <input type="number" class="form-control" wire:model.live="discount_value">
                             </div>
                             <div class="col-md-3 mb-3">
-                                <label class="form-label small fw-bold">Durasi Diskon</label>
+                                <label class="form-label small fw-bold d-flex justify-content-between align-items-center">
+                                    Durasi Diskon
+                                    <label class="form-check form-check-inline mb-0 small" style="font-weight: normal;">
+                                        <input class="form-check-input" type="checkbox" wire:model.live="is_discount_open_ended">
+                                        <span class="form-check-label">Hingga Keluar</span>
+                                    </label>
+                                </label>
                                 <div class="input-group">
-                                    <input type="number" class="form-control" wire:model.live="discount_duration" min="0">
+                                    <input type="number" class="form-control" wire:model.live="discount_duration" min="0" {{ $is_discount_open_ended ? 'disabled' : '' }}>
                                     <span class="input-group-text">Bulan/Periode</span>
                                 </div>
                             </div>
