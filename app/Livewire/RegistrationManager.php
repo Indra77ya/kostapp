@@ -331,6 +331,10 @@ class RegistrationManager extends Component
             'photo_family_card' => 'nullable|image|max:2048',
         ];
 
+        if ($this->discount_value > 0 && !$this->is_discount_open_ended) {
+            $rules['discount_duration'] = 'required|integer|min:1';
+        }
+
         // Only validate emergency contacts if they exist
         if (!empty($this->emergency_contacts)) {
             $rules['emergency_contacts.*.name'] = 'required|string';

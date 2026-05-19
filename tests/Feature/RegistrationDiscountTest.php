@@ -175,4 +175,38 @@ class RegistrationDiscountTest extends TestCase
             $this->assertEquals(900000, $bill->amount);
         }
     }
+
+    public function test_validation_fails_when_discount_value_set_but_duration_is_zero()
+    {
+        $admin = User::factory()->create();
+        $admin->assignRole('admin');
+
+        $location = Location::create(['name' => 'Kost F', 'address' => 'Jl. F']);
+        $room = Room::create([
+            'location_id' => $location->id,
+            'room_number' => '606',
+            'type' => 'Standard',
+            'price_monthly' => 1000000,
+        ]);
+
+        $photoSelf = UploadedFile::fake()->image('self.jpg');
+        $photoIdentity = UploadedFile::fake()->image('ktp.jpg');
+
+        Livewire::actingAs($admin)
+            ->test(RegistrationManager::class)
+            ->set('location_id', $location->id)
+            ->set('room_id', $room->id)
+            ->set('discount_value', 100000)
+            ->set('discount_duration', 0) // Should trigger validation error
+            ->set('is_discount_open_ended', false)
+            ->set('stay_start_date', '2026-06-01')
+            ->set('name', 'Validation Tester')
+            ->set('email', 'val@example.com')
+            ->set('identity_number', '12345')
+            ->set('birth_date', '1995-01-01')
+            ->set('photo_self', $photoSelf)
+            ->set('photo_identity', $photoIdentity)
+            ->call('saveRegistration')
+            ->assertHasErrors(['discount_duration' => 'min']);
+    }
 }
