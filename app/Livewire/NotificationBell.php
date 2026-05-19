@@ -14,13 +14,20 @@ class NotificationBell extends Component
         'notify' => 'addNotification'
     ];
 
-    public function addNotification($data)
+    public function addNotification($message = null, $type = 'info')
     {
-        $event = is_array($data) ? $data : (array) $data;
-        $type = $event['type'] ?? 'info';
+        if (is_array($message)) {
+            $type = $message['type'] ?? $type;
+            $message = $message['message'] ?? '';
+        }
+
+        // Only store info and warning notifications in the bell
+        if (in_array($type, ['success', 'error', 'danger'])) {
+            return;
+        }
 
         array_unshift($this->notifications, [
-            'message' => $event['message'],
+            'message' => $message,
             'timestamp' => now()->toIso8601String(),
             'type' => $type
         ]);
