@@ -496,19 +496,21 @@ class RegistrationManager extends Component
             $billNumber = 'BILL-' . $registration->id . '-' . $billDate->format('dmY') . '-' . str_pad($i + 1, 2, '0', STR_PAD_LEFT);
 
             $billAmount = (float) $registration->room_price;
+            $billDiscount = 0;
             if ($registration->is_discount_open_ended || $i < (int) $registration->discount_duration) {
                 if ($registration->discount_type === 'percent') {
-                    $billAmount -= ($billAmount * ((float) $registration->discount_value / 100));
+                    $billDiscount = ($billAmount * ((float) $registration->discount_value / 100));
                 } else {
-                    $billAmount -= (float) $registration->discount_value;
+                    $billDiscount = (float) $registration->discount_value;
                 }
             }
-            $billAmount = max(0, $billAmount);
+            $billAmount = max(0, $billAmount - $billDiscount);
 
             Bill::create([
                 'registration_id' => $registration->id,
                 'bill_number' => $billNumber,
                 'description' => $description,
+                'discount' => $billDiscount,
                 'amount' => $billAmount,
                 'due_date' => $billDate,
                 'status' => 'Belum Lunas',

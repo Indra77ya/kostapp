@@ -152,6 +152,7 @@
                         <th>No. Tagihan</th>
                         <th>Keterangan</th>
                         <th>Jatuh Tempo</th>
+                        <th>Diskon</th>
                         <th>Jumlah</th>
                         <th>Terbayar</th>
                         <th>Sisa</th>
@@ -165,7 +166,8 @@
                         <td><code>{{ $bill->bill_number }}</code></td>
                         <td>{{ $bill->description }}</td>
                         <td>{{ $bill->due_date->format('d M Y') }}</td>
-                        <td>Rp {{ number_format($bill->amount, 0, ',', '.') }}</td>
+                        <td class="text-secondary">Rp {{ number_format($bill->discount, 0, ',', '.') }}</td>
+                        <td class="fw-bold text-primary">Rp {{ number_format($bill->amount, 0, ',', '.') }}</td>
                         <td>Rp {{ number_format($bill->paid_amount, 0, ',', '.') }}</td>
                         <td>
                             @if($bill->remaining_amount > 0)
@@ -376,8 +378,15 @@
                                 <input type="text" class="form-control @error('bill_description') is-invalid @enderror" wire:model="bill_description" placeholder="Contoh: Tagihan Listrik Juni">
                                 @error('bill_description') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
-                            <div class="col-md-12 mb-3">
-                                <label class="form-label required">Jumlah Tagihan</label>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-bold">Diskon</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">Rp</span>
+                                    <input type="number" class="form-control" wire:model="bill_discount">
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label required small fw-bold">Jumlah Tagihan (Net)</label>
                                 <div class="input-group">
                                     <span class="input-group-text">Rp</span>
                                     <input type="number" class="form-control @error('bill_amount') is-invalid @enderror" wire:model="bill_amount">

@@ -13,6 +13,7 @@ class Bill extends Model
         'registration_id',
         'bill_number',
         'description',
+        'discount',
         'amount',
         'paid_amount',
         'due_date',

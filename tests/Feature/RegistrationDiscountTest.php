@@ -74,8 +74,11 @@ class RegistrationDiscountTest extends TestCase
         $bills = Bill::where('registration_id', $registration->id)->orderBy('due_date')->get();
         $this->assertCount(3, $bills);
         $this->assertEquals(1400000, $bills[0]->amount);
+        $this->assertEquals(100000, $bills[0]->discount);
         $this->assertEquals(1400000, $bills[1]->amount);
+        $this->assertEquals(100000, $bills[1]->discount);
         $this->assertEquals(1500000, $bills[2]->amount);
+        $this->assertEquals(0, $bills[2]->discount);
     }
 
     public function test_open_ended_registration_generates_12_bills_with_initial_discount()

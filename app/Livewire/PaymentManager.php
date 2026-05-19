@@ -39,7 +39,7 @@ class PaymentManager extends Component
     public $proof_of_payment;
 
     // Form fields (Bill)
-    public $bill_number, $bill_description, $bill_amount, $bill_due_date;
+    public $bill_number, $bill_description, $bill_discount = 0, $bill_amount, $bill_due_date;
 
     protected $listeners = ['echo:stats,DatabaseUpdated' => '$refresh'];
 
@@ -222,6 +222,7 @@ class PaymentManager extends Component
             $bill = Bill::find($id);
             $this->bill_number = $bill->bill_number;
             $this->bill_description = $bill->description;
+            $this->bill_discount = $bill->discount;
             $this->bill_amount = $bill->amount;
             $this->bill_due_date = $bill->due_date->format('Y-m-d');
         } else {
@@ -277,6 +278,7 @@ class PaymentManager extends Component
         $this->billId = null;
         $this->bill_number = null;
         $this->bill_description = null;
+        $this->bill_discount = 0;
         $this->bill_amount = null;
         $this->bill_due_date = Carbon::now()->format('Y-m-d');
     }
@@ -354,6 +356,7 @@ class PaymentManager extends Component
             'registration_id' => $this->selectedRegistrationId,
             'bill_number' => $this->bill_number,
             'description' => $this->bill_description,
+            'discount' => $this->bill_discount,
             'amount' => $this->bill_amount,
             'due_date' => $this->bill_due_date,
         ];
