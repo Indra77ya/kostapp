@@ -3,14 +3,21 @@
         <div class="col">
             <h2 class="page-title">Input Pembayaran</h2>
         </div>
+        @if($viewMode === 'history')
         <div class="col-auto ms-auto">
-            <button class="btn btn-primary" wire:click="openModal()">
+            <button class="btn btn-white" wire:click="backToList()">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l14 0" /><path d="M5 12l6 6" /><path d="M5 12l6 -6" /></svg>
+                Kembali
+            </button>
+            <button class="btn btn-primary ms-2" wire:click="openModal()">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
                 Tambah Pembayaran
             </button>
         </div>
+        @endif
     </div>
 
+    @if($viewMode === 'residents')
     <div class="card mb-3">
         <div class="card-body">
             <div class="row g-2">
@@ -19,24 +26,25 @@
                         <span class="input-icon-addon">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
                         </span>
-                        <input type="text" class="form-control" placeholder="Cari nama, no. pembayaran..." wire:model.live.debounce.300ms="search">
+                        <input type="text" class="form-control" placeholder="Cari nama penghuni..." wire:model.live.debounce.300ms="search">
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <select class="form-select" wire:model.live="filterPaymentMethod">
-                        <option value="">Semua Metode Pembayaran</option>
-                        @foreach($paymentMethods as $pm)
-                            <option value="{{ $pm->id }}">{{ $pm->name }}</option>
+                    <select class="form-select" wire:model.live="filterLocation">
+                        <option value="">Semua Lokasi</option>
+                        @foreach($locations as $loc)
+                            <option value="{{ $loc->id }}">{{ $loc->name }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div class="col-md-4">
-                    <div class="input-group">
-                        <span class="input-group-text small">Tgl Bayar:</span>
-                        <input type="date" class="form-control" wire:model.live="filterDateStart">
-                        <span class="input-group-text small">-</span>
-                        <input type="date" class="form-control" wire:model.live="filterDateEnd">
-                    </div>
+                    <select class="form-select" wire:model.live="filterDurationType">
+                        <option value="">Jenis Sewa: Semua</option>
+                        <option value="daily">Harian</option>
+                        <option value="weekly">Mingguan</option>
+                        <option value="monthly">Bulanan</option>
+                        <option value="yearly">Tahunan</option>
+                    </select>
                 </div>
                 <div class="col-md-1">
                     <button class="btn btn-icon w-100" title="Reset Filter" wire:click="resetFilters">
@@ -52,8 +60,92 @@
             <table class="table table-vcenter card-table">
                 <thead>
                     <tr>
-                        <th>No. Pembayaran</th>
                         <th>Penghuni</th>
+                        <th>Lokasi / Kamar</th>
+                        <th>Jenis Sewa</th>
+                        <th>Total Tagihan</th>
+                        <th>Total Bayar</th>
+                        <th>Sisa</th>
+                        <th class="w-1"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($registrations as $reg)
+                    <tr>
+                        <td>
+                            <div class="font-weight-medium">{{ $reg->user->name }}</div>
+                            <div class="text-secondary small">{{ $reg->user->email }}</div>
+                        </td>
+                        <td>
+                            <div>{{ $reg->location->name }}</div>
+                            <div class="text-secondary small">Kamar {{ $reg->room->room_number }}</div>
+                        </td>
+                        <td>
+                            <span class="text-capitalize">{{ $reg->duration_type }}</span>
+                        </td>
+                        <td>Rp {{ number_format($reg->total_price, 0, ',', '.') }}</td>
+                        <td>Rp {{ number_format($reg->paid_amount, 0, ',', '.') }}</td>
+                        <td>
+                            @if($reg->remaining_amount > 0)
+                                <span class="text-danger fw-bold">Rp {{ number_format($reg->remaining_amount, 0, ',', '.') }}</span>
+                            @else
+                                <span class="text-success fw-bold">Lunas</span>
+                            @endif
+                        </td>
+                        <td>
+                            <button class="btn btn-primary btn-sm" wire:click="selectRegistration({{ $reg->id }})">
+                                Bayar
+                            </button>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="7" class="text-center py-4 text-secondary">Tidak ada data penghuni ditemukan.</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer d-flex align-items-center">
+            {{ $registrations->links() }}
+        </div>
+    </div>
+    @endif
+
+    @if($viewMode === 'history')
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-auto">
+                    @if($registration->user->avatar)
+                        <span class="avatar avatar-lg rounded" style="background-image: url({{ asset('storage/' . $registration->user->avatar) }})"></span>
+                    @else
+                        <span class="avatar avatar-lg rounded">{{ substr($registration->user->name, 0, 2) }}</span>
+                    @endif
+                </div>
+                <div class="col">
+                    <h3 class="mb-0">{{ $registration->user->name }}</h3>
+                    <div class="text-secondary">
+                        Kamar {{ $registration->room->room_number }} - {{ $registration->location->name }}
+                    </div>
+                </div>
+                <div class="col-auto text-end">
+                    <div class="text-secondary small">Total Tagihan</div>
+                    <div class="h2 mb-0">Rp {{ number_format($registration->total_price, 0, ',', '.') }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Riwayat Pembayaran</h3>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-vcenter card-table">
+                <thead>
+                    <tr>
+                        <th>No. Pembayaran</th>
                         <th>Metode</th>
                         <th>Tgl Bayar</th>
                         <th>Jumlah</th>
@@ -65,10 +157,6 @@
                     @forelse($payments as $payment)
                     <tr>
                         <td><code>{{ $payment->payment_number }}</code></td>
-                        <td>
-                            <div class="font-weight-medium">{{ $payment->registration->user->name }}</div>
-                            <div class="text-secondary small">Kamar {{ $payment->registration->room->room_number }}</div>
-                        </td>
                         <td>{{ $payment->paymentMethod->name }}</td>
                         <td>{{ $payment->payment_date->format('d M Y') }}</td>
                         <td>Rp {{ number_format($payment->amount, 0, ',', '.') }}</td>
@@ -93,7 +181,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="text-center py-4 text-secondary">Tidak ada data pembayaran ditemukan.</td>
+                        <td colspan="6" class="text-center py-4 text-secondary">Belum ada riwayat pembayaran.</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -103,6 +191,7 @@
             {{ $payments->links() }}
         </div>
     </div>
+    @endif
 
     <!-- Modal -->
     <div class="modal modal-blur fade {{ $isModalOpen ? 'show d-block' : '' }}" tabindex="-1" role="dialog" aria-hidden="true" style="{{ $isModalOpen ? 'background: rgba(0,0,0,0.5)' : '' }}">
@@ -117,12 +206,17 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label required">Penghuni</label>
-                                <select class="form-select @error('registration_id') is-invalid @enderror" wire:model.live="registration_id">
-                                    <option value="">Pilih Penghuni</option>
-                                    @foreach($registrations as $reg)
-                                        <option value="{{ $reg->id }}">{{ $reg->user->name }} (Kamar {{ $reg->room->room_number }})</option>
-                                    @endforeach
-                                </select>
+                                @if($viewMode === 'history')
+                                    <input type="text" class="form-control bg-light" value="{{ $registration->user->name }}" readonly>
+                                    <input type="hidden" wire:model="registration_id">
+                                @else
+                                    <select class="form-select @error('registration_id') is-invalid @enderror" wire:model.live="registration_id">
+                                        <option value="">Pilih Penghuni</option>
+                                        @foreach($registrations as $reg)
+                                            <option value="{{ $reg->id }}">{{ $reg->user->name }} (Kamar {{ $reg->room->room_number }})</option>
+                                        @endforeach
+                                    </select>
+                                @endif
                                 @error('registration_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                             <div class="col-md-6 mb-3">

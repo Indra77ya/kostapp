@@ -66,4 +66,9 @@ class Registration extends Model
     {
         return $this->hasMany(EmergencyContact::class);
     }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
 }

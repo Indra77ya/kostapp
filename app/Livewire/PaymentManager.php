@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Payment;
 use App\Models\Registration;
+use App\Models\Location;
 use App\Models\PaymentMethod;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
@@ -19,14 +20,15 @@ class PaymentManager extends Component
     use WithPagination, WithFileUploads;
 
     protected $paginationTheme = 'bootstrap';
+    public $viewMode = 'residents'; // 'residents' or 'history'
+    public $selectedRegistrationId;
     public $isModalOpen = false;
     public $paymentId;
 
     // List & Search & Filters
     public $search = '';
-    public $filterPaymentMethod = '';
-    public $filterDateStart = '';
-    public $filterDateEnd = '';
+    public $filterLocation = '';
+    public $filterDurationType = '';
 
     // Form fields
     public $registration_id, $payment_method_id, $payment_number;
@@ -60,12 +62,36 @@ class PaymentManager extends Component
         $this->payment_number = $prefix . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
     }
 
+    public function selectRegistration($id)
+    {
+        $this->selectedRegistrationId = $id;
+        $this->viewMode = 'history';
+        $this->resetPage();
+    }
+
+    public function backToList()
+    {
+        $this->viewMode = 'residents';
+        $this->selectedRegistrationId = null;
+        $this->resetPage();
+    }
+
     public function updatedRegistrationId($value)
     {
-        if ($value) {
-            $registration = Registration::find($value);
+        $this->calculateAmountAndStatus();
+    }
+
+    public function updatedAmount()
+    {
+        $this->calculateStatus();
+    }
+
+    private function calculateAmountAndStatus()
+    {
+        if ($this->registration_id) {
+            $registration = Registration::find($this->registration_id);
             if ($registration) {
-                $totalPaid = Payment::where('registration_id', $value)
+                $totalPaid = Payment::where('registration_id', $this->registration_id)
                     ->when($this->paymentId, fn($q) => $q->where('id', '!=', $this->paymentId))
                     ->sum('amount');
 
@@ -73,11 +99,6 @@ class PaymentManager extends Component
                 if ($this->amount < 0) $this->amount = 0;
             }
         }
-        $this->calculateStatus();
-    }
-
-    public function updatedAmount()
-    {
         $this->calculateStatus();
     }
 
@@ -128,6 +149,10 @@ class PaymentManager extends Component
             $this->notes = $payment->notes;
             $this->calculateStatus();
         } else {
+            if ($this->viewMode === 'history' && $this->selectedRegistrationId) {
+                $this->registration_id = $this->selectedRegistrationId;
+                $this->calculateAmountAndStatus();
+            }
             $this->generatePaymentNumber();
         }
 
@@ -216,43 +241,65 @@ class PaymentManager extends Component
     }
 
     public function updatingSearch() { $this->resetPage(); }
-    public function updatingFilterPaymentMethod() { $this->resetPage(); }
-    public function updatingFilterDateStart() { $this->resetPage(); }
-    public function updatingFilterDateEnd() { $this->resetPage(); }
+    public function updatingFilterLocation() { $this->resetPage(); }
+    public function updatingFilterDurationType() { $this->resetPage(); }
 
     public function resetFilters()
     {
-        $this->reset(['search', 'filterPaymentMethod', 'filterDateStart', 'filterDateEnd']);
+        $this->reset(['search', 'filterLocation', 'filterDurationType']);
         $this->resetPage();
     }
 
     public function render()
     {
-        $query = Payment::with('registration.user', 'paymentMethod');
+        return $this->renderView();
+    }
+
+    private function renderView()
+    {
+        if ($this->viewMode === 'history') {
+            $registration = Registration::with('user', 'room', 'location')->find($this->selectedRegistrationId);
+            $payments = Payment::with('paymentMethod')
+                ->where('registration_id', $this->selectedRegistrationId)
+                ->latest()
+                ->paginate(10);
+
+            return view('livewire.payment-manager', [
+                'registration' => $registration,
+                'payments' => $payments,
+                'paymentMethods' => PaymentMethod::where('is_active', true)->get(),
+            ]);
+        }
+
+        $query = Registration::with('user', 'location', 'room')
+            ->withSum('payments', 'amount')
+            ->where('registrations.status', 'active');
 
         if ($this->search) {
-            $query->where(function($q) {
-                $q->whereHas('registration.user', function($sq) {
-                    $sq->where('name', 'like', '%' . $this->search . '%');
-                })->orWhere('payment_number', 'like', '%' . $this->search . '%');
+            $query->whereHas('user', function($q) {
+                $q->where('name', 'like', '%' . $this->search . '%');
             });
         }
 
-        if ($this->filterPaymentMethod) {
-            $query->where('payment_method_id', $this->filterPaymentMethod);
+        if ($this->filterLocation) {
+            $query->where('location_id', $this->filterLocation);
         }
 
-        if ($this->filterDateStart) {
-            $query->whereDate('payment_date', '>=', $this->filterDateStart);
+        if ($this->filterDurationType) {
+            $query->where('duration_type', $this->filterDurationType);
         }
 
-        if ($this->filterDateEnd) {
-            $query->whereDate('payment_date', '<=', $this->filterDateEnd);
+        $registrations = $query->latest()->paginate(10);
+
+        // Calculate paid amount for each registration
+        foreach ($registrations as $reg) {
+            $reg->paid_amount = $reg->payments_sum_amount ?: 0;
+            $reg->remaining_amount = $reg->total_price - $reg->paid_amount;
         }
 
         return view('livewire.payment-manager', [
-            'payments' => $query->latest()->paginate(10),
-            'registrations' => Registration::with('user', 'room')->where('status', 'active')->get(),
+            'registrations' => $registrations,
+            'locations' => Location::all(),
             'paymentMethods' => PaymentMethod::where('is_active', true)->get(),
         ]);
     }
