@@ -40,7 +40,7 @@ class RegistrationManager extends Component
     public $duration_type = 'monthly', $duration_value = 1, $is_open_ended = false;
 
     // Financials
-    public $room_price = 0, $discount_type = 'fixed', $discount_value = 0, $total_price = 0;
+    public $room_price = 0, $discount_type = 'fixed', $discount_value = 0, $discount_duration = 0, $total_price = 0;
     public $room_facilities = '';
 
     // Personal Info
@@ -152,22 +152,34 @@ class RegistrationManager extends Component
 
     public function updatedDiscountType() { $this->calculateTotal(); }
     public function updatedDiscountValue() { $this->calculateTotal(); }
+    public function updatedDiscountDuration() { $this->calculateTotal(); }
     public function updatedRoomPrice() { $this->calculateTotal(); }
 
     public function calculateTotal()
     {
         $price = (float) $this->room_price;
         $duration = (int) ($this->duration_value ?: 1);
-        $subtotal = $price * $duration;
-        $discount = (float) $this->discount_value;
+        $discountVal = (float) ($this->discount_value ?: 0);
+        $discountDur = (int) ($this->discount_duration ?: 0);
 
-        if ($this->discount_type === 'percent') {
-            $this->total_price = $subtotal - ($subtotal * ($discount / 100));
-        } else {
-            $this->total_price = $subtotal - $discount;
+        if ($this->is_open_ended) {
+            $duration = 12; // Standard view for 12 months if open ended
         }
 
-        if ($this->total_price < 0) $this->total_price = 0;
+        $total = 0;
+        for ($i = 1; $i <= $duration; $i++) {
+            $currentPeriodPrice = $price;
+            if ($i <= $discountDur) {
+                if ($this->discount_type === 'percent') {
+                    $currentPeriodPrice -= ($price * ($discountVal / 100));
+                } else {
+                    $currentPeriodPrice -= $discountVal;
+                }
+            }
+            $total += max(0, $currentPeriodPrice);
+        }
+
+        $this->total_price = $total;
     }
 
     public function generateRegistrationNumber()
@@ -208,6 +220,7 @@ class RegistrationManager extends Component
             $this->room_price = $reg->room_price;
             $this->discount_type = $reg->discount_type;
             $this->discount_value = $reg->discount_value;
+            $this->discount_duration = $reg->discount_duration;
             $this->total_price = $reg->total_price;
 
             $this->name = $reg->user->name;
@@ -265,6 +278,7 @@ class RegistrationManager extends Component
         $this->room_price = 0;
         $this->discount_type = 'fixed';
         $this->discount_value = 0;
+        $this->discount_duration = 0;
         $this->total_price = 0;
         $this->room_facilities = '';
 
@@ -369,6 +383,7 @@ class RegistrationManager extends Component
                 'room_price' => $this->room_price,
                 'discount_type' => $this->discount_type,
                 'discount_value' => $this->discount_value,
+                'discount_duration' => $this->discount_duration,
                 'total_price' => $this->total_price,
                 'identity_type' => $this->identity_type,
                 'identity_number' => $this->identity_number,
@@ -464,7 +479,16 @@ class RegistrationManager extends Component
             }
 
             $billNumber = 'BILL-' . $registration->id . '-' . $billDate->format('dmY') . '-' . str_pad($i + 1, 2, '0', STR_PAD_LEFT);
-            $billAmount = $registration->total_price / $count;
+
+            $billAmount = (float) $registration->room_price;
+            if ($i < (int) $registration->discount_duration) {
+                if ($registration->discount_type === 'percent') {
+                    $billAmount -= ($billAmount * ((float) $registration->discount_value / 100));
+                } else {
+                    $billAmount -= (float) $registration->discount_value;
+                }
+            }
+            $billAmount = max(0, $billAmount);
 
             Bill::create([
                 'registration_id' => $registration->id,

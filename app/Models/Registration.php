@@ -22,6 +22,7 @@ class Registration extends Model
         'room_price',
         'discount_type',
         'discount_value',
+        'discount_duration',
         'total_price',
         'identity_type',
         'identity_number',

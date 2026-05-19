@@ -177,7 +177,14 @@
                                 <input type="number" class="form-control" wire:model.live="discount_value">
                             </div>
                             <div class="col-md-3 mb-3">
-                                <label class="form-label small fw-bold text-muted">Total Harga</label>
+                                <label class="form-label small fw-bold">Durasi Diskon</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" wire:model.live="discount_duration" min="0">
+                                    <span class="input-group-text">Bulan/Periode</span>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label small fw-bold text-muted">Total Harga {{ $is_open_ended ? '(12 Bln)' : '' }}</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light text-muted">Rp</span>
                                     <input type="text" class="form-control fw-bold bg-light" value="{{ number_format($total_price, 0, ',', '.') }}" readonly>
