@@ -35,15 +35,19 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/registrations/{registration}/invoice', [InvoiceController::class, 'show'])->name('registrations.invoice');
 
-    Route::get('/check-outs', function () {
-        return view('check-outs.index');
-    })->name('check-outs.index');
+        Route::get('/check-outs', function () {
+            return view('check-outs.index');
+        })->name('check-outs.index');
 
-    Route::get('/room-moves', function () {
-        return view('room-moves.index');
-    })->name('room-moves.index');
+        Route::get('/room-moves', function () {
+            return view('room-moves.index');
+        })->name('room-moves.index');
 
         Route::middleware('role:owner|developer')->group(function () {
+            Route::get('/payments', function () {
+                return view('payments.index');
+            })->name('payments.index');
+
             Route::get('/locations', function () {
                 return view('locations.index');
             })->name('locations.index');
