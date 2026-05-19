@@ -48,6 +48,10 @@ Route::middleware('auth')->group(function () {
                 return view('payments.index');
             })->name('payments.index');
 
+            Route::get('/payments/confirmation', function () {
+                return view('payments.confirmation');
+            })->name('payments.confirmation');
+
             Route::get('/bills/{bill}/invoice', [InvoiceController::class, 'billInvoice'])->name('bills.invoice');
             Route::get('/payments/{payment}/invoice', [InvoiceController::class, 'paymentInvoice'])->name('payments.invoice');
 
@@ -79,6 +83,12 @@ Route::middleware('auth')->group(function () {
                 return view('settings');
             })->name('settings');
         });
+    });
+
+    Route::middleware('role:tenant')->group(function () {
+        Route::get('/my-payments', function () {
+            return view('tenant.payments');
+        })->name('tenant.payments');
     });
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

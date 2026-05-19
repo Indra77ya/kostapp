@@ -391,7 +391,10 @@ class PaymentManager extends Component
         $bill = Bill::find($billId);
         if (!$bill) return;
 
-        $paidAmount = Payment::where('bill_id', $billId)->sum('amount');
+        $paidAmount = Payment::where('bill_id', $billId)
+            ->where('status', '!=', 'Menunggu Konfirmasi')
+            ->sum('amount');
+
         $bill->paid_amount = $paidAmount;
 
         if ($paidAmount <= 0) {
@@ -464,7 +467,9 @@ class PaymentManager extends Component
 
         $query = Registration::with('user', 'location', 'room')
             ->withSum('bills', 'amount')
-            ->withSum('payments', 'amount')
+            ->withSum(['payments' => function($q) {
+                $q->where('status', '!=', 'Menunggu Konfirmasi');
+            }], 'amount')
             ->where('registrations.status', 'active');
 
         if ($this->search) {
