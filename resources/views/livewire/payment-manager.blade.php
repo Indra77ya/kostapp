@@ -74,9 +74,9 @@
                         <td>Rp {{ number_format($payment->amount, 0, ',', '.') }}</td>
                         <td>
                             @if(strpos($payment->status, 'Belum Lunas') !== false)
-                                <span class="badge bg-warning text-warning-foreground">{{ $payment->status }}</span>
+                                <span class="badge bg-warning text-white">{{ $payment->status }}</span>
                             @else
-                                <span class="badge bg-success text-success-foreground">{{ $payment->status }}</span>
+                                <span class="badge bg-success text-white">{{ $payment->status }}</span>
                             @endif
                         </td>
                         <td>
