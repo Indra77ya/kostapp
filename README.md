@@ -39,9 +39,17 @@ Aplikasi ini mencakup seluruh siklus manajemen kost, mulai dari manajemen aset h
 -   **Metode Pembayaran**: Pengaturan rekening bank, e-wallet, atau tunai untuk pembayaran sewa.
 -   **Manajemen Pengguna**: Pengelolaan staf (Admin & Owner) dengan sistem hak akses yang ketat.
 
-### 3. Dashboard & Notifikasi
+### 3. Pembayaran & Penagihan (Billing)
+-   **Otomatisasi Tagihan**: Penjanaan tagihan otomatis saat check-in, termasuk dukungan untuk sewa bulanan, mingguan, harian, dan tahunan.
+-   **Dukungan Diskon**: Pengaturan diskon dengan durasi tertentu (misal: diskon 3 bulan pertama) atau diskon tetap (Hingga Keluar).
+-   **Lapor Pembayaran (Tenant)**: Fitur bagi penghuni untuk melihat daftar tagihan dan mengunggah bukti pembayaran secara mandiri.
+-   **Konfirmasi Pembayaran (Admin)**: Dashboard khusus bagi admin untuk memvalidasi bukti pembayaran dari penghuni.
+-   **Riwayat & Cicilan**: Pencatatan riwayat pembayaran yang mendukung sistem cicilan (pelunasan bertahap).
+-   **Cetak Invoice & Kuitansi**: Generasi dokumen formal untuk tagihan (Invoice) dan bukti bayar (Kuitansi) dengan tanda air 'LUNAS'.
+
+### 4. Dashboard & Notifikasi
 -   **Statistik Interaktif**: Pantau jumlah kamar total, kamar tersedia, dan pesanan aktif secara visual.
--   **Notifikasi Real-Time**: Pemberitahuan instan untuk aktivitas penting (seperti pendaftaran baru) tanpa perlu refresh halaman.
+-   **Notifikasi Real-Time**: Pemberitahuan instan untuk aktivitas penting (seperti pendaftaran baru atau laporan pembayaran) tanpa perlu refresh halaman.
 
 ---
 
@@ -49,9 +57,9 @@ Aplikasi ini mencakup seluruh siklus manajemen kost, mulai dari manajemen aset h
 
 > *Ganti placeholder di bawah ini dengan gambar asli aplikasi Anda untuk presentasi yang lebih baik.*
 
-| Dashboard Utama | Daftar Kamar | Form Check-In |
+| Dashboard Utama | Daftar Kamar | Konfirmasi Bayar |
 | :---: | :---: | :---: |
-| ![Dashboard](https://via.placeholder.com/400x250?text=Dashboard+Stats) | ![Kamar](https://via.placeholder.com/400x250?text=Manajemen+Kamar) | ![CheckIn](https://via.placeholder.com/400x250?text=Form+Registrasi) |
+| ![Dashboard](https://via.placeholder.com/400x250?text=Dashboard+Stats) | ![Kamar](https://via.placeholder.com/400x250?text=Manajemen+Kamar) | ![Pembayaran](https://via.placeholder.com/400x250?text=Konfirmasi+Pembayaran) |
 
 ---
 
@@ -62,14 +70,16 @@ Aplikasi ini mencakup seluruh siklus manajemen kost, mulai dari manajemen aset h
 2.  **Real-Time Engine**: Menggunakan **Laravel Reverb** (WebSocket) untuk mendorong pembaruan data dan notifikasi ke browser pengguna secara instan melalui event broadcasting.
 3.  **Sistem Keamanan & Role**: Menggunakan **Spatie Permission**.
     -   `Developer/Owner`: Akses penuh ke seluruh sistem termasuk pengaturan sistem.
-    -   `Admin`: Akses operasional (Check-in, Check-out, Pindah Kamar, Penghuni).
-    -   `Tenant (Penghuni)`: Akses terbatas untuk melihat profil sendiri (dalam pengembangan).
+    -   `Admin`: Akses operasional dan finansial (Check-in, Check-out, Pindah Kamar, Penghuni, Konfirmasi Pembayaran).
+    -   `Tenant (Penghuni)`: Akses terbatas untuk melihat profil sendiri, daftar tagihan, dan melaporkan pembayaran.
 
 ### Struktur Database Utama
 -   `users`: Menyimpan data staf dan penghuni (beserta `password_plain` untuk kemudahan admin).
 -   `locations`: Data gedung kost.
 -   `rooms`: Data kamar beserta status dan relasi ke lokasi.
--   `registrations`: Data transaksi sewa aktif.
+-   `registrations`: Data transaksi sewa aktif beserta informasi diskon.
+-   `bills`: Data tagihan periodik penghuni.
+-   `payments`: Data transaksi pembayaran, riwayat cicilan, dan bukti bayar.
 -   `room_moves`: Log riwayat perpindahan kamar.
 -   `payment_methods`: Pilihan metode pembayaran.
 
