@@ -187,6 +187,9 @@
                         </td>
                         <td>
                             <div class="btn-list flex-nowrap">
+                                <a href="{{ route('bills.invoice', $bill->id) }}" target="_blank" class="btn btn-white btn-sm" title="Cetak Invoice">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-printer" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" /><path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" /><path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" /></svg>
+                                </a>
                                 <button class="btn btn-white btn-sm" wire:click="openBillModal({{ $bill->id }})">Edit</button>
                                 <button class="btn btn-white btn-sm text-danger" wire:click="deleteBill({{ $bill->id }})" wire:confirm="Yakin ingin menghapus tagihan ini?">Hapus</button>
                             </div>
@@ -234,9 +237,12 @@
                         </td>
                         <td>
                             <div class="btn-list flex-nowrap">
+                                <a href="{{ route('payments.invoice', $payment->id) }}" target="_blank" class="btn btn-white btn-sm" title="Cetak Kuitansi">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-printer" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" /><path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" /><path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" /></svg>
+                                </a>
                                 @if($payment->proof_of_payment)
-                                <a href="{{ asset('storage/' . $payment->proof_of_payment) }}" target="_blank" class="btn btn-white btn-sm">
-                                    Bukti
+                                <a href="{{ asset('storage/' . $payment->proof_of_payment) }}" target="_blank" class="btn btn-white btn-sm" title="Bukti Pembayaran">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-photo" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8h.01" /><path d="M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z" /><path d="M3 16l5 -5c.928 -.893 2.42 -.893 3.348 0l4.152 4.152" /><path d="M14 14l1 -1c.928 -.893 2.42 -.893 3.348 0l2.652 2.652" /></svg>
                                 </a>
                                 @endif
                                 <button class="btn btn-white btn-sm" wire:click="openModal({{ $payment->id }})">Edit</button>

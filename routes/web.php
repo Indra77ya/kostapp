@@ -48,6 +48,9 @@ Route::middleware('auth')->group(function () {
                 return view('payments.index');
             })->name('payments.index');
 
+            Route::get('/bills/{bill}/invoice', [InvoiceController::class, 'billInvoice'])->name('bills.invoice');
+            Route::get('/payments/{payment}/invoice', [InvoiceController::class, 'paymentInvoice'])->name('payments.invoice');
+
             Route::get('/locations', function () {
                 return view('locations.index');
             })->name('locations.index');
