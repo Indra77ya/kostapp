@@ -5,24 +5,22 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Payment extends Model
+class Bill extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'registration_id',
-        'bill_id',
-        'payment_method_id',
-        'payment_number',
-        'payment_date',
+        'bill_number',
+        'description',
         'amount',
-        'proof_of_payment',
-        'notes',
+        'paid_amount',
+        'due_date',
         'status',
     ];
 
     protected $casts = [
-        'payment_date' => 'date:Y-m-d',
+        'due_date' => 'date',
     ];
 
     public function registration()
@@ -30,13 +28,13 @@ class Payment extends Model
         return $this->belongsTo(Registration::class);
     }
 
-    public function paymentMethod()
+    public function payments()
     {
-        return $this->belongsTo(PaymentMethod::class);
+        return $this->hasMany(Payment::class);
     }
 
-    public function bill()
+    public function getRemainingAmountAttribute()
     {
-        return $this->belongsTo(Bill::class);
+        return $this->amount - $this->paid_amount;
     }
 }

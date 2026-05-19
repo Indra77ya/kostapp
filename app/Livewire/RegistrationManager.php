@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use App\Events\DatabaseUpdated;
 use App\Events\NotificationSent;
+use App\Models\Bill;
 use Carbon\Carbon;
 
 class RegistrationManager extends Component
@@ -405,6 +406,9 @@ class RegistrationManager extends Component
                 if ($this->photo_identity) $data['photo_identity'] = $this->photo_identity->store('registrations/identity', 'public');
                 if ($this->photo_family_card) $data['photo_family_card'] = $this->photo_family_card->store('registrations/family_card', 'public');
                 $registration = Registration::create($data);
+
+                // Auto-generate bills for new registration
+                $this->generateBillsForRegistration($registration);
             }
 
             // 3. Emergency Contacts
@@ -424,6 +428,53 @@ class RegistrationManager extends Component
         broadcast(new NotificationSent($message, $type))->toOthers();
         DatabaseUpdated::dispatch();
         $this->closeModal();
+    }
+
+    private function generateBillsForRegistration($registration)
+    {
+        $startDate = Carbon::parse($registration->stay_start_date);
+        $count = (int) $registration->duration_value;
+
+        if ($registration->is_open_ended) {
+            // For open-ended, generate bills for 12 cycles (standard practice for "until exit")
+            $count = 12;
+        }
+
+        for ($i = 0; $i < $count; $i++) {
+            $billDate = clone $startDate;
+            $description = "Tagihan Sewa Kamar";
+
+            switch ($registration->duration_type) {
+                case 'daily':
+                    $billDate->addDays($i);
+                    $description .= " (Harian: " . $billDate->format('d M Y') . ")";
+                    break;
+                case 'weekly':
+                    $billDate->addWeeks($i);
+                    $description .= " (Mingguan: " . $billDate->format('d M Y') . ")";
+                    break;
+                case 'yearly':
+                    $billDate->addYears($i);
+                    $description .= " (Tahunan: " . $billDate->format('Y') . ")";
+                    break;
+                default: // monthly
+                    $billDate->addMonths($i);
+                    $description .= " (" . $billDate->translatedFormat('F Y') . ")";
+                    break;
+            }
+
+            $billNumber = 'BILL-' . $registration->id . '-' . $billDate->format('dmY') . '-' . str_pad($i + 1, 2, '0', STR_PAD_LEFT);
+            $billAmount = $registration->total_price / $count;
+
+            Bill::create([
+                'registration_id' => $registration->id,
+                'bill_number' => $billNumber,
+                'description' => $description,
+                'amount' => $billAmount,
+                'due_date' => $billDate,
+                'status' => 'Belum Lunas',
+            ]);
+        }
     }
 
     public function deleteRegistration($id)

@@ -71,4 +71,9 @@ class Registration extends Model
     {
         return $this->hasMany(Payment::class);
     }
+
+    public function bills()
+    {
+        return $this->hasMany(Bill::class);
+    }
 }

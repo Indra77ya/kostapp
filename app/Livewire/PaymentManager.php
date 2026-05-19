@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\Payment;
+use App\Models\Bill;
 use App\Models\Registration;
 use App\Models\Location;
 use App\Models\PaymentMethod;
@@ -23,17 +24,22 @@ class PaymentManager extends Component
     public $viewMode = 'residents'; // 'residents' or 'history'
     public $selectedRegistrationId;
     public $isModalOpen = false;
+    public $isBillModalOpen = false;
     public $paymentId;
+    public $billId;
 
     // List & Search & Filters
     public $search = '';
     public $filterLocation = '';
     public $filterDurationType = '';
 
-    // Form fields
-    public $registration_id, $payment_method_id, $payment_number;
+    // Form fields (Payment)
+    public $registration_id, $bill_id, $payment_method_id, $payment_number;
     public $payment_date, $amount, $notes, $status = 'Lunas';
     public $proof_of_payment;
+
+    // Form fields (Bill)
+    public $bill_number, $bill_description, $bill_amount, $bill_due_date;
 
     protected $listeners = ['echo:stats,DatabaseUpdated' => '$refresh'];
 
@@ -81,6 +87,11 @@ class PaymentManager extends Component
         $this->calculateAmountAndStatus();
     }
 
+    public function updatedBillId($value)
+    {
+        $this->calculateAmountAndStatus();
+    }
+
     public function updatedAmount()
     {
         $this->calculateStatus();
@@ -88,7 +99,17 @@ class PaymentManager extends Component
 
     private function calculateAmountAndStatus()
     {
-        if ($this->registration_id) {
+        if ($this->bill_id) {
+            $bill = Bill::find($this->bill_id);
+            if ($bill) {
+                $totalPaidOnThisBill = Payment::where('bill_id', $this->bill_id)
+                    ->when($this->paymentId, fn($q) => $q->where('id', '!=', $this->paymentId))
+                    ->sum('amount');
+
+                $this->amount = $bill->amount - $totalPaidOnThisBill;
+                if ($this->amount < 0) $this->amount = 0;
+            }
+        } elseif ($this->registration_id) {
             $registration = Registration::find($this->registration_id);
             if ($registration) {
                 $totalPaid = Payment::where('registration_id', $this->registration_id)
@@ -104,32 +125,57 @@ class PaymentManager extends Component
 
     private function calculateStatus()
     {
-        if (!$this->registration_id) {
-            $this->status = 'Lunas';
-            return;
-        }
+        if ($this->bill_id) {
+            $bill = Bill::find($this->bill_id);
+            if (!$bill) return;
 
-        $registration = Registration::find($this->registration_id);
-        if (!$registration) return;
+            $totalPaidPrev = Payment::where('bill_id', $this->bill_id)
+                ->when($this->paymentId, fn($q) => $q->where('id', '!=', $this->paymentId))
+                ->sum('amount');
 
-        $totalPaidPrev = Payment::where('registration_id', $this->registration_id)
-            ->when($this->paymentId, fn($q) => $q->where('id', '!=', $this->paymentId))
-            ->sum('amount');
+            $currentAmount = (float) ($this->amount ?: 0);
+            $totalPaidNow = $totalPaidPrev + $currentAmount;
+            $totalBill = (float) $bill->amount;
 
-        $currentAmount = (float) ($this->amount ?: 0);
-        $totalPaidNow = $totalPaidPrev + $currentAmount;
-        $totalBill = (float) $registration->total_price;
+            $diff = $totalBill - $totalPaidNow;
 
-        $diff = $totalBill - $totalPaidNow;
-
-        if ($diff > 0) {
-            $formattedDiff = number_format($diff, 0, ',', '.');
-            $this->status = "Belum Lunas (Sisa: Rp {$formattedDiff})";
-        } elseif ($diff < 0) {
-            $formattedDiff = number_format(abs($diff), 0, ',', '.');
-            $this->status = "Lunas (Kelebihan: Rp {$formattedDiff})";
+            if ($diff > 0) {
+                $formattedDiff = number_format($diff, 0, ',', '.');
+                $this->status = "Belum Lunas (Sisa: Rp {$formattedDiff})";
+            } elseif ($diff < 0) {
+                $formattedDiff = number_format(abs($diff), 0, ',', '.');
+                $this->status = "Lunas (Kelebihan: Rp {$formattedDiff})";
+            } else {
+                $this->status = "Lunas";
+            }
         } else {
-            $this->status = "Lunas";
+            if (!$this->registration_id) {
+                $this->status = 'Lunas';
+                return;
+            }
+
+            $registration = Registration::find($this->registration_id);
+            if (!$registration) return;
+
+            $totalPaidPrev = Payment::where('registration_id', $this->registration_id)
+                ->when($this->paymentId, fn($q) => $q->where('id', '!=', $this->paymentId))
+                ->sum('amount');
+
+            $currentAmount = (float) ($this->amount ?: 0);
+            $totalPaidNow = $totalPaidPrev + $currentAmount;
+            $totalBill = (float) $registration->total_price;
+
+            $diff = $totalBill - $totalPaidNow;
+
+            if ($diff > 0) {
+                $formattedDiff = number_format($diff, 0, ',', '.');
+                $this->status = "Belum Lunas (Sisa: Rp {$formattedDiff})";
+            } elseif ($diff < 0) {
+                $formattedDiff = number_format(abs($diff), 0, ',', '.');
+                $this->status = "Lunas (Kelebihan: Rp {$formattedDiff})";
+            } else {
+                $this->status = "Lunas";
+            }
         }
     }
 
@@ -142,6 +188,7 @@ class PaymentManager extends Component
             $this->paymentId = $id;
             $payment = Payment::find($id);
             $this->registration_id = $payment->registration_id;
+            $this->bill_id = $payment->bill_id;
             $this->payment_method_id = $payment->payment_method_id;
             $this->payment_number = $payment->payment_number;
             $this->payment_date = $payment->payment_date->format('Y-m-d');
@@ -165,10 +212,56 @@ class PaymentManager extends Component
         $this->resetForm();
     }
 
+    public function openBillModal($id = null)
+    {
+        $this->resetValidation();
+        $this->resetBillForm();
+
+        if ($id) {
+            $this->billId = $id;
+            $bill = Bill::find($id);
+            $this->bill_number = $bill->bill_number;
+            $this->bill_description = $bill->description;
+            $this->bill_amount = $bill->amount;
+            $this->bill_due_date = $bill->due_date->format('Y-m-d');
+        } else {
+            $this->bill_due_date = Carbon::now()->format('Y-m-d');
+            $this->generateBillNumber();
+        }
+
+        $this->isBillModalOpen = true;
+    }
+
+    public function closeBillModal()
+    {
+        $this->isBillModalOpen = false;
+        $this->resetBillForm();
+    }
+
+    private function generateBillNumber()
+    {
+        $date = Carbon::now()->format('dmY');
+        $prefix = "BILL-M-{$date}-"; // M for Manual
+
+        $lastBill = Bill::where('bill_number', 'like', $prefix . '%')
+            ->orderBy('bill_number', 'desc')
+            ->first();
+
+        if ($lastBill) {
+            $lastNumber = (int) substr($lastBill->bill_number, -4);
+            $nextNumber = $lastNumber + 1;
+        } else {
+            $nextNumber = 1;
+        }
+
+        $this->bill_number = $prefix . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+    }
+
     private function resetForm()
     {
         $this->paymentId = null;
         $this->registration_id = null;
+        $this->bill_id = null;
         $this->payment_method_id = null;
         $this->payment_number = null;
         $this->payment_date = Carbon::now()->format('Y-m-d');
@@ -179,10 +272,20 @@ class PaymentManager extends Component
         $this->generatePaymentNumber();
     }
 
+    private function resetBillForm()
+    {
+        $this->billId = null;
+        $this->bill_number = null;
+        $this->bill_description = null;
+        $this->bill_amount = null;
+        $this->bill_due_date = Carbon::now()->format('Y-m-d');
+    }
+
     public function savePayment()
     {
         $rules = [
             'registration_id' => 'required|exists:registrations,id',
+            'bill_id' => 'nullable|exists:bills,id',
             'payment_method_id' => 'required|exists:payment_methods,id',
             'payment_date' => 'required|date',
             'amount' => 'required|numeric|min:0',
@@ -194,6 +297,7 @@ class PaymentManager extends Component
         DB::transaction(function () {
             $data = [
                 'registration_id' => $this->registration_id,
+                'bill_id' => $this->bill_id,
                 'payment_method_id' => $this->payment_method_id,
                 'payment_number' => $this->payment_number,
                 'payment_date' => $this->payment_date,
@@ -202,8 +306,10 @@ class PaymentManager extends Component
                 'status' => $this->status,
             ];
 
+            $oldBillId = null;
             if ($this->paymentId) {
                 $payment = Payment::find($this->paymentId);
+                $oldBillId = $payment->bill_id;
                 if ($this->proof_of_payment) {
                     if ($payment->proof_of_payment) Storage::disk('public')->delete($payment->proof_of_payment);
                     $data['proof_of_payment'] = $this->proof_of_payment->store('payments', 'public');
@@ -213,7 +319,15 @@ class PaymentManager extends Component
                 if ($this->proof_of_payment) {
                     $data['proof_of_payment'] = $this->proof_of_payment->store('payments', 'public');
                 }
-                Payment::create($data);
+                $payment = Payment::create($data);
+            }
+
+            // Update Bill status and paid_amount
+            if ($this->bill_id) {
+                $this->syncBillStatus($this->bill_id);
+            }
+            if ($oldBillId && $oldBillId != $this->bill_id) {
+                $this->syncBillStatus($oldBillId);
             }
         });
 
@@ -225,13 +339,81 @@ class PaymentManager extends Component
         $this->closeModal();
     }
 
+    public function saveBill()
+    {
+        $rules = [
+            'bill_number' => 'required|string|unique:bills,bill_number' . ($this->billId ? ',' . $this->billId : ''),
+            'bill_description' => 'required|string',
+            'bill_amount' => 'required|numeric|min:0',
+            'bill_due_date' => 'required|date',
+        ];
+
+        $this->validate($rules);
+
+        $data = [
+            'registration_id' => $this->selectedRegistrationId,
+            'bill_number' => $this->bill_number,
+            'description' => $this->bill_description,
+            'amount' => $this->bill_amount,
+            'due_date' => $this->bill_due_date,
+        ];
+
+        if ($this->billId) {
+            Bill::find($this->billId)->update($data);
+            $this->syncBillStatus($this->billId);
+        } else {
+            Bill::create($data);
+        }
+
+        $message = "Tagihan berhasil disimpan.";
+        $type = 'success';
+        $this->dispatch('notify', message: $message, type: $type);
+        broadcast(new NotificationSent($message, $type))->toOthers();
+        DatabaseUpdated::dispatch();
+        $this->closeBillModal();
+    }
+
+    public function deleteBill($id)
+    {
+        Bill::find($id)->delete();
+        DatabaseUpdated::dispatch();
+        $message = "Tagihan berhasil dihapus.";
+        $type = 'success';
+        $this->dispatch('notify', message: $message, type: $type);
+        broadcast(new NotificationSent($message, $type))->toOthers();
+    }
+
+    private function syncBillStatus($billId)
+    {
+        $bill = Bill::find($billId);
+        if (!$bill) return;
+
+        $paidAmount = Payment::where('bill_id', $billId)->sum('amount');
+        $bill->paid_amount = $paidAmount;
+
+        if ($paidAmount <= 0) {
+            $bill->status = 'Belum Lunas';
+        } elseif ($paidAmount < $bill->amount) {
+            $bill->status = 'Cicilan';
+        } else {
+            $bill->status = 'Lunas';
+        }
+
+        $bill->save();
+    }
+
     public function deletePayment($id)
     {
         $payment = Payment::find($id);
+        $billId = $payment->bill_id;
         if ($payment->proof_of_payment) {
             Storage::disk('public')->delete($payment->proof_of_payment);
         }
         $payment->delete();
+
+        if ($billId) {
+            $this->syncBillStatus($billId);
+        }
 
         DatabaseUpdated::dispatch();
         $message = "Pembayaran berhasil dihapus.";
@@ -259,19 +441,26 @@ class PaymentManager extends Component
     {
         if ($this->viewMode === 'history') {
             $registration = Registration::with('user', 'room', 'location')->find($this->selectedRegistrationId);
-            $payments = Payment::with('paymentMethod')
+
+            $bills = Bill::where('registration_id', $this->selectedRegistrationId)
+                ->orderBy('due_date', 'asc')
+                ->get();
+
+            $payments = Payment::with(['paymentMethod', 'bill'])
                 ->where('registration_id', $this->selectedRegistrationId)
                 ->latest()
                 ->paginate(10);
 
             return view('livewire.payment-manager', [
                 'registration' => $registration,
+                'bills' => $bills,
                 'payments' => $payments,
                 'paymentMethods' => PaymentMethod::where('is_active', true)->get(),
             ]);
         }
 
         $query = Registration::with('user', 'location', 'room')
+            ->withSum('bills', 'amount')
             ->withSum('payments', 'amount')
             ->where('registrations.status', 'active');
 
@@ -293,8 +482,9 @@ class PaymentManager extends Component
 
         // Calculate paid amount for each registration
         foreach ($registrations as $reg) {
+            $reg->total_bill = $reg->bills_sum_amount ?: 0;
             $reg->paid_amount = $reg->payments_sum_amount ?: 0;
-            $reg->remaining_amount = $reg->total_price - $reg->paid_amount;
+            $reg->remaining_amount = $reg->total_bill - $reg->paid_amount;
         }
 
         return view('livewire.payment-manager', [
