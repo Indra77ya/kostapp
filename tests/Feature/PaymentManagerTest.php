@@ -92,4 +92,64 @@ class PaymentManagerTest extends TestCase
             ->test(PaymentManager::class)
             ->assertSet('payment_number', 'PAY-' . now()->format('dmY') . '-0001');
     }
+
+    public function test_installment_logic()
+    {
+        $owner = User::factory()->create();
+        $owner->assignRole('owner');
+
+        $location = Location::create(['name' => 'Test Location', 'address' => 'Test Address']);
+        $room = Room::create([
+            'room_number' => '101',
+            'location_id' => $location->id,
+            'type' => 'Standard',
+            'price_monthly' => 1000000,
+            'status' => 'occupied'
+        ]);
+
+        $tenant = User::factory()->create();
+        $tenant->assignRole('tenant');
+
+        $registration = Registration::create([
+            'user_id' => $tenant->id,
+            'room_id' => $room->id,
+            'location_id' => $location->id,
+            'registration_number' => 'REG-123',
+            'registration_date' => now(),
+            'stay_start_date' => now(),
+            'room_price' => 1000000,
+            'discount_type' => 'fixed',
+            'discount_value' => 0,
+            'total_price' => 1000000,
+            'identity_type' => 'KTP',
+            'identity_number' => '12345',
+            'gender' => 'Laki-laki',
+            'birth_date' => '1990-01-01',
+            'status' => 'active'
+        ]);
+
+        $paymentMethod = PaymentMethod::create(['name' => 'Cash', 'category' => 'Manual', 'is_active' => true]);
+
+        // First payment: Partial
+        Livewire::actingAs($owner)
+            ->test(PaymentManager::class)
+            ->set('registration_id', $registration->id)
+            ->set('payment_method_id', $paymentMethod->id)
+            ->set('amount', 400000)
+            ->assertSet('status', 'Belum Lunas (Sisa: Rp 600.000)')
+            ->call('savePayment');
+
+        $this->assertDatabaseHas('payments', ['amount' => 400000, 'status' => 'Belum Lunas (Sisa: Rp 600.000)']);
+
+        // Second payment: Should auto-fill 600.000 and be Lunas
+        Livewire::actingAs($owner)
+            ->test(PaymentManager::class)
+            ->set('registration_id', $registration->id)
+            ->assertSet('amount', 600000)
+            ->assertSet('status', 'Lunas')
+            ->set('payment_method_id', $paymentMethod->id)
+            ->call('savePayment');
+
+        $this->assertDatabaseHas('payments', ['amount' => 600000, 'status' => 'Lunas']);
+    }
 }

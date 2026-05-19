@@ -73,7 +73,11 @@
                         <td>{{ $payment->payment_date->format('d M Y') }}</td>
                         <td>Rp {{ number_format($payment->amount, 0, ',', '.') }}</td>
                         <td>
-                            <span class="badge bg-success text-success-foreground">Lunas</span>
+                            @if(strpos($payment->status, 'Belum Lunas') !== false)
+                                <span class="badge bg-warning text-warning-foreground">{{ $payment->status }}</span>
+                            @else
+                                <span class="badge bg-success text-success-foreground">{{ $payment->status }}</span>
+                            @endif
                         </td>
                         <td>
                             <div class="btn-list flex-nowrap">
@@ -144,7 +148,7 @@
                                 <label class="form-label required">Jumlah Bayar</label>
                                 <div class="input-group">
                                     <span class="input-group-text">Rp</span>
-                                    <input type="number" class="form-control @error('amount') is-invalid @enderror" wire:model="amount">
+                                    <input type="number" class="form-control @error('amount') is-invalid @enderror" wire:model.live="amount">
                                 </div>
                                 @error('amount') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>

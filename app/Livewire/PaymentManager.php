@@ -65,8 +65,50 @@ class PaymentManager extends Component
         if ($value) {
             $registration = Registration::find($value);
             if ($registration) {
-                $this->amount = $registration->total_price;
+                $totalPaid = Payment::where('registration_id', $value)
+                    ->when($this->paymentId, fn($q) => $q->where('id', '!=', $this->paymentId))
+                    ->sum('amount');
+
+                $this->amount = $registration->total_price - $totalPaid;
+                if ($this->amount < 0) $this->amount = 0;
             }
+        }
+        $this->calculateStatus();
+    }
+
+    public function updatedAmount()
+    {
+        $this->calculateStatus();
+    }
+
+    private function calculateStatus()
+    {
+        if (!$this->registration_id) {
+            $this->status = 'Lunas';
+            return;
+        }
+
+        $registration = Registration::find($this->registration_id);
+        if (!$registration) return;
+
+        $totalPaidPrev = Payment::where('registration_id', $this->registration_id)
+            ->when($this->paymentId, fn($q) => $q->where('id', '!=', $this->paymentId))
+            ->sum('amount');
+
+        $currentAmount = (float) ($this->amount ?: 0);
+        $totalPaidNow = $totalPaidPrev + $currentAmount;
+        $totalBill = (float) $registration->total_price;
+
+        $diff = $totalBill - $totalPaidNow;
+
+        if ($diff > 0) {
+            $formattedDiff = number_format($diff, 0, ',', '.');
+            $this->status = "Belum Lunas (Sisa: Rp {$formattedDiff})";
+        } elseif ($diff < 0) {
+            $formattedDiff = number_format(abs($diff), 0, ',', '.');
+            $this->status = "Lunas (Kelebihan: Rp {$formattedDiff})";
+        } else {
+            $this->status = "Lunas";
         }
     }
 
@@ -84,7 +126,7 @@ class PaymentManager extends Component
             $this->payment_date = $payment->payment_date->format('Y-m-d');
             $this->amount = $payment->amount;
             $this->notes = $payment->notes;
-            $this->status = $payment->status;
+            $this->calculateStatus();
         } else {
             $this->generatePaymentNumber();
         }
@@ -119,7 +161,6 @@ class PaymentManager extends Component
             'payment_method_id' => 'required|exists:payment_methods,id',
             'payment_date' => 'required|date',
             'amount' => 'required|numeric|min:0',
-            'status' => 'required|string',
             'proof_of_payment' => 'nullable|image|max:2048',
         ];
 
