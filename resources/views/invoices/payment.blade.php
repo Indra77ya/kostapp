@@ -25,7 +25,9 @@
         .amount-box { background: #10b981; color: white; display: inline-block; padding: 10px 25px; border-radius: 4px; font-size: 20px; font-weight: bold; margin-top: 10px; }
 
         .footer { margin-top: 50px; text-align: center; color: #999; font-size: 11px; }
-        .watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 100px; color: rgba(16, 185, 129, 0.1); font-weight: bold; pointer-events: none; text-transform: uppercase; }
+        .watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 100px; color: rgba(16, 185, 129, 0.1); font-weight: bold; pointer-events: none; text-transform: uppercase; z-index: 0; }
+        .watermark.warning { color: rgba(245, 158, 11, 0.1); }
+        .watermark.danger { color: rgba(239, 68, 68, 0.1); }
 
         @media print {
             body { padding: 0; }
@@ -41,7 +43,25 @@
     </div>
 
     <div class="container">
-        <div class="watermark">LUNAS</div>
+        @php
+            $status = 'Lunas';
+            $watermarkClass = '';
+
+            if ($payment->bill) {
+                $status = $payment->bill->status;
+            } else {
+                // For general payments, use the status saved in payment record
+                // Strip the (Sisa: ...) part for watermark if it exists
+                $status = explode(' (', $payment->status)[0];
+            }
+
+            if ($status === 'Cicilan') {
+                $watermarkClass = 'warning';
+            } elseif ($status === 'Belum Lunas') {
+                $watermarkClass = 'danger';
+            }
+        @endphp
+        <div class="watermark {{ $watermarkClass }}">{{ $status }}</div>
         <div class="header">
             <div class="logo">KOST MANAGEMENT</div>
             <div class="document-title">Kuitansi Pembayaran</div>
@@ -81,9 +101,48 @@
                 <div class="receipt-value">{{ $payment->notes }}</div>
             </div>
             @endif
-            <div style="margin-top: 20px;">
-                <div class="info-title">Sejumlah</div>
-                <div class="amount-box">Rp {{ number_format($payment->amount, 0, ',', '.') }}</div>
+            <div style="margin-top: 20px; display: flex; justify-content: space-between; align-items: flex-end;">
+                <div>
+                    <div class="info-title">Sejumlah</div>
+                    <div class="amount-box">Rp {{ number_format($payment->amount, 0, ',', '.') }}</div>
+                </div>
+                @if($payment->bill)
+                    <div style="text-align: right; min-width: 200px;">
+                        <div style="margin-bottom: 5px; display: flex; justify-content: space-between;">
+                            <span class="info-title" style="margin: 0;">Total Tagihan:</span>
+                            <span class="info-value">Rp {{ number_format($payment->bill->amount, 0, ',', '.') }}</span>
+                        </div>
+                        <div style="margin-bottom: 5px; display: flex; justify-content: space-between;">
+                            <span class="info-title" style="margin: 0;">Total Terbayar:</span>
+                            <span class="info-value">Rp {{ number_format($payment->bill->paid_amount, 0, ',', '.') }}</span>
+                        </div>
+                        <div style="border-top: 1px solid #e5e7eb; padding-top: 5px; display: flex; justify-content: space-between;">
+                            <span class="info-title" style="margin: 0; color: {{ $payment->bill->remaining_amount > 0 ? '#ef4444' : '#10b981' }};">Sisa Tagihan:</span>
+                            <span class="info-value" style="color: {{ $payment->bill->remaining_amount > 0 ? '#ef4444' : '#10b981' }};">Rp {{ number_format($payment->bill->remaining_amount, 0, ',', '.') }}</span>
+                        </div>
+                    </div>
+                @elseif($payment->registration)
+                    @php
+                        $totalPaid = \App\Models\Payment::where('registration_id', $payment->registration_id)
+                            ->where('status', '!=', 'Menunggu Konfirmasi')
+                            ->sum('amount');
+                        $remaining = $payment->registration->total_price - $totalPaid;
+                    @endphp
+                    <div style="text-align: right; min-width: 200px;">
+                        <div style="margin-bottom: 5px; display: flex; justify-content: space-between;">
+                            <span class="info-title" style="margin: 0;">Total Sewa:</span>
+                            <span class="info-value">Rp {{ number_format($payment->registration->total_price, 0, ',', '.') }}</span>
+                        </div>
+                        <div style="margin-bottom: 5px; display: flex; justify-content: space-between;">
+                            <span class="info-title" style="margin: 0;">Total Terbayar:</span>
+                            <span class="info-value">Rp {{ number_format($totalPaid, 0, ',', '.') }}</span>
+                        </div>
+                        <div style="border-top: 1px solid #e5e7eb; padding-top: 5px; display: flex; justify-content: space-between;">
+                            <span class="info-title" style="margin: 0; color: {{ $remaining > 0 ? '#ef4444' : '#10b981' }};">Sisa:</span>
+                            <span class="info-value" style="color: {{ $remaining > 0 ? '#ef4444' : '#10b981' }};">Rp {{ number_format(max(0, $remaining), 0, ',', '.') }}</span>
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
 
