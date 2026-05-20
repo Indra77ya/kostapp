@@ -51,6 +51,7 @@ class RegistrationManager extends Component
 
     // Photos
     public $photo_self, $photo_identity, $photo_family_card;
+    public $existing_photo_self, $existing_photo_identity, $existing_photo_family_card;
     public $family_card_number;
 
     // Organization Info
@@ -244,6 +245,10 @@ class RegistrationManager extends Component
             $this->birth_date = $reg->birth_date->format('Y-m-d');
             $this->family_card_number = $reg->family_card_number;
 
+            $this->existing_photo_self = $reg->photo_self;
+            $this->existing_photo_identity = $reg->photo_identity;
+            $this->existing_photo_family_card = $reg->photo_family_card;
+
             $this->institution_name = $reg->institution_name;
             $this->institution_address = $reg->institution_address;
             $this->institution_phone = $reg->institution_phone;
@@ -304,6 +309,9 @@ class RegistrationManager extends Component
         $this->photo_self = null;
         $this->photo_identity = null;
         $this->photo_family_card = null;
+        $this->existing_photo_self = null;
+        $this->existing_photo_identity = null;
+        $this->existing_photo_family_card = null;
         $this->family_card_number = '';
 
         $this->institution_name = '';

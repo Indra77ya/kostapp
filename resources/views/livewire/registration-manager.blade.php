@@ -297,7 +297,10 @@
                                 <div class="hr-text text-uppercase fw-bold text-muted small">Foto & Dokumen</div>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label required small fw-bold">Foto Diri</label>
+                                <label class="form-label required small fw-bold">
+                                    Foto Diri
+                                    @if($existing_photo_self) <span class="badge bg-green-lt ms-1">Tersimpan</span> @endif
+                                </label>
                                 <input type="file" class="form-control @error('photo_self') is-invalid @enderror" wire:model="photo_self">
                                 @if($photo_self && method_exists($photo_self, 'temporaryUrl'))
                                     <div class="mt-2">
@@ -305,10 +308,19 @@
                                             <img src="{{ $photo_self->temporaryUrl() }}" style="height: 100px;" class="border rounded" title="Klik untuk memperbesar (Tab Baru)">
                                         </a>
                                     </div>
+                                @elseif($existing_photo_self)
+                                    <div class="mt-2">
+                                        <a href="{{ asset('storage/' . $existing_photo_self) }}" target="_blank">
+                                            <img src="{{ asset('storage/' . $existing_photo_self) }}" style="height: 100px;" class="border rounded" title="Klik untuk memperbesar (Tab Baru)">
+                                        </a>
+                                    </div>
                                 @endif
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label required small fw-bold">Foto Identitas</label>
+                                <label class="form-label required small fw-bold">
+                                    Foto Identitas
+                                    @if($existing_photo_identity) <span class="badge bg-green-lt ms-1">Tersimpan</span> @endif
+                                </label>
                                 <input type="file" class="form-control @error('photo_identity') is-invalid @enderror" wire:model="photo_identity">
                                 @if($photo_identity && method_exists($photo_identity, 'temporaryUrl'))
                                     <div class="mt-2">
@@ -316,15 +328,30 @@
                                             <img src="{{ $photo_identity->temporaryUrl() }}" style="height: 100px;" class="border rounded" title="Klik untuk memperbesar (Tab Baru)">
                                         </a>
                                     </div>
+                                @elseif($existing_photo_identity)
+                                    <div class="mt-2">
+                                        <a href="{{ asset('storage/' . $existing_photo_identity) }}" target="_blank">
+                                            <img src="{{ asset('storage/' . $existing_photo_identity) }}" style="height: 100px;" class="border rounded" title="Klik untuk memperbesar (Tab Baru)">
+                                        </a>
+                                    </div>
                                 @endif
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label small fw-bold">Foto Kartu Keluarga</label>
+                                <label class="form-label small fw-bold">
+                                    Foto Kartu Keluarga
+                                    @if($existing_photo_family_card) <span class="badge bg-green-lt ms-1">Tersimpan</span> @endif
+                                </label>
                                 <input type="file" class="form-control" wire:model="photo_family_card">
                                 @if($photo_family_card && method_exists($photo_family_card, 'temporaryUrl'))
                                     <div class="mt-2">
                                         <a href="{{ $photo_family_card->temporaryUrl() }}" target="_blank">
                                             <img src="{{ $photo_family_card->temporaryUrl() }}" style="height: 100px;" class="border rounded" title="Klik untuk memperbesar (Tab Baru)">
+                                        </a>
+                                    </div>
+                                @elseif($existing_photo_family_card)
+                                    <div class="mt-2">
+                                        <a href="{{ asset('storage/' . $existing_photo_family_card) }}" target="_blank">
+                                            <img src="{{ asset('storage/' . $existing_photo_family_card) }}" style="height: 100px;" class="border rounded" title="Klik untuk memperbesar (Tab Baru)">
                                         </a>
                                     </div>
                                 @endif
