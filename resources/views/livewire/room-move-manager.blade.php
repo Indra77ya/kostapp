@@ -225,6 +225,27 @@
                                 @error('discount_value') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                             <div class="col-md-6 mb-3">
+                                <label class="form-label d-flex justify-content-between align-items-center">
+                                    Durasi Diskon
+                                    <label class="form-check form-check-inline mb-0 small" style="font-weight: normal;">
+                                        <input class="form-check-input" type="checkbox" wire:model.live="is_discount_open_ended">
+                                        <span class="form-check-label">Hingga Keluar</span>
+                                    </label>
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control @error('discount_duration') is-invalid @enderror" wire:model.live="discount_duration" min="0" {{ $is_discount_open_ended ? 'disabled' : '' }}>
+                                    <span class="input-group-text">
+                                        @if($duration_type == 'daily') Hari
+                                        @elseif($duration_type == 'weekly') Minggu
+                                        @elseif($duration_type == 'monthly') Bulan
+                                        @elseif($duration_type == 'yearly') Tahun
+                                        @else Bulan/Periode
+                                        @endif
+                                    </span>
+                                </div>
+                                @error('discount_duration') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+                            <div class="col-md-6 mb-3">
                                 <label class="form-label">Total Harga Baru</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light">Rp</span>

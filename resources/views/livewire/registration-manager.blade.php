@@ -186,7 +186,14 @@
                                 </label>
                                 <div class="input-group">
                                     <input type="number" class="form-control @error('discount_duration') is-invalid @enderror" wire:model.live="discount_duration" min="0" {{ $is_discount_open_ended ? 'disabled' : '' }}>
-                                    <span class="input-group-text">Bulan/Periode</span>
+                                    <span class="input-group-text">
+                                        @if($duration_type == 'daily') Hari
+                                        @elseif($duration_type == 'weekly') Minggu
+                                        @elseif($duration_type == 'monthly') Bulan
+                                        @elseif($duration_type == 'yearly') Tahun
+                                        @else Bulan/Periode
+                                        @endif
+                                    </span>
                                     @error('discount_duration') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
                             </div>
