@@ -22,6 +22,8 @@ class Registration extends Model
         'room_price',
         'discount_type',
         'discount_value',
+        'discount_duration',
+        'is_discount_open_ended',
         'total_price',
         'identity_type',
         'identity_number',
@@ -65,5 +67,93 @@ class Registration extends Model
     public function emergencyContacts()
     {
         return $this->hasMany(EmergencyContact::class);
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    public function bills()
+    {
+        return $this->hasMany(Bill::class);
+    }
+
+    public function syncBills()
+    {
+        $startDate = \Carbon\Carbon::parse($this->stay_start_date);
+        $count = (int) $this->duration_value;
+
+        if ($this->is_open_ended) {
+            $count = 12;
+        }
+
+        $existingBills = $this->bills()->orderBy('due_date', 'asc')->get();
+
+        for ($i = 0; $i < $count; $i++) {
+            $billDate = clone $startDate;
+            $description = "Tagihan Sewa Kamar";
+
+            switch ($this->duration_type) {
+                case 'daily':
+                    $billDate->addDays($i);
+                    $description .= " (Harian: " . $billDate->format('d M Y') . ")";
+                    break;
+                case 'weekly':
+                    $billDate->addWeeks($i);
+                    $description .= " (Mingguan: " . $billDate->format('d M Y') . ")";
+                    break;
+                case 'yearly':
+                    $billDate->addYears($i);
+                    $description .= " (Tahunan: " . $billDate->format('Y') . ")";
+                    break;
+                default: // monthly
+                    $billDate->addMonths($i);
+                    $description .= " (" . $billDate->translatedFormat('F Y') . ")";
+                    break;
+            }
+
+            $billAmount = (float) $this->room_price;
+            $billDiscount = 0;
+            if ($this->is_discount_open_ended || $i < (int) $this->discount_duration) {
+                if ($this->discount_type === 'percent') {
+                    $billDiscount = ($billAmount * ((float) $this->discount_value / 100));
+                } else {
+                    $billDiscount = (float) $this->discount_value;
+                }
+            }
+            $billAmount = max(0, $billAmount - $billDiscount);
+
+            if (isset($existingBills[$i])) {
+                $bill = $existingBills[$i];
+                if ($bill->status !== 'Lunas') {
+                    $bill->update([
+                        'description' => $description,
+                        'discount' => $billDiscount,
+                        'amount' => $billAmount,
+                        'due_date' => $billDate,
+                    ]);
+
+                    if ($bill->paid_amount >= $bill->amount && $bill->amount > 0) {
+                        $bill->update(['status' => 'Lunas']);
+                    } elseif ($bill->paid_amount > 0) {
+                        $bill->update(['status' => 'Cicilan']);
+                    } else {
+                        $bill->update(['status' => 'Belum Lunas']);
+                    }
+                }
+            } else {
+                $billNumber = 'BILL-' . $this->id . '-' . $billDate->format('dmY') . '-' . str_pad($i + 1, 2, '0', STR_PAD_LEFT);
+                Bill::create([
+                    'registration_id' => $this->id,
+                    'bill_number' => $billNumber,
+                    'description' => $description,
+                    'discount' => $billDiscount,
+                    'amount' => $billAmount,
+                    'due_date' => $billDate,
+                    'status' => 'Belum Lunas',
+                ]);
+            }
+        }
     }
 }

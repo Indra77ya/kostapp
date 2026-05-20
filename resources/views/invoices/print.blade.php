@@ -109,6 +109,46 @@
                         </span>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col">
+                        <span class="label">Harga Kamar</span>
+                        <span class="value">Rp {{ number_format($registration->room_price, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="col">
+                        <span class="label">Diskon</span>
+                        <span class="value">
+                            @if($registration->discount_value > 0)
+                                @if($registration->discount_type == 'percent')
+                                    {{ $registration->discount_value }}%
+                                @else
+                                    Rp {{ number_format($registration->discount_value, 0, ',', '.') }}
+                                @endif
+
+                                @if($registration->is_discount_open_ended)
+                                    (Hingga Keluar)
+                                @elseif($registration->discount_duration > 0)
+                                    (Selama {{ $registration->discount_duration }}
+                                    @if($registration->duration_type == 'daily') Hari)
+                                    @elseif($registration->duration_type == 'weekly') Minggu)
+                                    @elseif($registration->duration_type == 'monthly') Bulan)
+                                    @elseif($registration->duration_type == 'yearly') Tahun)
+                                    @else Periode)
+                                    @endif
+                                @endif
+                            @else
+                                -
+                            @endif
+                        </span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <span class="label">Total Harga Pendaftaran</span>
+                        <span class="value" style="font-weight: bold; color: #3b82f6;">Rp {{ number_format($registration->total_price, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="col">
+                    </div>
+                </div>
             </div>
             <div style="width: 120px;">
                 <span class="label">Foto Diri</span>

@@ -1,14 +1,10 @@
 # KostApp - Sistem Manajemen Kost Modern & Real-Time
 
-[![Laravel](https://img.shields.io/badge/Laravel-11-FF2D20?style=for-the-badge&logo=laravel)](https://laravel.com)
-[![Livewire](https://img.shields.io/badge/Livewire-3-FB70A9?style=for-the-badge&logo=livewire)](https://livewire.laravel.com)
-[![Reverb](https://img.shields.io/badge/Laravel-Reverb-00D1FF?style=for-the-badge&logo=laravel)](https://laravel.com/docs/11.x/reverb)
-
-**KostApp** adalah solusi manajemen operasional rumah kost yang dirancang untuk memberikan kemudahan bagi pemilik (Owner) dan efisiensi bagi pengelola (Admin). Dibangun dengan teknologi terbaru, aplikasi ini menawarkan pengalaman pengguna yang interaktif dan responsif secara *real-time*.
+KostApp adalah solusi manajemen operasional rumah kost yang dirancang untuk memberikan kemudahan bagi pemilik (Owner) dan efisiensi bagi pengelola (Admin). Dibangun dengan teknologi terbaru, aplikasi ini menawarkan pengalaman pengguna yang interaktif dan responsif secara real-time.
 
 ---
 
-## 🌟 Fitur Utama (Modul Lengkap)
+## Fitur Utama (Modul Lengkap)
 
 Aplikasi ini mencakup seluruh siklus manajemen kost, mulai dari manajemen aset hingga operasional harian:
 
@@ -39,45 +35,57 @@ Aplikasi ini mencakup seluruh siklus manajemen kost, mulai dari manajemen aset h
 -   **Metode Pembayaran**: Pengaturan rekening bank, e-wallet, atau tunai untuk pembayaran sewa.
 -   **Manajemen Pengguna**: Pengelolaan staf (Admin & Owner) dengan sistem hak akses yang ketat.
 
-### 3. Dashboard & Notifikasi
+### 3. Pembayaran & Penagihan (Billing)
+-   **Otomatisasi Tagihan**: Penjanaan tagihan otomatis saat check-in, termasuk dukungan untuk sewa bulanan, mingguan, harian, dan tahunan. Mendukung opsi masa inap tetap atau "Hingga Keluar" (Indefinite).
+-   **Dukungan Diskon**: Pengaturan diskon dengan durasi tertentu (misal: diskon 3 bulan pertama) atau diskon tetap (Hingga Keluar).
+-   **Sinkronisasi Penagihan Pintar**: Tagihan yang belum lunas akan otomatis diperbarui jika terjadi perubahan harga kamar atau konfigurasi diskon pada data registrasi penghuni.
+-   **Lapor Pembayaran (Tenant)**: Fitur bagi penghuni untuk melihat daftar tagihan dan mengunggah bukti pembayaran secara mandiri.
+-   **Konfirmasi Pembayaran (Admin)**: Dashboard khusus bagi admin untuk memvalidasi bukti pembayaran dari penghuni.
+-   **Riwayat & Cicilan**: Pencatatan riwayat pembayaran yang mendukung sistem cicilan (pelunasan bertahap).
+-   **Cetak Invoice & Kuitansi**: Generasi dokumen formal untuk tagihan (Invoice) dan bukti bayar (Kuitansi) dengan tanda air 'LUNAS'.
+
+### 4. Dashboard & Notifikasi
 -   **Statistik Interaktif**: Pantau jumlah kamar total, kamar tersedia, dan pesanan aktif secara visual.
--   **Notifikasi Real-Time**: Pemberitahuan instan untuk aktivitas penting (seperti pendaftaran baru) tanpa perlu refresh halaman.
+-   **Notifikasi Real-Time**: Pemberitahuan instan untuk aktivitas penting (seperti pendaftaran baru atau laporan pembayaran) tanpa perlu refresh halaman.
 
 ---
 
-## 🖼️ Tampilan Aplikasi (Screenshots)
+## Tampilan Aplikasi (Screenshots)
 
-> *Ganti placeholder di bawah ini dengan gambar asli aplikasi Anda untuk presentasi yang lebih baik.*
+> Ganti placeholder di bawah ini dengan gambar asli aplikasi Anda untuk presentasi yang lebih baik.
 
-| Dashboard Utama | Daftar Kamar | Form Check-In |
+| Dashboard Utama | Daftar Kamar | Konfirmasi Bayar |
 | :---: | :---: | :---: |
-| ![Dashboard](https://via.placeholder.com/400x250?text=Dashboard+Stats) | ![Kamar](https://via.placeholder.com/400x250?text=Manajemen+Kamar) | ![CheckIn](https://via.placeholder.com/400x250?text=Form+Registrasi) |
+| ![Dashboard](https://via.placeholder.com/400x250?text=Dashboard+Stats) | ![Kamar](https://via.placeholder.com/400x250?text=Manajemen+Kamar) | ![Pembayaran](https://via.placeholder.com/400x250?text=Konfirmasi+Pembayaran) |
 
 ---
 
-## 🏗️ Arsitektur & Teknologi
+## Arsitektur & Teknologi
 
 ### Logika Bisnis Utama
 1.  **Sinkronisasi Status Kamar**: Sistem menjamin integritas data kamar. Saat pendaftaran (Check-in) berhasil, status kamar otomatis berubah menjadi `occupied`. Saat Check-out atau penghapusan data registrasi, status kembali ke `available`.
-2.  **Real-Time Engine**: Menggunakan **Laravel Reverb** (WebSocket) untuk mendorong pembaruan data dan notifikasi ke browser pengguna secara instan melalui event broadcasting.
-3.  **Sistem Keamanan & Role**: Menggunakan **Spatie Permission**.
+2.  **Integritas Tagihan & Pembayaran**: Sistem billing dirancang untuk fleksibilitas. Tagihan yang sudah berstatus 'Lunas' tidak akan tersentuh oleh perubahan data registrasi, sementara tagihan 'Belum Lunas' akan selalu sinkron dengan harga dan diskon terbaru.
+3.  **Real-Time Engine**: Menggunakan **Laravel Reverb** (WebSocket) untuk mendorong pembaruan data dan notifikasi ke browser pengguna secara instan melalui event broadcasting.
+4.  **Sistem Keamanan & Role**: Menggunakan **Spatie Permission**.
     -   `Developer/Owner`: Akses penuh ke seluruh sistem termasuk pengaturan sistem.
-    -   `Admin`: Akses operasional (Check-in, Check-out, Pindah Kamar, Penghuni).
-    -   `Tenant (Penghuni)`: Akses terbatas untuk melihat profil sendiri (dalam pengembangan).
+    -   `Admin`: Akses operasional dan finansial (Check-in, Check-out, Pindah Kamar, Penghuni, Konfirmasi Pembayaran).
+    -   `Tenant (Penghuni)`: Akses terbatas untuk melihat profil sendiri, daftar tagihan, dan melaporkan pembayaran.
 
 ### Struktur Database Utama
 -   `users`: Menyimpan data staf dan penghuni (beserta `password_plain` untuk kemudahan admin).
 -   `locations`: Data gedung kost.
 -   `rooms`: Data kamar beserta status dan relasi ke lokasi.
--   `registrations`: Data transaksi sewa aktif.
+-   `registrations`: Data transaksi sewa aktif beserta informasi diskon.
+-   `bills`: Data tagihan periodik penghuni.
+-   `payments`: Data transaksi pembayaran, riwayat cicilan, dan bukti bayar.
 -   `room_moves`: Log riwayat perpindahan kamar.
 -   `payment_methods`: Pilihan metode pembayaran.
 
 ---
 
-## ⚙️ Pengaturan & Pemeliharaan Sistem
+## Pengaturan & Pemeliharaan Sistem
 
-Aplikasi ini dilengkapi dengan modul **Pengaturan Sistem** (khusus Owner/Developer) untuk menjaga keberlangsungan data:
+Aplikasi ini dilengkapi dengan modul Pengaturan Sistem (khusus Owner/Developer) untuk menjaga keberlangsungan data:
 
 -   **Statistik Data**: Melihat jumlah total User, Lokasi, Kamar, Fasilitas, dan Aturan.
 -   **Backup Data**: Membuat file `.zip` yang berisi database dan seluruh foto unggahan (KTP, Foto Kamar, dll).
@@ -86,7 +94,7 @@ Aplikasi ini dilengkapi dengan modul **Pengaturan Sistem** (khusus Owner/Develop
 
 ---
 
-## 🛠️ Panduan Instalasi (Lokal)
+## Panduan Instalasi (Lokal)
 
 ### Persyaratan
 - PHP >= 8.2
@@ -120,7 +128,7 @@ Aplikasi ini dilengkapi dengan modul **Pengaturan Sistem** (khusus Owner/Develop
 
 ---
 
-## 🚦 Menjalankan Aplikasi
+## Menjalankan Aplikasi
 
 Untuk fitur real-time, jalankan 3 perintah ini di terminal terpisah:
 1.  **Web Server**: `php artisan serve`
@@ -128,15 +136,15 @@ Untuk fitur real-time, jalankan 3 perintah ini di terminal terpisah:
 3.  **Queue**: `php artisan queue:listen`
 
 Akses di: `http://127.0.0.1:8000`
-**Login Default**: `admin@example.com` / `password`
+**Login Default**: `admin@kost.com` / `password`
 
 ---
 
-## 🌐 Panduan Deployment (Produksi)
+## Panduan Deployment (Produksi)
 
 1.  Gunakan **Nginx** sebagai reverse proxy untuk port 80/443 ke port Reverb (8080).
 2.  Gunakan **Supervisor** untuk menjaga `reverb:start` dan `queue:work` tetap berjalan di latar belakang.
 3.  Pastikan `APP_DEBUG=false` dan `APP_URL` sudah sesuai di file `.env`.
 
 ---
-Dibuat dengan ❤️ untuk efisiensi bisnis Kost Anda.
+Dibuat untuk efisiensi bisnis Kost Anda.

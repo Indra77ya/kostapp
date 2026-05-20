@@ -29,7 +29,8 @@ class RoomMoveManager extends Component
     // Form fields
     public $registration_id, $new_room_id, $move_date, $reason;
     public $duration_type = 'monthly', $duration_value = 1, $is_open_ended = false;
-    public $room_price = 0, $discount_type = 'fixed', $discount_value = 0, $total_price = 0;
+    public $room_price = 0, $discount_type = 'fixed', $discount_value = 0, $discount_duration = 0, $total_price = 0;
+    public $is_discount_open_ended = false;
     public $tenant_search = '';
     public $selectedLocationId;
 
@@ -48,6 +49,8 @@ class RoomMoveManager extends Component
             // Pre-fill with current registration pricing as baseline
             $this->discount_type = $reg->discount_type;
             $this->discount_value = $reg->discount_value;
+            $this->discount_duration = $reg->discount_duration;
+            $this->is_discount_open_ended = (bool) $reg->is_discount_open_ended;
             $this->duration_type = $reg->duration_type;
             $this->duration_value = $reg->duration_value;
             $this->is_open_ended = (bool) $reg->is_open_ended;
@@ -114,22 +117,41 @@ class RoomMoveManager extends Component
 
     public function updatedDiscountType() { $this->calculateTotalPrice(); }
     public function updatedDiscountValue() { $this->calculateTotalPrice(); }
+    public function updatedDiscountDuration() { $this->calculateTotalPrice(); }
+    public function updatedIsDiscountOpenEnded($value)
+    {
+        if ($value) {
+            $this->discount_duration = 0;
+        }
+        $this->calculateTotalPrice();
+    }
     public function updatedRoomPrice() { $this->calculateTotalPrice(); }
 
     public function calculateTotalPrice()
     {
         $price = (float) $this->room_price;
         $duration = (int) ($this->duration_value ?: 1);
-        $subtotal = $price * $duration;
-        $discount = (float) $this->discount_value;
+        $discountVal = (float) ($this->discount_value ?: 0);
+        $discountDur = (int) ($this->discount_duration ?: 0);
 
-        if ($this->discount_type === 'percent') {
-            $this->total_price = $subtotal - ($subtotal * ($discount / 100));
-        } else {
-            $this->total_price = $subtotal - $discount;
+        if ($this->is_open_ended) {
+            $duration = 12; // Standard view for 12 cycles if open ended
         }
 
-        if ($this->total_price < 0) $this->total_price = 0;
+        $total = 0;
+        for ($i = 1; $i <= $duration; $i++) {
+            $currentPeriodPrice = $price;
+            if ($this->is_discount_open_ended || $i <= $discountDur) {
+                if ($this->discount_type === 'percent') {
+                    $currentPeriodPrice -= ($price * ($discountVal / 100));
+                } else {
+                    $currentPeriodPrice -= $discountVal;
+                }
+            }
+            $total += max(0, $currentPeriodPrice);
+        }
+
+        $this->total_price = $total;
     }
 
     public function openModal()
@@ -158,19 +180,27 @@ class RoomMoveManager extends Component
         $this->room_price = 0;
         $this->discount_type = 'fixed';
         $this->discount_value = 0;
+        $this->discount_duration = 0;
+        $this->is_discount_open_ended = false;
         $this->total_price = 0;
     }
 
     public function saveMove()
     {
-        $this->validate([
+            $rules = [
             'registration_id' => 'required|exists:registrations,id',
             'new_room_id' => 'required|exists:rooms,id',
             'move_date' => 'required|date',
             'reason' => 'nullable|string',
             'room_price' => 'required|numeric|min:0',
             'discount_value' => 'required|numeric|min:0',
-        ]);
+            ];
+
+            if ($this->discount_value > 0 && !$this->is_discount_open_ended) {
+                $rules['discount_duration'] = 'required|integer|min:1';
+            }
+
+            $this->validate($rules);
 
         $registration = Registration::find($this->registration_id);
 
@@ -201,12 +231,17 @@ class RoomMoveManager extends Component
                 'room_price' => $this->room_price,
                 'discount_type' => $this->discount_type,
                 'discount_value' => $this->discount_value,
+                'discount_duration' => $this->discount_duration,
+                'is_discount_open_ended' => $this->is_discount_open_ended,
                 'total_price' => $this->total_price,
             ]);
 
             // 3. Update Room Statuses
             Room::where('id', $oldRoomId)->update(['status' => 'available']);
             Room::where('id', $this->new_room_id)->update(['status' => 'occupied']);
+
+            // Sync bills for the new room/pricing
+            $registration->syncBills();
         });
 
         $message = "Perpindahan kamar berhasil diproses.";

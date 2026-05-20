@@ -35,15 +35,26 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/registrations/{registration}/invoice', [InvoiceController::class, 'show'])->name('registrations.invoice');
 
-    Route::get('/check-outs', function () {
-        return view('check-outs.index');
-    })->name('check-outs.index');
+        Route::get('/check-outs', function () {
+            return view('check-outs.index');
+        })->name('check-outs.index');
 
-    Route::get('/room-moves', function () {
-        return view('room-moves.index');
-    })->name('room-moves.index');
+        Route::get('/room-moves', function () {
+            return view('room-moves.index');
+        })->name('room-moves.index');
 
         Route::middleware('role:owner|developer')->group(function () {
+            Route::get('/payments', function () {
+                return view('payments.index');
+            })->name('payments.index');
+
+            Route::get('/payments/confirmation', function () {
+                return view('payments.confirmation');
+            })->name('payments.confirmation');
+
+            Route::get('/bills/{bill}/invoice', [InvoiceController::class, 'billInvoice'])->name('bills.invoice');
+            Route::get('/payments/{payment}/invoice', [InvoiceController::class, 'paymentInvoice'])->name('payments.invoice');
+
             Route::get('/locations', function () {
                 return view('locations.index');
             })->name('locations.index');
@@ -72,6 +83,12 @@ Route::middleware('auth')->group(function () {
                 return view('settings');
             })->name('settings');
         });
+    });
+
+    Route::middleware('role:tenant')->group(function () {
+        Route::get('/my-payments', function () {
+            return view('tenant.payments');
+        })->name('tenant.payments');
     });
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

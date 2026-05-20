@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Registration;
 use App\Models\Rule;
+use App\Models\Bill;
+use App\Models\Payment;
 use Illuminate\Http\Request;
 
 class InvoiceController extends Controller
@@ -22,5 +24,17 @@ class InvoiceController extends Controller
             ->groupBy('category');
 
         return view('invoices.print', compact('registration', 'rules'));
+    }
+
+    public function billInvoice(Bill $bill)
+    {
+        $bill->load(['registration.user', 'registration.location', 'registration.room']);
+        return view('invoices.bill', compact('bill'));
+    }
+
+    public function paymentInvoice(Payment $payment)
+    {
+        $payment->load(['registration.user', 'registration.location', 'registration.room', 'bill', 'paymentMethod']);
+        return view('invoices.payment', compact('payment'));
     }
 }

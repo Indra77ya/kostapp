@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use App\Events\DatabaseUpdated;
 use App\Events\NotificationSent;
+use App\Models\Bill;
 use Carbon\Carbon;
 
 class RegistrationManager extends Component
@@ -39,7 +40,8 @@ class RegistrationManager extends Component
     public $duration_type = 'monthly', $duration_value = 1, $is_open_ended = false;
 
     // Financials
-    public $room_price = 0, $discount_type = 'fixed', $discount_value = 0, $total_price = 0;
+    public $room_price = 0, $discount_type = 'fixed', $discount_value = 0, $discount_duration = 0, $total_price = 0;
+    public $is_discount_open_ended = false;
     public $room_facilities = '';
 
     // Personal Info
@@ -49,6 +51,7 @@ class RegistrationManager extends Component
 
     // Photos
     public $photo_self, $photo_identity, $photo_family_card;
+    public $existing_photo_self, $existing_photo_identity, $existing_photo_family_card;
     public $family_card_number;
 
     // Organization Info
@@ -151,22 +154,41 @@ class RegistrationManager extends Component
 
     public function updatedDiscountType() { $this->calculateTotal(); }
     public function updatedDiscountValue() { $this->calculateTotal(); }
+    public function updatedDiscountDuration() { $this->calculateTotal(); }
+    public function updatedIsDiscountOpenEnded($value)
+    {
+        if ($value) {
+            $this->discount_duration = 0;
+        }
+        $this->calculateTotal();
+    }
     public function updatedRoomPrice() { $this->calculateTotal(); }
 
     public function calculateTotal()
     {
         $price = (float) $this->room_price;
         $duration = (int) ($this->duration_value ?: 1);
-        $subtotal = $price * $duration;
-        $discount = (float) $this->discount_value;
+        $discountVal = (float) ($this->discount_value ?: 0);
+        $discountDur = (int) ($this->discount_duration ?: 0);
 
-        if ($this->discount_type === 'percent') {
-            $this->total_price = $subtotal - ($subtotal * ($discount / 100));
-        } else {
-            $this->total_price = $subtotal - $discount;
+        if ($this->is_open_ended) {
+            $duration = 12; // Standard view for 12 months if open ended
         }
 
-        if ($this->total_price < 0) $this->total_price = 0;
+        $total = 0;
+        for ($i = 1; $i <= $duration; $i++) {
+            $currentPeriodPrice = $price;
+            if ($this->is_discount_open_ended || $i <= $discountDur) {
+                if ($this->discount_type === 'percent') {
+                    $currentPeriodPrice -= ($price * ($discountVal / 100));
+                } else {
+                    $currentPeriodPrice -= $discountVal;
+                }
+            }
+            $total += max(0, $currentPeriodPrice);
+        }
+
+        $this->total_price = $total;
     }
 
     public function generateRegistrationNumber()
@@ -207,6 +229,8 @@ class RegistrationManager extends Component
             $this->room_price = $reg->room_price;
             $this->discount_type = $reg->discount_type;
             $this->discount_value = $reg->discount_value;
+            $this->discount_duration = $reg->discount_duration;
+            $this->is_discount_open_ended = (bool) $reg->is_discount_open_ended;
             $this->total_price = $reg->total_price;
 
             $this->name = $reg->user->name;
@@ -220,6 +244,10 @@ class RegistrationManager extends Component
             $this->birth_place = $reg->birth_place;
             $this->birth_date = $reg->birth_date->format('Y-m-d');
             $this->family_card_number = $reg->family_card_number;
+
+            $this->existing_photo_self = $reg->photo_self;
+            $this->existing_photo_identity = $reg->photo_identity;
+            $this->existing_photo_family_card = $reg->photo_family_card;
 
             $this->institution_name = $reg->institution_name;
             $this->institution_address = $reg->institution_address;
@@ -264,6 +292,8 @@ class RegistrationManager extends Component
         $this->room_price = 0;
         $this->discount_type = 'fixed';
         $this->discount_value = 0;
+        $this->discount_duration = 0;
+        $this->is_discount_open_ended = false;
         $this->total_price = 0;
         $this->room_facilities = '';
 
@@ -279,6 +309,9 @@ class RegistrationManager extends Component
         $this->photo_self = null;
         $this->photo_identity = null;
         $this->photo_family_card = null;
+        $this->existing_photo_self = null;
+        $this->existing_photo_identity = null;
+        $this->existing_photo_family_card = null;
         $this->family_card_number = '';
 
         $this->institution_name = '';
@@ -305,6 +338,10 @@ class RegistrationManager extends Component
             'photo_identity' => $this->registrationId ? 'nullable|image|max:2048' : 'required|image|max:2048',
             'photo_family_card' => 'nullable|image|max:2048',
         ];
+
+        if ($this->discount_value > 0 && !$this->is_discount_open_ended) {
+            $rules['discount_duration'] = 'required|integer|min:1';
+        }
 
         // Only validate emergency contacts if they exist
         if (!empty($this->emergency_contacts)) {
@@ -368,6 +405,8 @@ class RegistrationManager extends Component
                 'room_price' => $this->room_price,
                 'discount_type' => $this->discount_type,
                 'discount_value' => $this->discount_value,
+                'discount_duration' => $this->discount_duration,
+                'is_discount_open_ended' => $this->is_discount_open_ended,
                 'total_price' => $this->total_price,
                 'identity_type' => $this->identity_type,
                 'identity_number' => $this->identity_number,
@@ -396,6 +435,9 @@ class RegistrationManager extends Component
                     $data['photo_family_card'] = $this->photo_family_card->store('registrations/family_card', 'public');
                 }
                 $registration->update($data);
+
+                // Sync bills for updated registration
+                $registration->syncBills();
             } else {
                 if ($this->photo_self) {
                     $path = $this->photo_self->store('registrations/self', 'public');
@@ -405,6 +447,9 @@ class RegistrationManager extends Component
                 if ($this->photo_identity) $data['photo_identity'] = $this->photo_identity->store('registrations/identity', 'public');
                 if ($this->photo_family_card) $data['photo_family_card'] = $this->photo_family_card->store('registrations/family_card', 'public');
                 $registration = Registration::create($data);
+
+                // Auto-generate bills for new registration
+                $this->generateBillsForRegistration($registration);
             }
 
             // 3. Emergency Contacts
@@ -424,6 +469,11 @@ class RegistrationManager extends Component
         broadcast(new NotificationSent($message, $type))->toOthers();
         DatabaseUpdated::dispatch();
         $this->closeModal();
+    }
+
+    private function generateBillsForRegistration($registration)
+    {
+        $registration->syncBills();
     }
 
     public function deleteRegistration($id)
