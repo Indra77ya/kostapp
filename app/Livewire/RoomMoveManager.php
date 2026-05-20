@@ -239,6 +239,9 @@ class RoomMoveManager extends Component
             // 3. Update Room Statuses
             Room::where('id', $oldRoomId)->update(['status' => 'available']);
             Room::where('id', $this->new_room_id)->update(['status' => 'occupied']);
+
+            // Sync bills for the new room/pricing
+            $registration->syncBills();
         });
 
         $message = "Perpindahan kamar berhasil diproses.";

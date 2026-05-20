@@ -435,6 +435,9 @@ class RegistrationManager extends Component
                     $data['photo_family_card'] = $this->photo_family_card->store('registrations/family_card', 'public');
                 }
                 $registration->update($data);
+
+                // Sync bills for updated registration
+                $registration->syncBills();
             } else {
                 if ($this->photo_self) {
                     $path = $this->photo_self->store('registrations/self', 'public');
@@ -470,60 +473,7 @@ class RegistrationManager extends Component
 
     private function generateBillsForRegistration($registration)
     {
-        $startDate = Carbon::parse($registration->stay_start_date);
-        $count = (int) $registration->duration_value;
-
-        if ($registration->is_open_ended) {
-            // For open-ended, generate bills for 12 cycles (standard practice for "until exit")
-            $count = 12;
-        }
-
-        for ($i = 0; $i < $count; $i++) {
-            $billDate = clone $startDate;
-            $description = "Tagihan Sewa Kamar";
-
-            switch ($registration->duration_type) {
-                case 'daily':
-                    $billDate->addDays($i);
-                    $description .= " (Harian: " . $billDate->format('d M Y') . ")";
-                    break;
-                case 'weekly':
-                    $billDate->addWeeks($i);
-                    $description .= " (Mingguan: " . $billDate->format('d M Y') . ")";
-                    break;
-                case 'yearly':
-                    $billDate->addYears($i);
-                    $description .= " (Tahunan: " . $billDate->format('Y') . ")";
-                    break;
-                default: // monthly
-                    $billDate->addMonths($i);
-                    $description .= " (" . $billDate->translatedFormat('F Y') . ")";
-                    break;
-            }
-
-            $billNumber = 'BILL-' . $registration->id . '-' . $billDate->format('dmY') . '-' . str_pad($i + 1, 2, '0', STR_PAD_LEFT);
-
-            $billAmount = (float) $registration->room_price;
-            $billDiscount = 0;
-            if ($registration->is_discount_open_ended || $i < (int) $registration->discount_duration) {
-                if ($registration->discount_type === 'percent') {
-                    $billDiscount = ($billAmount * ((float) $registration->discount_value / 100));
-                } else {
-                    $billDiscount = (float) $registration->discount_value;
-                }
-            }
-            $billAmount = max(0, $billAmount - $billDiscount);
-
-            Bill::create([
-                'registration_id' => $registration->id,
-                'bill_number' => $billNumber,
-                'description' => $description,
-                'discount' => $billDiscount,
-                'amount' => $billAmount,
-                'due_date' => $billDate,
-                'status' => 'Belum Lunas',
-            ]);
-        }
+        $registration->syncBills();
     }
 
     public function deleteRegistration($id)
