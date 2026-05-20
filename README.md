@@ -1,14 +1,10 @@
 # KostApp - Sistem Manajemen Kost Modern & Real-Time
 
-[![Laravel](https://img.shields.io/badge/Laravel-11-FF2D20?style=for-the-badge&logo=laravel)](https://laravel.com)
-[![Livewire](https://img.shields.io/badge/Livewire-3-FB70A9?style=for-the-badge&logo=livewire)](https://livewire.laravel.com)
-[![Reverb](https://img.shields.io/badge/Laravel-Reverb-00D1FF?style=for-the-badge&logo=laravel)](https://laravel.com/docs/11.x/reverb)
-
-**KostApp** adalah solusi manajemen operasional rumah kost yang dirancang untuk memberikan kemudahan bagi pemilik (Owner) dan efisiensi bagi pengelola (Admin). Dibangun dengan teknologi terbaru, aplikasi ini menawarkan pengalaman pengguna yang interaktif dan responsif secara *real-time*.
+KostApp adalah solusi manajemen operasional rumah kost yang dirancang untuk memberikan kemudahan bagi pemilik (Owner) dan efisiensi bagi pengelola (Admin). Dibangun dengan teknologi terbaru, aplikasi ini menawarkan pengalaman pengguna yang interaktif dan responsif secara real-time.
 
 ---
 
-## 🌟 Fitur Utama (Modul Lengkap)
+## Fitur Utama (Modul Lengkap)
 
 Aplikasi ini mencakup seluruh siklus manajemen kost, mulai dari manajemen aset hingga operasional harian:
 
@@ -53,9 +49,9 @@ Aplikasi ini mencakup seluruh siklus manajemen kost, mulai dari manajemen aset h
 
 ---
 
-## 🖼️ Tampilan Aplikasi (Screenshots)
+## Tampilan Aplikasi (Screenshots)
 
-> *Ganti placeholder di bawah ini dengan gambar asli aplikasi Anda untuk presentasi yang lebih baik.*
+> Ganti placeholder di bawah ini dengan gambar asli aplikasi Anda untuk presentasi yang lebih baik.
 
 | Dashboard Utama | Daftar Kamar | Konfirmasi Bayar |
 | :---: | :---: | :---: |
@@ -63,7 +59,7 @@ Aplikasi ini mencakup seluruh siklus manajemen kost, mulai dari manajemen aset h
 
 ---
 
-## 🏗️ Arsitektur & Teknologi
+## Arsitektur & Teknologi
 
 ### Logika Bisnis Utama
 1.  **Sinkronisasi Status Kamar**: Sistem menjamin integritas data kamar. Saat pendaftaran (Check-in) berhasil, status kamar otomatis berubah menjadi `occupied`. Saat Check-out atau penghapusan data registrasi, status kembali ke `available`.
@@ -85,9 +81,9 @@ Aplikasi ini mencakup seluruh siklus manajemen kost, mulai dari manajemen aset h
 
 ---
 
-## ⚙️ Pengaturan & Pemeliharaan Sistem
+## Pengaturan & Pemeliharaan Sistem
 
-Aplikasi ini dilengkapi dengan modul **Pengaturan Sistem** (khusus Owner/Developer) untuk menjaga keberlangsungan data:
+Aplikasi ini dilengkapi dengan modul Pengaturan Sistem (khusus Owner/Developer) untuk menjaga keberlangsungan data:
 
 -   **Statistik Data**: Melihat jumlah total User, Lokasi, Kamar, Fasilitas, dan Aturan.
 -   **Backup Data**: Membuat file `.zip` yang berisi database dan seluruh foto unggahan (KTP, Foto Kamar, dll).
@@ -96,7 +92,7 @@ Aplikasi ini dilengkapi dengan modul **Pengaturan Sistem** (khusus Owner/Develop
 
 ---
 
-## 🛠️ Panduan Instalasi (Lokal)
+## Panduan Instalasi (Lokal)
 
 ### Persyaratan
 - PHP >= 8.2
@@ -130,7 +126,7 @@ Aplikasi ini dilengkapi dengan modul **Pengaturan Sistem** (khusus Owner/Develop
 
 ---
 
-## 🚦 Menjalankan Aplikasi
+## Menjalankan Aplikasi
 
 Untuk fitur real-time, jalankan 3 perintah ini di terminal terpisah:
 1.  **Web Server**: `php artisan serve`
@@ -142,11 +138,11 @@ Akses di: `http://127.0.0.1:8000`
 
 ---
 
-## 🌐 Panduan Deployment (Produksi)
+## Panduan Deployment (Produksi)
 
 1.  Gunakan **Nginx** sebagai reverse proxy untuk port 80/443 ke port Reverb (8080).
 2.  Gunakan **Supervisor** untuk menjaga `reverb:start` dan `queue:work` tetap berjalan di latar belakang.
 3.  Pastikan `APP_DEBUG=false` dan `APP_URL` sudah sesuai di file `.env`.
 
 ---
-Dibuat dengan ❤️ untuk efisiensi bisnis Kost Anda.
+Dibuat untuk efisiensi bisnis Kost Anda.
