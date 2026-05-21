@@ -20,6 +20,13 @@ class PaymentConfirmationManager extends Component
     public $selectedPaymentId;
     public $isDetailModalOpen = false;
 
+    public function getListeners()
+    {
+        return [
+            'echo:stats,DatabaseUpdated' => '$refresh',
+        ];
+    }
+
     public function approve($id)
     {
         $payment = Payment::find($id);

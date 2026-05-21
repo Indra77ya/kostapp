@@ -248,7 +248,7 @@ class RoomMoveManager extends Component
         $type = 'success';
         $this->dispatch('notify', message: $message, type: $type);
         broadcast(new NotificationSent($message, $type))->toOthers();
-        DatabaseUpdated::dispatch();
+        DatabaseUpdated::dispatch($registration->user_id);
         $this->closeModal();
     }
 

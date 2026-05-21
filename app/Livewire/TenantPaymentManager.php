@@ -139,7 +139,7 @@ class TenantPaymentManager extends Component
 
         $this->dispatch('notify', message: 'Pembayaran berhasil dikirim. Menunggu konfirmasi admin.', type: 'success');
         broadcast(new NotificationSent('Pembayaran baru dikirim oleh penghuni.', 'info'))->toOthers();
-        DatabaseUpdated::dispatch();
+        DatabaseUpdated::dispatch(Auth::id());
 
         $this->closeModal();
     }
