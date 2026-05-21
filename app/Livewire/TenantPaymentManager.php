@@ -27,6 +27,14 @@ class TenantPaymentManager extends Component
     public $bill_id, $payment_method_id, $payment_date, $amount, $notes, $proof_of_payment;
     public $payment_number;
 
+    public function getListeners()
+    {
+        $userId = Auth::id();
+        return [
+            "echo-private:App.Models.User.{$userId},DatabaseUpdated" => '$refresh',
+        ];
+    }
+
     public function mount()
     {
         $this->payment_date = Carbon::now()->format('Y-m-d');

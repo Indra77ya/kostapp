@@ -59,9 +59,10 @@ class PaymentConfirmationManager extends Component
         $this->dispatch('notify', message: 'Pembayaran disetujui.', type: 'success');
 
         // Notify the tenant privately
-        broadcast(new NotificationSent($message, 'success', $payment->registration->user_id));
+        $tenantId = $payment->registration->user_id;
+        broadcast(new NotificationSent($message, 'success', $tenantId));
 
-        DatabaseUpdated::dispatch();
+        DatabaseUpdated::dispatch($tenantId);
     }
 
     public function reject($id)
@@ -78,7 +79,7 @@ class PaymentConfirmationManager extends Component
             // Notify the tenant privately
             broadcast(new NotificationSent("Pembayaran untuk {$billDescription} ditolak.", 'warning', $tenantId));
 
-            DatabaseUpdated::dispatch();
+            DatabaseUpdated::dispatch($tenantId);
         }
     }
 
