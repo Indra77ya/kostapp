@@ -114,6 +114,28 @@
                             <label class="form-label text-secondary small text-uppercase fw-bold">Peruntukan Tagihan</label>
                             <div class="h4">{{ $selectedPayment->bill ? $selectedPayment->bill->description : 'Pembayaran Umum' }}</div>
                         </div>
+                        @if($selectedPayment->bill)
+                        <div class="col-12">
+                            <div class="card bg-light border-0">
+                                <div class="card-body p-3">
+                                    <div class="row text-center">
+                                        <div class="col">
+                                            <div class="text-secondary small text-uppercase mb-1">Total Tagihan</div>
+                                            <div class="h4 mb-0">Rp {{ number_format($selectedPayment->bill->amount, 0, ',', '.') }}</div>
+                                        </div>
+                                        <div class="col border-start">
+                                            <div class="text-secondary small text-uppercase mb-1">Terbayar</div>
+                                            <div class="h4 mb-0 text-success">Rp {{ number_format($selectedPayment->bill->paid_amount, 0, ',', '.') }}</div>
+                                        </div>
+                                        <div class="col border-start">
+                                            <div class="text-secondary small text-uppercase mb-1">Sisa</div>
+                                            <div class="h4 mb-0 text-danger">Rp {{ number_format($selectedPayment->bill->remaining_amount, 0, ',', '.') }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
                         @if($selectedPayment->notes)
                         <div class="col-12">
                             <label class="form-label text-secondary small text-uppercase fw-bold">Catatan Penghuni</label>
@@ -124,7 +146,18 @@
                             <label class="form-label text-secondary small text-uppercase fw-bold">Bukti Pembayaran</label>
                             @if($selectedPayment->proof_of_payment)
                                 <div class="text-center mt-2">
-                                    <img src="{{ asset('storage/' . $selectedPayment->proof_of_payment) }}" class="img-fluid border rounded shadow-sm" style="max-height: 400px;">
+                                    <a href="{{ asset('storage/' . $selectedPayment->proof_of_payment) }}" target="_blank" class="d-block mb-2 text-decoration-none">
+                                        <small class="text-primary">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-inline" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" /></svg>
+                                            Klik untuk memperbesar (Tab Baru)
+                                        </small>
+                                    </a>
+                                    <a href="{{ asset('storage/' . $selectedPayment->proof_of_payment) }}" target="_blank">
+                                        <img src="{{ asset('storage/' . $selectedPayment->proof_of_payment) }}"
+                                             class="img-fluid border rounded shadow-sm cursor-pointer"
+                                             style="max-height: 400px;"
+                                             title="Klik untuk memperbesar (Tab Baru)">
+                                    </a>
                                 </div>
                             @else
                                 <div class="alert alert-warning">Tidak ada bukti pembayaran yang diunggah.</div>
@@ -134,6 +167,10 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-link link-secondary" wire:click="closeModal()">Tutup</button>
+                    <a href="{{ route('payments.invoice', $selectedPayment->id) }}" target="_blank" class="btn btn-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-printer" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" /><path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" /><path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" /></svg>
+                        Cetak Kuitansi
+                    </a>
                     <button type="button" class="btn btn-success ms-auto" wire:click="approve({{ $selectedPayment->id }}); closeModal()">Setujui Pembayaran</button>
                 </div>
                 @endif
