@@ -42,6 +42,21 @@
             @if(session('error')) showNotification(@json(session('error')), 'error'); @endif
             @if(session('info')) showNotification(@json(session('info')), 'info'); @endif
             @if(session('warning')) showNotification(@json(session('warning')), 'warning'); @endif
+
+            // Handle Echo for toasts
+            if (window.Echo) {
+                window.Echo.channel('notifications')
+                    .listen('NotificationSent', (e) => {
+                        showNotification(e.message, e.type);
+                    });
+
+                @if(auth()->check())
+                window.Echo.private("App.Models.User.{{ auth()->id() }}")
+                    .listen('NotificationSent', (e) => {
+                        showNotification(e.message, e.type);
+                    });
+                @endif
+            }
         });
     </script>
     @endscript

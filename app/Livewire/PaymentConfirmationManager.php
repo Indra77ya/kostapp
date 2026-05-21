@@ -53,8 +53,14 @@ class PaymentConfirmationManager extends Component
             }
         });
 
+        $billDescription = $payment->bill ? $payment->bill->description : 'Pembayaran Umum';
+        $message = "Pembayaran untuk {$billDescription} telah disetujui.";
+
         $this->dispatch('notify', message: 'Pembayaran disetujui.', type: 'success');
-        broadcast(new NotificationSent('Pembayaran disetujui.', 'success'))->toOthers();
+
+        // Notify the tenant privately
+        broadcast(new NotificationSent($message, 'success', $payment->registration->user_id));
+
         DatabaseUpdated::dispatch();
     }
 
@@ -62,9 +68,16 @@ class PaymentConfirmationManager extends Component
     {
         $payment = Payment::find($id);
         if ($payment) {
+            $billDescription = $payment->bill ? $payment->bill->description : 'Pembayaran Umum';
+            $tenantId = $payment->registration->user_id;
+
             $payment->delete();
+
             $this->dispatch('notify', message: 'Pembayaran ditolak dan dihapus.', type: 'info');
-            broadcast(new NotificationSent('Pembayaran ditolak.', 'info'))->toOthers();
+
+            // Notify the tenant privately
+            broadcast(new NotificationSent("Pembayaran untuk {$billDescription} ditolak.", 'warning', $tenantId));
+
             DatabaseUpdated::dispatch();
         }
     }
