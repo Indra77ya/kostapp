@@ -212,22 +212,22 @@
                                     </div>
                                     @if($selectedPm->category !== 'Tunai')
                                         <div class="row g-2 small">
-                                            <div class="col-4 text-secondary">Nama Bank/App:</div>
-                                            <div class="col-8 fw-bold">{{ $selectedPm->name }}</div>
-                                            <div class="col-4 text-secondary">No. Rekening/ID:</div>
-                                            <div class="col-8 fw-bold">{{ $selectedPm->account_number }}</div>
-                                            <div class="col-4 text-secondary">Atas Nama:</div>
-                                            <div class="col-8 fw-bold">{{ $selectedPm->account_name }}</div>
+                                            <div class="col-4 text-dark">Nama Bank/App:</div>
+                                            <div class="col-8 fw-bold text-dark">{{ $selectedPm->name }}</div>
+                                            <div class="col-4 text-dark">No. Rekening/ID:</div>
+                                            <div class="col-8 fw-bold text-dark">{{ $selectedPm->account_number }}</div>
+                                            <div class="col-4 text-dark">Atas Nama:</div>
+                                            <div class="col-8 fw-bold text-dark">{{ $selectedPm->account_name }}</div>
                                         </div>
                                     @else
-                                        <div class="small text-secondary">
+                                        <div class="small text-dark">
                                             Silakan serahkan pembayaran tunai langsung kepada pengelola kost.
                                         </div>
                                     @endif
                                     @if($selectedPm->instructions)
                                         <div class="mt-2 small border-top pt-2">
-                                            <div class="text-secondary mb-1">Instruksi:</div>
-                                            <div class="instructions-content">{!! $selectedPm->instructions !!}</div>
+                                            <div class="text-dark fw-bold mb-1">Instruksi:</div>
+                                            <div class="instructions-content text-dark">{!! $selectedPm->instructions !!}</div>
                                         </div>
                                     @endif
                                 </div>
