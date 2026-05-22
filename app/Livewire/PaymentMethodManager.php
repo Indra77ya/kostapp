@@ -73,6 +73,7 @@ class PaymentMethodManager extends Component
         }
 
         $this->isModalOpen = true;
+        $this->dispatch('isModalOpenChanged');
     }
 
     public function closeModal()

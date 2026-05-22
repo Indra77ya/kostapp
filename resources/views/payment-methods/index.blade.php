@@ -3,6 +3,10 @@
 @section('title', 'Manajemen Metode Pembayaran')
 @section('page_title', '')
 
+@push('scripts')
+<script src="https://cdn.ckeditor.com/ckeditor5/41.1.0/classic/ckeditor.js"></script>
+@endpush
+
 @section('content')
     @livewire('payment-method-manager')
 @endsection

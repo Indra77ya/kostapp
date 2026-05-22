@@ -17,11 +17,7 @@ class FacilityManagerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-
-        // Seed roles if not exists
-        if (Role::count() === 0) {
-            Role::create(['name' => 'owner']);
-        }
+        $this->seed(\Database\Seeders\RoleSeeder::class);
     }
 
     public function test_facility_manager_is_accessible_by_owner()

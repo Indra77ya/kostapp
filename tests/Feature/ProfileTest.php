@@ -17,10 +17,7 @@ class ProfileTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        if (Role::count() === 0) {
-            Role::create(['name' => 'owner']);
-            Role::create(['name' => 'admin']);
-        }
+        $this->seed(\Database\Seeders\RoleSeeder::class);
     }
 
     public function test_profile_page_is_accessible()
