@@ -25,6 +25,7 @@ class TenantPaymentManager extends Component
 
     // Form fields
     public $bill_id, $payment_method_id, $payment_date, $amount, $notes, $proof_of_payment;
+    public $sender_bank_name, $sender_account_number, $sender_account_name;
     public $payment_number;
 
     public function getListeners()
@@ -101,17 +102,31 @@ class TenantPaymentManager extends Component
         $this->amount = null;
         $this->notes = null;
         $this->proof_of_payment = null;
+        $this->sender_bank_name = null;
+        $this->sender_account_number = null;
+        $this->sender_account_name = null;
         $this->generatePaymentNumber();
     }
 
     public function savePayment()
     {
-        $this->validate([
+        $pm = PaymentMethod::find($this->payment_method_id);
+        $isTunai = $pm && $pm->category === 'Tunai';
+
+        $rules = [
             'payment_method_id' => 'required|exists:payment_methods,id',
             'payment_date' => 'required|date',
             'amount' => 'required|numeric|min:0',
-            'proof_of_payment' => 'required|image|max:2048',
-        ]);
+            'proof_of_payment' => $isTunai ? 'nullable|image|max:2048' : 'required|image|max:2048',
+        ];
+
+        if (!$isTunai) {
+            $rules['sender_bank_name'] = 'required';
+            $rules['sender_account_number'] = 'required';
+            $rules['sender_account_name'] = 'required';
+        }
+
+        $this->validate($rules);
 
         $registration = Registration::where('user_id', Auth::id())->where('status', 'active')->first();
 
@@ -127,6 +142,9 @@ class TenantPaymentManager extends Component
             'payment_number' => $this->payment_number,
             'payment_date' => $this->payment_date,
             'amount' => $this->amount,
+            'sender_bank_name' => $this->sender_bank_name,
+            'sender_account_number' => $this->sender_account_number,
+            'sender_account_name' => $this->sender_account_name,
             'notes' => $this->notes,
             'status' => 'Menunggu Konfirmasi',
         ];
@@ -165,11 +183,14 @@ class TenantPaymentManager extends Component
                 ->paginate(10);
         }
 
+        $selectedPm = $this->payment_method_id ? PaymentMethod::find($this->payment_method_id) : null;
+
         return view('livewire.tenant-payment-manager', [
             'registration' => $registration,
             'bills' => $bills,
             'payments' => $payments,
             'paymentMethods' => PaymentMethod::where('is_active', true)->get(),
+            'selectedPm' => $selectedPm,
         ]);
     }
 }

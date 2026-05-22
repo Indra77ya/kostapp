@@ -114,6 +114,30 @@
                             <label class="form-label text-secondary small text-uppercase fw-bold">Peruntukan Tagihan</label>
                             <div class="h4">{{ $selectedPayment->bill ? $selectedPayment->bill->description : 'Pembayaran Umum' }}</div>
                         </div>
+
+                        @if($selectedPayment->sender_bank_name)
+                        <div class="col-12">
+                            <div class="card bg-azure-lt border-0">
+                                <div class="card-body p-3">
+                                    <label class="form-label text-azure small text-uppercase fw-bold mb-2">Informasi Pengirim (Bank Asal)</label>
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <div class="text-secondary small">Nama Bank:</div>
+                                            <div class="fw-bold">{{ $selectedPayment->sender_bank_name }}</div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="text-secondary small">No. Rekening:</div>
+                                            <div class="fw-bold">{{ $selectedPayment->sender_account_number }}</div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="text-secondary small">Atas Nama:</div>
+                                            <div class="fw-bold">{{ $selectedPayment->sender_account_name }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
                         @if($selectedPayment->bill)
                         <div class="col-12">
                             <div class="card bg-light border-0">
