@@ -246,21 +246,21 @@
                         @if($selectedPm && $selectedPm->category !== 'Tunai')
                         <div class="card border-dashed mb-3">
                             <div class="card-body p-3">
-                                <div class="mb-2"><strong>Data Bank/Pengirim Anda:</strong></div>
+                                <div class="mb-2"><strong>Data {{ $selectedPm->category === 'E-Wallet' ? 'E-Wallet' : 'Bank' }}/Pengirim Anda:</strong></div>
                                 <div class="mb-2">
-                                    <label class="form-label required small mb-1">Nama Bank Asal</label>
-                                    <input type="text" class="form-control form-control-sm @error('sender_bank_name') is-invalid @enderror" wire:model="sender_bank_name" placeholder="Contoh: BCA, Mandiri, GoPay">
+                                    <label class="form-label required small mb-1">{{ $selectedPm->category === 'E-Wallet' ? 'Nama Aplikasi E-Wallet' : 'Nama Bank Asal' }}</label>
+                                    <input type="text" class="form-control form-control-sm @error('sender_bank_name') is-invalid @enderror" wire:model="sender_bank_name" placeholder="{{ $selectedPm->category === 'E-Wallet' ? 'Contoh: GoPay, OVO, Dana' : 'Contoh: BCA, Mandiri, BNI' }}">
                                     @error('sender_bank_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
                                 <div class="row g-2">
                                     <div class="col-6 mb-2">
-                                        <label class="form-label required small mb-1">No. Rekening Asal</label>
-                                        <input type="text" class="form-control form-control-sm @error('sender_account_number') is-invalid @enderror" wire:model="sender_account_number" placeholder="Nomor rekening anda">
+                                        <label class="form-label required small mb-1">{{ $selectedPm->category === 'E-Wallet' ? 'No. HP / ID E-Wallet' : 'No. Rekening Asal' }}</label>
+                                        <input type="text" class="form-control form-control-sm @error('sender_account_number') is-invalid @enderror" wire:model="sender_account_number" placeholder="{{ $selectedPm->category === 'E-Wallet' ? 'Nomor HP anda' : 'Nomor rekening anda' }}">
                                         @error('sender_account_number') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                     </div>
                                     <div class="col-6 mb-2">
-                                        <label class="form-label required small mb-1">Nama Pemilik Rekening</label>
-                                        <input type="text" class="form-control form-control-sm @error('sender_account_name') is-invalid @enderror" wire:model="sender_account_name" placeholder="Nama di rekening">
+                                        <label class="form-label required small mb-1">Nama Pemilik {{ $selectedPm->category === 'E-Wallet' ? 'Akun' : 'Rekening' }}</label>
+                                        <input type="text" class="form-control form-control-sm @error('sender_account_name') is-invalid @enderror" wire:model="sender_account_name" placeholder="Nama anda">
                                         @error('sender_account_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                     </div>
                                 </div>

@@ -348,6 +348,37 @@
                                 <label class="form-label">Status</label>
                                 <input type="text" class="form-control bg-light font-weight-bold" wire:model="status" readonly>
                             </div>
+
+                            @php
+                                $selectedPm = \App\Models\PaymentMethod::find($payment_method_id);
+                            @endphp
+
+                            @if($selectedPm && $selectedPm->category !== 'Tunai')
+                                <div class="col-12 mt-2">
+                                    <div class="card bg-azure-lt border-0 shadow-none">
+                                        <div class="card-body p-3">
+                                            <div class="mb-3"><strong>Data {{ $selectedPm->category === 'E-Wallet' ? 'E-Wallet' : 'Bank' }} / Pengirim:</strong></div>
+                                            <div class="row g-3">
+                                                <div class="col-md-4">
+                                                    <label class="form-label small mb-1">{{ $selectedPm->category === 'E-Wallet' ? 'Nama Aplikasi' : 'Nama Bank Asal' }}</label>
+                                                    <input type="text" class="form-control form-control-sm @error('sender_bank_name') is-invalid @enderror" wire:model="sender_bank_name">
+                                                    @error('sender_bank_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="form-label small mb-1">{{ $selectedPm->category === 'E-Wallet' ? 'No. HP / ID' : 'No. Rekening Asal' }}</label>
+                                                    <input type="text" class="form-control form-control-sm @error('sender_account_number') is-invalid @enderror" wire:model="sender_account_number">
+                                                    @error('sender_account_number') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="form-label small mb-1">Nama Pemilik {{ $selectedPm->category === 'E-Wallet' ? 'Akun' : 'Rekening' }}</label>
+                                                    <input type="text" class="form-control form-control-sm @error('sender_account_name') is-invalid @enderror" wire:model="sender_account_name">
+                                                    @error('sender_account_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
                         </div>
 
                         <div class="modal-footer px-0 pb-0 mt-3">

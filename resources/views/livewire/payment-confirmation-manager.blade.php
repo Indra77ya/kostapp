@@ -119,14 +119,18 @@
                         <div class="col-12">
                             <div class="card bg-azure-lt border-0">
                                 <div class="card-body p-3">
-                                    <label class="form-label text-azure small text-uppercase fw-bold mb-2">Informasi Pengirim (Bank Asal)</label>
+                                    @php
+                                        $pmCategory = $selectedPayment->paymentMethod->category;
+                                        $isEwallet = $pmCategory === 'E-Wallet';
+                                    @endphp
+                                    <label class="form-label text-azure small text-uppercase fw-bold mb-2">Informasi Pengirim ({{ $isEwallet ? 'E-Wallet' : 'Bank Asal' }})</label>
                                     <div class="row g-3">
                                         <div class="col-md-4">
-                                            <div class="text-secondary small">Nama Bank:</div>
+                                            <div class="text-secondary small">{{ $isEwallet ? 'Nama Aplikasi' : 'Nama Bank' }}:</div>
                                             <div class="fw-bold">{{ $selectedPayment->sender_bank_name }}</div>
                                         </div>
                                         <div class="col-md-4">
-                                            <div class="text-secondary small">No. Rekening:</div>
+                                            <div class="text-secondary small">{{ $isEwallet ? 'No. HP / ID' : 'No. Rekening' }}:</div>
                                             <div class="fw-bold">{{ $selectedPayment->sender_account_number }}</div>
                                         </div>
                                         <div class="col-md-4">

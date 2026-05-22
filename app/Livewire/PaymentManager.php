@@ -37,6 +37,7 @@ class PaymentManager extends Component
     public $registration_id, $bill_id, $payment_method_id, $payment_number;
     public $payment_date, $amount, $notes, $status = 'Lunas';
     public $proof_of_payment;
+    public $sender_bank_name, $sender_account_number, $sender_account_name;
 
     // Form fields (Bill)
     public $bill_number, $bill_description, $bill_discount = 0, $bill_amount, $bill_due_date;
@@ -199,6 +200,9 @@ class PaymentManager extends Component
             $this->payment_date = $payment->payment_date->format('Y-m-d');
             $this->amount = $payment->amount;
             $this->notes = $payment->notes;
+            $this->sender_bank_name = $payment->sender_bank_name;
+            $this->sender_account_number = $payment->sender_account_number;
+            $this->sender_account_name = $payment->sender_account_name;
             $this->calculateStatus();
         } else {
             if ($this->viewMode === 'history' && $this->selectedRegistrationId) {
@@ -275,6 +279,9 @@ class PaymentManager extends Component
         $this->notes = null;
         $this->status = 'Lunas';
         $this->proof_of_payment = null;
+        $this->sender_bank_name = null;
+        $this->sender_account_number = null;
+        $this->sender_account_name = null;
         $this->generatePaymentNumber();
     }
 
@@ -311,6 +318,9 @@ class PaymentManager extends Component
                 'amount' => $this->amount,
                 'notes' => $this->notes,
                 'status' => $this->status,
+                'sender_bank_name' => $this->sender_bank_name,
+                'sender_account_number' => $this->sender_account_number,
+                'sender_account_name' => $this->sender_account_name,
             ];
 
             $oldBillId = null;
