@@ -16,6 +16,7 @@
         .info-box:last-child { text-align: right; }
         .info-title { font-size: 12px; color: #6b7280; text-transform: uppercase; font-weight: 600; margin-bottom: 5px; }
         .info-value { font-size: 15px; color: #111827; font-weight: 500; }
+        .info-value.small { font-size: 13px; color: #4b5563; }
 
         .receipt-body { background: #f9fafb; padding: 25px; border-radius: 8px; margin-bottom: 20px; }
         .receipt-row { display: flex; margin-bottom: 15px; border-bottom: 1px dashed #e5e7eb; padding-bottom: 8px; }
@@ -76,6 +77,16 @@
                 <div class="info-value">{{ $payment->registration->user->name }}</div>
                 <div class="info-value">{{ $payment->registration->location->name }}</div>
                 <div class="info-value">Kamar {{ $payment->registration->room->room_number }}</div>
+                @if($payment->sender_bank_name)
+                    <div style="margin-top: 10px;">
+                        <div class="info-title">Detail Pengirim</div>
+                        <div class="info-value small">
+                            {{ $payment->paymentMethod->category === 'E-Wallet' ? 'E-Wallet' : 'Bank' }}: {{ $payment->sender_bank_name }}<br>
+                            {{ $payment->paymentMethod->category === 'E-Wallet' ? 'No. HP / ID' : 'No. Rekening' }}: {{ $payment->sender_account_number }}<br>
+                            A/N: {{ $payment->sender_account_name }}
+                        </div>
+                    </div>
+                @endif
             </div>
             <div class="info-box">
                 <div class="info-title">Nomor Kuitansi</div>

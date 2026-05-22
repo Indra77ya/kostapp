@@ -309,7 +309,7 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label required">Metode Pembayaran</label>
-                                <select class="form-select @error('payment_method_id') is-invalid @enderror" wire:model="payment_method_id">
+                                <select class="form-select @error('payment_method_id') is-invalid @enderror" wire:model.live="payment_method_id">
                                     <option value="">Pilih Metode</option>
                                     @foreach($paymentMethods as $pm)
                                         <option value="{{ $pm->id }}">{{ $pm->name }}</option>
