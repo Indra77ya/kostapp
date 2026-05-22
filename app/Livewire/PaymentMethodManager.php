@@ -187,7 +187,9 @@ class PaymentMethodManager extends Component
             $query->where('is_active', $this->filterStatus);
         }
 
-        $categories = PaymentMethod::distinct()->pluck('category')->filter()->sort();
+        $defaults = collect(['Bank', 'E-Wallet', 'Tunai']);
+        $existing = PaymentMethod::distinct()->pluck('category')->filter();
+        $categories = $defaults->concat($existing)->unique()->sort();
 
         return view('livewire.payment-method-manager', [
             'paymentMethods' => $query->orderBy('category')->orderBy('name')->paginate(12),

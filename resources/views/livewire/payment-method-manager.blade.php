@@ -215,9 +215,6 @@
                                         @foreach($categories as $cat)
                                             <option value="{{ $cat }}">
                                         @endforeach
-                                        <option value="Bank">
-                                        <option value="E-Wallet">
-                                        <option value="Tunai">
                                     </datalist>
                                     @error('category') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
