@@ -215,9 +215,6 @@
                                         @foreach($categories as $cat)
                                             <option value="{{ $cat }}">
                                         @endforeach
-                                        <option value="Bank">
-                                        <option value="E-Wallet">
-                                        <option value="Tunai">
                                     </datalist>
                                     @error('category') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
@@ -239,9 +236,9 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="mb-3">
+                        <div class="mb-3" wire:ignore>
                             <label class="form-label">Instruksi Pembayaran</label>
-                            <textarea class="form-control @error('instructions') is-invalid @enderror" rows="3" wire:model="instructions" placeholder="Jelaskan cara melakukan pembayaran..."></textarea>
+                            <textarea id="payment-method-instructions" class="form-control @error('instructions') is-invalid @enderror" rows="3" wire:model="instructions" placeholder="Jelaskan cara melakukan pembayaran..."></textarea>
                             @error('instructions') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
                         <div class="mb-3">
@@ -262,4 +259,58 @@
             </div>
         </div>
     </div>
+
+    @script
+    <script>
+        let editorInstance;
+
+        const initEditor = () => {
+            if (typeof ClassicEditor === 'undefined') return;
+
+            ClassicEditor
+                .create(document.querySelector('#payment-method-instructions'), {
+                    toolbar: [ 'undo', 'redo', '|', 'heading', '|', 'bold', 'italic', '|', 'bulletedList', 'numberedList', 'outdent', 'indent', '|', 'blockQuote', 'insertTable', 'mediaEmbed', 'help' ]
+                })
+                .then(editor => {
+                    editorInstance = editor;
+
+                    // Set initial content
+                    editor.setData($wire.instructions || '');
+
+                    // Sync with Livewire on change
+                    editor.model.document.on('change:data', () => {
+                        $wire.instructions = editor.getData();
+                    });
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        };
+
+        // Initialize on first load
+        initEditor();
+
+        // Re-initialize or update content when modal opens
+        $wire.on('isModalOpenChanged', () => {
+            if ($wire.isModalOpen) {
+                setTimeout(() => {
+                    if (editorInstance) {
+                        editorInstance.setData($wire.instructions || '');
+                    } else {
+                        initEditor();
+                    }
+                }, 100);
+            }
+        });
+
+        // Cleanup on component destroy
+        return () => {
+            if (editorInstance) {
+                editorInstance.destroy()
+                    .then(() => editorInstance = null)
+                    .catch(error => console.error(error));
+            }
+        }
+    </script>
+    @endscript
 </div>

@@ -242,7 +242,7 @@
                                 </a>
                                 @if($payment->proof_of_payment)
                                 <a href="{{ asset('storage/' . $payment->proof_of_payment) }}" target="_blank" class="btn btn-white btn-sm" title="Bukti Pembayaran">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-photo" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8h.01" /><path d="M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z" /><path d="M3 16l5 -5c.928 -.893 2.42 -.893 3.348 0l4.152 4.152" /><path d="M14 14l1 -1c.928 -.893 2.42 -.893 3.348 0l2.652 2.652" /></svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-receipt" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16l-3 -2l-2 2l-2 -2l-2 2l-2 -2l-3 2m4 -14h6m-6 4h6m-2 4h2" /></svg>
                                 </a>
                                 @endif
                                 <button class="btn btn-white btn-sm" wire:click="openModal({{ $payment->id }})">Edit</button>
@@ -309,7 +309,7 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label required">Metode Pembayaran</label>
-                                <select class="form-select @error('payment_method_id') is-invalid @enderror" wire:model="payment_method_id">
+                                <select class="form-select @error('payment_method_id') is-invalid @enderror" wire:model.live="payment_method_id">
                                     <option value="">Pilih Metode</option>
                                     @foreach($paymentMethods as $pm)
                                         <option value="{{ $pm->id }}">{{ $pm->name }}</option>
@@ -348,6 +348,37 @@
                                 <label class="form-label">Status</label>
                                 <input type="text" class="form-control bg-light font-weight-bold" wire:model="status" readonly>
                             </div>
+
+                            @php
+                                $selectedPm = \App\Models\PaymentMethod::find($payment_method_id);
+                            @endphp
+
+                            @if($selectedPm && $selectedPm->category !== 'Tunai')
+                                <div class="col-12 mt-2">
+                                    <div class="card bg-azure-lt border-0 shadow-none">
+                                        <div class="card-body p-3">
+                                            <div class="mb-3"><strong>Data {{ $selectedPm->category === 'E-Wallet' ? 'E-Wallet' : 'Bank' }} / Pengirim:</strong></div>
+                                            <div class="row g-3">
+                                                <div class="col-md-4">
+                                                    <label class="form-label small mb-1">{{ $selectedPm->category === 'E-Wallet' ? 'Nama Aplikasi' : 'Nama Bank Asal' }}</label>
+                                                    <input type="text" class="form-control form-control-sm @error('sender_bank_name') is-invalid @enderror" wire:model="sender_bank_name">
+                                                    @error('sender_bank_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="form-label small mb-1">{{ $selectedPm->category === 'E-Wallet' ? 'No. HP / ID' : 'No. Rekening Asal' }}</label>
+                                                    <input type="text" class="form-control form-control-sm @error('sender_account_number') is-invalid @enderror" wire:model="sender_account_number">
+                                                    @error('sender_account_number') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="form-label small mb-1">Nama Pemilik {{ $selectedPm->category === 'E-Wallet' ? 'Akun' : 'Rekening' }}</label>
+                                                    <input type="text" class="form-control form-control-sm @error('sender_account_name') is-invalid @enderror" wire:model="sender_account_name">
+                                                    @error('sender_account_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
                         </div>
 
                         <div class="modal-footer px-0 pb-0 mt-3">

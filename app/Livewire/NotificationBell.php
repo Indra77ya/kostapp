@@ -9,10 +9,15 @@ class NotificationBell extends Component
     public $notifications = [];
     public $unreadCount = 0;
 
-    protected $listeners = [
-        'echo:notifications,NotificationSent' => 'addNotification',
-        'notify' => 'addNotification'
-    ];
+    public function getListeners()
+    {
+        $userId = auth()->id();
+        return [
+            "echo:notifications,NotificationSent" => 'addNotification',
+            "echo-private:App.Models.User.{$userId},NotificationSent" => 'addNotification',
+            'notify' => 'addNotification'
+        ];
+    }
 
     public function addNotification($message = null, $type = 'info')
     {
@@ -22,8 +27,11 @@ class NotificationBell extends Component
         }
 
         // Only store info and warning notifications in the bell
+        // EXCEPTION: Allow success notifications for payment confirmations
         if (in_array($type, ['success', 'error', 'danger'])) {
-            return;
+            if ($type !== 'success' || !str_contains(strtolower($message), 'pembayaran')) {
+                return;
+            }
         }
 
         array_unshift($this->notifications, [

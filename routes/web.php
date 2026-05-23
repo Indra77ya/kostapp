@@ -33,8 +33,6 @@ Route::middleware('auth')->group(function () {
             return view('tenants.index');
         })->name('tenants.index');
 
-        Route::get('/registrations/{registration}/invoice', [InvoiceController::class, 'show'])->name('registrations.invoice');
-
         Route::get('/check-outs', function () {
             return view('check-outs.index');
         })->name('check-outs.index');
@@ -51,9 +49,6 @@ Route::middleware('auth')->group(function () {
             Route::get('/payments/confirmation', function () {
                 return view('payments.confirmation');
             })->name('payments.confirmation');
-
-            Route::get('/bills/{bill}/invoice', [InvoiceController::class, 'billInvoice'])->name('bills.invoice');
-            Route::get('/payments/{payment}/invoice', [InvoiceController::class, 'paymentInvoice'])->name('payments.invoice');
 
             Route::get('/locations', function () {
                 return view('locations.index');
@@ -90,6 +85,11 @@ Route::middleware('auth')->group(function () {
             return view('tenant.payments');
         })->name('tenant.payments');
     });
+
+    // Publicly accessible for all authenticated users but authorized in controller
+    Route::get('/registrations/{registration}/invoice', [InvoiceController::class, 'show'])->name('registrations.invoice');
+    Route::get('/bills/{bill}/invoice', [InvoiceController::class, 'billInvoice'])->name('bills.invoice');
+    Route::get('/payments/{payment}/invoice', [InvoiceController::class, 'paymentInvoice'])->name('payments.invoice');
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });

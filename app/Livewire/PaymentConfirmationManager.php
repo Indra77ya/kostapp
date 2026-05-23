@@ -20,6 +20,13 @@ class PaymentConfirmationManager extends Component
     public $selectedPaymentId;
     public $isDetailModalOpen = false;
 
+    public function getListeners()
+    {
+        return [
+            'echo:stats,DatabaseUpdated' => '$refresh',
+        ];
+    }
+
     public function approve($id)
     {
         $payment = Payment::find($id);
@@ -53,19 +60,33 @@ class PaymentConfirmationManager extends Component
             }
         });
 
+        $billDescription = $payment->bill ? $payment->bill->description : 'Pembayaran Umum';
+        $message = "Pembayaran untuk {$billDescription} telah disetujui.";
+
         $this->dispatch('notify', message: 'Pembayaran disetujui.', type: 'success');
-        broadcast(new NotificationSent('Pembayaran disetujui.', 'success'))->toOthers();
-        DatabaseUpdated::dispatch();
+
+        // Notify the tenant privately
+        $tenantId = $payment->registration->user_id;
+        broadcast(new NotificationSent($message, 'success', $tenantId));
+
+        DatabaseUpdated::dispatch($tenantId);
     }
 
     public function reject($id)
     {
         $payment = Payment::find($id);
         if ($payment) {
+            $billDescription = $payment->bill ? $payment->bill->description : 'Pembayaran Umum';
+            $tenantId = $payment->registration->user_id;
+
             $payment->delete();
+
             $this->dispatch('notify', message: 'Pembayaran ditolak dan dihapus.', type: 'info');
-            broadcast(new NotificationSent('Pembayaran ditolak.', 'info'))->toOthers();
-            DatabaseUpdated::dispatch();
+
+            // Notify the tenant privately
+            broadcast(new NotificationSent("Pembayaran untuk {$billDescription} ditolak.", 'warning', $tenantId));
+
+            DatabaseUpdated::dispatch($tenantId);
         }
     }
 

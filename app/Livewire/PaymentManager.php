@@ -37,11 +37,17 @@ class PaymentManager extends Component
     public $registration_id, $bill_id, $payment_method_id, $payment_number;
     public $payment_date, $amount, $notes, $status = 'Lunas';
     public $proof_of_payment;
+    public $sender_bank_name, $sender_account_number, $sender_account_name;
 
     // Form fields (Bill)
     public $bill_number, $bill_description, $bill_discount = 0, $bill_amount, $bill_due_date;
 
-    protected $listeners = ['echo:stats,DatabaseUpdated' => '$refresh'];
+    public function getListeners()
+    {
+        return [
+            'echo:stats,DatabaseUpdated' => '$refresh',
+        ];
+    }
 
     public function mount()
     {
@@ -194,6 +200,9 @@ class PaymentManager extends Component
             $this->payment_date = $payment->payment_date->format('Y-m-d');
             $this->amount = $payment->amount;
             $this->notes = $payment->notes;
+            $this->sender_bank_name = $payment->sender_bank_name;
+            $this->sender_account_number = $payment->sender_account_number;
+            $this->sender_account_name = $payment->sender_account_name;
             $this->calculateStatus();
         } else {
             if ($this->viewMode === 'history' && $this->selectedRegistrationId) {
@@ -270,6 +279,9 @@ class PaymentManager extends Component
         $this->notes = null;
         $this->status = 'Lunas';
         $this->proof_of_payment = null;
+        $this->sender_bank_name = null;
+        $this->sender_account_number = null;
+        $this->sender_account_name = null;
         $this->generatePaymentNumber();
     }
 
@@ -306,6 +318,9 @@ class PaymentManager extends Component
                 'amount' => $this->amount,
                 'notes' => $this->notes,
                 'status' => $this->status,
+                'sender_bank_name' => $this->sender_bank_name,
+                'sender_account_number' => $this->sender_account_number,
+                'sender_account_name' => $this->sender_account_name,
             ];
 
             $oldBillId = null;
@@ -337,7 +352,10 @@ class PaymentManager extends Component
         $type = 'success';
         $this->dispatch('notify', message: $message, type: $type);
         broadcast(new NotificationSent($message, $type))->toOthers();
-        DatabaseUpdated::dispatch();
+
+        $registration = Registration::find($this->registration_id);
+        DatabaseUpdated::dispatch($registration ? $registration->user_id : null);
+
         $this->closeModal();
     }
 
@@ -372,14 +390,20 @@ class PaymentManager extends Component
         $type = 'success';
         $this->dispatch('notify', message: $message, type: $type);
         broadcast(new NotificationSent($message, $type))->toOthers();
-        DatabaseUpdated::dispatch();
+
+        $registration = Registration::find($this->selectedRegistrationId);
+        DatabaseUpdated::dispatch($registration ? $registration->user_id : null);
+
         $this->closeBillModal();
     }
 
     public function deleteBill($id)
     {
-        Bill::find($id)->delete();
-        DatabaseUpdated::dispatch();
+        $bill = Bill::find($id);
+        $tenantId = $bill ? $bill->registration->user_id : null;
+        $bill->delete();
+
+        DatabaseUpdated::dispatch($tenantId);
         $message = "Tagihan berhasil dihapus.";
         $type = 'success';
         $this->dispatch('notify', message: $message, type: $type);
@@ -421,7 +445,7 @@ class PaymentManager extends Component
             $this->syncBillStatus($billId);
         }
 
-        DatabaseUpdated::dispatch();
+        DatabaseUpdated::dispatch($payment->registration->user_id);
         $message = "Pembayaran berhasil dihapus.";
         $type = 'success';
         $this->dispatch('notify', message: $message, type: $type);

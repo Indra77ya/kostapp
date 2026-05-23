@@ -144,7 +144,7 @@
                                     </a>
                                     @if($payment->proof_of_payment)
                                     <a href="{{ asset('storage/' . $payment->proof_of_payment) }}" target="_blank" class="btn btn-white btn-sm" title="Bukti Pembayaran">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-photo" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8h.01" /><path d="M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z" /><path d="M3 16l5 -5c.928 -.893 2.42 -.893 3.348 0l4.152 4.152" /><path d="M14 14l1 -1c.928 -.893 2.42 -.893 3.348 0l2.652 2.652" /></svg>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-receipt" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16l-3 -2l-2 2l-2 -2l-2 2l-2 -2l-3 2m4 -14h6m-6 4h6m-2 4h2" /></svg>
                                     </a>
                                     @endif
                                 </div>
@@ -188,7 +188,7 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label required">Metode Pembayaran</label>
-                                <select class="form-select @error('payment_method_id') is-invalid @enderror" wire:model="payment_method_id">
+                                <select class="form-select @error('payment_method_id') is-invalid @enderror" wire:model.live="payment_method_id">
                                     <option value="">Pilih Metode</option>
                                     @foreach($paymentMethods as $pm)
                                         <option value="{{ $pm->id }}">{{ $pm->name }}</option>
@@ -202,6 +202,38 @@
                                 @error('payment_date') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                         </div>
+
+                        @if($selectedPm)
+                            <div class="card bg-light-lt mb-3">
+                                <div class="card-body p-3">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <span class="badge bg-blue text-white me-2">{{ $selectedPm->category }}</span>
+                                        <strong class="text-primary">Tujuan Pembayaran:</strong>
+                                    </div>
+                                    @if($selectedPm->category !== 'Tunai')
+                                        <div class="row g-2 small">
+                                            <div class="col-4 text-dark">Nama Bank/App:</div>
+                                            <div class="col-8 fw-bold text-dark">{{ $selectedPm->name }}</div>
+                                            <div class="col-4 text-dark">No. Rekening/ID:</div>
+                                            <div class="col-8 fw-bold text-dark">{{ $selectedPm->account_number }}</div>
+                                            <div class="col-4 text-dark">Atas Nama:</div>
+                                            <div class="col-8 fw-bold text-dark">{{ $selectedPm->account_name }}</div>
+                                        </div>
+                                    @else
+                                        <div class="small text-dark">
+                                            Silakan serahkan pembayaran tunai langsung kepada pengelola kost.
+                                        </div>
+                                    @endif
+                                    @if($selectedPm->instructions)
+                                        <div class="mt-2 small border-top pt-2">
+                                            <div class="text-dark fw-bold mb-1">Instruksi:</div>
+                                            <div class="instructions-content text-dark">{!! $selectedPm->instructions !!}</div>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
+
                         <div class="mb-3">
                             <label class="form-label required">Jumlah Bayar</label>
                             <div class="input-group">
@@ -210,6 +242,33 @@
                             </div>
                             @error('amount') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
+
+                        @if($selectedPm && $selectedPm->category !== 'Tunai')
+                        <div class="card border-dashed mb-3">
+                            <div class="card-body p-3">
+                                <div class="mb-2"><strong>Data {{ $selectedPm->category === 'E-Wallet' ? 'E-Wallet' : 'Bank' }}/Pengirim Anda:</strong></div>
+                                <div class="mb-2">
+                                    <label class="form-label required small mb-1">{{ $selectedPm->category === 'E-Wallet' ? 'Nama Aplikasi E-Wallet' : 'Nama Bank Asal' }}</label>
+                                    <input type="text" class="form-control form-control-sm @error('sender_bank_name') is-invalid @enderror" wire:model="sender_bank_name" placeholder="{{ $selectedPm->category === 'E-Wallet' ? 'Contoh: GoPay, OVO, Dana' : 'Contoh: BCA, Mandiri, BNI' }}">
+                                    @error('sender_bank_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-6 mb-2">
+                                        <label class="form-label required small mb-1">{{ $selectedPm->category === 'E-Wallet' ? 'No. HP / ID E-Wallet' : 'No. Rekening Asal' }}</label>
+                                        <input type="text" class="form-control form-control-sm @error('sender_account_number') is-invalid @enderror" wire:model="sender_account_number" placeholder="{{ $selectedPm->category === 'E-Wallet' ? 'Nomor HP anda' : 'Nomor rekening anda' }}">
+                                        @error('sender_account_number') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                    </div>
+                                    <div class="col-6 mb-2">
+                                        <label class="form-label required small mb-1">Nama Pemilik {{ $selectedPm->category === 'E-Wallet' ? 'Akun' : 'Rekening' }}</label>
+                                        <input type="text" class="form-control form-control-sm @error('sender_account_name') is-invalid @enderror" wire:model="sender_account_name" placeholder="Nama anda">
+                                        @error('sender_account_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+
+                        @if(!$selectedPm || $selectedPm->category !== 'Tunai')
                         <div class="mb-3">
                             <label class="form-label required">Bukti Pembayaran (Foto/Screenshot)</label>
                             <input type="file" class="form-control @error('proof_of_payment') is-invalid @enderror" wire:model="proof_of_payment">
@@ -220,6 +279,7 @@
                                 </div>
                             @endif
                         </div>
+                        @endif
                         <div class="mb-3">
                             <label class="form-label">Catatan Tambahan</label>
                             <textarea class="form-control" rows="3" wire:model="notes" placeholder="Contoh: Pembayaran melalui ATM Bank BCA a/n John Doe"></textarea>

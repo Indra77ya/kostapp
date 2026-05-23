@@ -352,7 +352,8 @@ class RegistrationManager extends Component
 
         $this->validate($rules);
 
-        DB::transaction(function () {
+        $regId = null;
+        DB::transaction(function () use (&$regId) {
             // 1. Handle User
             if ($this->registrationId) {
                 $registration = Registration::find($this->registrationId);
@@ -451,6 +452,7 @@ class RegistrationManager extends Component
                 // Auto-generate bills for new registration
                 $this->generateBillsForRegistration($registration);
             }
+            $regId = $registration->id;
 
             // 3. Emergency Contacts
             $registration->emergencyContacts()->delete();
@@ -463,11 +465,12 @@ class RegistrationManager extends Component
             }
         });
 
+        $registration = Registration::find($regId);
         $message = "Check in {$this->name} berhasil disimpan.";
         $type = 'success';
         $this->dispatch('notify', message: $message, type: $type);
         broadcast(new NotificationSent($message, $type))->toOthers();
-        DatabaseUpdated::dispatch();
+        DatabaseUpdated::dispatch($registration->user_id);
         $this->closeModal();
     }
 

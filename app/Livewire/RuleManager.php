@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Events\NotificationSent;
 use App\Models\Rule;
 use App\Models\Location;
 use Livewire\Component;

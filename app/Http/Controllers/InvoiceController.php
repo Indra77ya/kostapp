@@ -10,8 +10,20 @@ use Illuminate\Http\Request;
 
 class InvoiceController extends Controller
 {
+    private function authorizeTenant($registrationId)
+    {
+        $user = auth()->user();
+        if ($user->hasRole('tenant')) {
+            $registration = Registration::find($registrationId);
+            if (!$registration || $registration->user_id !== $user->id) {
+                abort(403, 'Anda tidak memiliki akses ke kuitansi ini.');
+            }
+        }
+    }
+
     public function show(Registration $registration)
     {
+        $this->authorizeTenant($registration->id);
         $registration->load(['user', 'location', 'room', 'emergencyContacts']);
 
         $rules = Rule::where('is_active', true)
@@ -28,13 +40,32 @@ class InvoiceController extends Controller
 
     public function billInvoice(Bill $bill)
     {
+        $this->authorizeTenant($bill->registration_id);
         $bill->load(['registration.user', 'registration.location', 'registration.room']);
         return view('invoices.bill', compact('bill'));
     }
 
     public function paymentInvoice(Payment $payment)
     {
-        $payment->load(['registration.user', 'registration.location', 'registration.room', 'bill', 'paymentMethod']);
-        return view('invoices.payment', compact('payment'));
+        $this->authorizeTenant($payment->registration_id);
+        $payment->load([
+            'registration.user',
+            'registration.location',
+            'registration.room',
+            'bill.payments.paymentMethod',
+            'paymentMethod'
+        ]);
+
+        $totalPaid = 0;
+        $remaining = 0;
+
+        if (!$payment->bill) {
+            $totalPaid = Payment::where('registration_id', $payment->registration_id)
+                ->where('status', '!=', 'Menunggu Konfirmasi')
+                ->sum('amount');
+            $remaining = max(0, $payment->registration->total_price - $totalPaid);
+        }
+
+        return view('invoices.payment', compact('payment', 'totalPaid', 'remaining'));
     }
 }

@@ -42,7 +42,7 @@ class RealtimeDashboardTest extends TestCase
 
         Livewire::actingAs($user)
             ->test(\App\Livewire\NotificationBell::class)
-            ->set('notifications', [['message' => 'Test', 'time' => 'now', 'type' => 'info']])
+            ->set('notifications', [['message' => 'Test', 'timestamp' => now()->toIso8601String(), 'type' => 'info']])
             ->set('unreadCount', 1)
             ->call('clearNotifications')
             ->assertSet('notifications', [])
