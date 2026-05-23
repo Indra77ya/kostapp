@@ -170,11 +170,11 @@
                         <a class="dropdown-item {{ request()->routeIs('rooms.*') ? 'active' : '' }}" href="{{ route('rooms.index') }}">
                           Kamar
                         </a>
-                        <a class="dropdown-item {{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.index') }}">
-                          Pengguna
-                        </a>
                         <a class="dropdown-item {{ request()->routeIs('facilities.*') ? 'active' : '' }}" href="{{ route('facilities.index') }}">
                           Fasilitas
+                        </a>
+                        <a class="dropdown-item {{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.index') }}">
+                          Pengguna
                         </a>
                         <a class="dropdown-item {{ request()->routeIs('rules.*') ? 'active' : '' }}" href="{{ route('rules.index') }}">
                           Peraturan
