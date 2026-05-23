@@ -19,11 +19,16 @@ class NotificationBell extends Component
         ];
     }
 
-    public function addNotification($message = null, $type = 'info')
+    public function addNotification($message = null, $type = 'info', $hideInBell = false)
     {
         if (is_array($message)) {
+            $hideInBell = $message['hideInBell'] ?? $hideInBell;
             $type = $message['type'] ?? $type;
             $message = $message['message'] ?? '';
+        }
+
+        if ($hideInBell) {
+            return;
         }
 
         // Only store info and warning notifications in the bell
