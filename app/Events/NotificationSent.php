@@ -16,12 +16,14 @@ class NotificationSent implements ShouldBroadcastNow
     public $message;
     public $type;
     public $userId;
+    public $hideInBell;
 
-    public function __construct($message, $type = 'info', $userId = null)
+    public function __construct($message, $type = 'info', $userId = null, $hideInBell = false)
     {
         $this->message = $message;
         $this->type = $type;
         $this->userId = $userId;
+        $this->hideInBell = $hideInBell;
     }
 
     public function broadcastOn(): array
