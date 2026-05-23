@@ -8,6 +8,7 @@ use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use App\Events\NotificationSent;
 
 class PaymentMethodManager extends Component
 {
@@ -123,9 +124,16 @@ class PaymentMethodManager extends Component
         if ($this->paymentMethodId) {
             $paymentMethod = PaymentMethod::findOrFail($this->paymentMethodId);
             $paymentMethod->update($data);
+            $message = "Metode pembayaran {$paymentMethod->name} telah diperbarui.";
+            $type = 'info';
         } else {
-            PaymentMethod::create($data);
+            $paymentMethod = PaymentMethod::create($data);
+            $message = "Metode pembayaran baru {$paymentMethod->name} telah ditambahkan.";
+            $type = 'success';
         }
+
+        $this->dispatch('notify', message: $message, type: $type, hideInBell: true);
+        broadcast(new NotificationSent($message, $type, hideInBell: true))->toOthers();
 
         $this->closeModal();
     }
@@ -137,7 +145,13 @@ class PaymentMethodManager extends Component
         if ($paymentMethod->logo) {
             Storage::disk('public')->delete($paymentMethod->logo);
         }
+        $name = $paymentMethod->name;
         $paymentMethod->delete();
+
+        $message = "Metode pembayaran {$name} telah dihapus.";
+        $type = 'warning';
+        $this->dispatch('notify', message: $message, type: $type, hideInBell: true);
+        broadcast(new NotificationSent($message, $type, hideInBell: true))->toOthers();
     }
 
     public function toggleStatus($id)

@@ -115,8 +115,8 @@ class RuleManager extends Component
             $type = 'success';
         }
 
-        $this->dispatch('notify', message: $message, type: $type);
-        broadcast(new NotificationSent($message, $type))->toOthers();
+        $this->dispatch('notify', message: $message, type: $type, hideInBell: true);
+        broadcast(new NotificationSent($message, $type, hideInBell: true))->toOthers();
 
         $this->closeModal();
     }
@@ -130,8 +130,8 @@ class RuleManager extends Component
 
             $message = "Peraturan '{$title}' telah dihapus.";
             $type = 'warning';
-            $this->dispatch('notify', message: $message, type: $type);
-            broadcast(new NotificationSent($message, $type))->toOthers();
+            $this->dispatch('notify', message: $message, type: $type, hideInBell: true);
+            broadcast(new NotificationSent($message, $type, hideInBell: true))->toOthers();
         }
     }
 

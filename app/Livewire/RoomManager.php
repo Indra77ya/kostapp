@@ -168,8 +168,8 @@ class RoomManager extends Component
             $type = 'success';
         }
 
-        $this->dispatch('notify', message: $message, type: $type);
-        broadcast(new NotificationSent($message, $type))->toOthers();
+        $this->dispatch('notify', message: $message, type: $type, hideInBell: true);
+        broadcast(new NotificationSent($message, $type, hideInBell: true))->toOthers();
 
         // Handle Gallery
         if ($this->newGallery) {
@@ -209,8 +209,8 @@ class RoomManager extends Component
 
         $message = "Kamar #{$roomNumber} telah dihapus.";
         $type = 'warning';
-        $this->dispatch('notify', message: $message, type: $type);
-        broadcast(new NotificationSent($message, $type))->toOthers();
+        $this->dispatch('notify', message: $message, type: $type, hideInBell: true);
+        broadcast(new NotificationSent($message, $type, hideInBell: true))->toOthers();
     }
 
     public function deleteGalleryImage($imageId)

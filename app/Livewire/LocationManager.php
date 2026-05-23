@@ -112,8 +112,8 @@ class LocationManager extends Component
             $type = 'success';
         }
 
-        $this->dispatch('notify', message: $message, type: $type);
-        broadcast(new NotificationSent($message, $type))->toOthers();
+        $this->dispatch('notify', message: $message, type: $type, hideInBell: true);
+        broadcast(new NotificationSent($message, $type, hideInBell: true))->toOthers();
 
         DatabaseUpdated::dispatch();
         $this->closeModal();
@@ -140,8 +140,8 @@ class LocationManager extends Component
 
         $message = "Lokasi {$locationName} telah dihapus.";
         $type = 'warning';
-        $this->dispatch('notify', message: $message, type: $type);
-        broadcast(new NotificationSent($message, $type))->toOthers();
+        $this->dispatch('notify', message: $message, type: $type, hideInBell: true);
+        broadcast(new NotificationSent($message, $type, hideInBell: true))->toOthers();
         DatabaseUpdated::dispatch();
     }
 
