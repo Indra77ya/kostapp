@@ -23,6 +23,9 @@ class CheckOutManager extends Component
     // Search & Filters
     public $search = '';
     public $filterLocation = '';
+    public $filterPaymentStatus = '';
+    public $filterDurationType = '';
+    public $sort = 'latest';
 
     // Form fields
     public $check_out_date;
@@ -34,6 +37,7 @@ class CheckOutManager extends Component
     public function mount()
     {
         $this->check_out_date = Carbon::now()->format('Y-m-d');
+        $this->sort = 'latest';
     }
 
     public function openModal($id)
@@ -90,17 +94,24 @@ class CheckOutManager extends Component
 
     public function updatingSearch() { $this->resetPage(); }
     public function updatingFilterLocation() { $this->resetPage(); }
+    public function updatingFilterPaymentStatus() { $this->resetPage(); }
+    public function updatingFilterDurationType() { $this->resetPage(); }
+    public function updatingSort() { $this->resetPage(); }
 
     public function resetFilters()
     {
-        $this->reset(['search', 'filterLocation']);
+        $this->reset(['search', 'filterLocation', 'filterPaymentStatus', 'filterDurationType', 'sort']);
         $this->resetPage();
     }
 
     public function render()
     {
         $query = Registration::with('user', 'location', 'room')
-            ->where('status', 'active');
+            ->withSum('bills as total_bill', 'amount')
+            ->withSum(['payments as total_paid' => function($q) {
+                $q->where('status', '!=', 'Menunggu Konfirmasi');
+            }], 'amount')
+            ->where('registrations.status', 'active');
 
         if ($this->search) {
             $query->where(function($q) {
@@ -115,8 +126,37 @@ class CheckOutManager extends Component
             $query->where('location_id', $this->filterLocation);
         }
 
+        if ($this->filterDurationType) {
+            $query->where('duration_type', $this->filterDurationType);
+        }
+
+        if ($this->filterPaymentStatus === 'lunas') {
+            $query->whereRaw('(select COALESCE(sum(amount), 0) from bills where bills.registration_id = registrations.id) <= (select COALESCE(sum(amount), 0) from payments where payments.registration_id = registrations.id and status != "Menunggu Konfirmasi")');
+        } elseif ($this->filterPaymentStatus === 'tunggakan') {
+            $query->whereRaw('(select COALESCE(sum(amount), 0) from bills where bills.registration_id = registrations.id) > (select COALESCE(sum(amount), 0) from payments where payments.registration_id = registrations.id and status != "Menunggu Konfirmasi")');
+        }
+
+        // Sorting
+        switch ($this->sort) {
+            case 'name_asc':
+                $query->join('users', 'registrations.user_id', '=', 'users.id')
+                      ->orderBy('users.name', 'asc');
+                break;
+            case 'name_desc':
+                $query->join('users', 'registrations.user_id', '=', 'users.id')
+                      ->orderBy('users.name', 'desc');
+                break;
+            case 'oldest':
+                $query->orderBy('stay_start_date', 'asc');
+                break;
+            case 'latest':
+            default:
+                $query->orderBy('stay_start_date', 'desc');
+                break;
+        }
+
         return view('livewire.check-out-manager', [
-            'registrations' => $query->latest()->paginate(10),
+            'registrations' => $query->paginate(10),
             'locations' => Location::all(),
         ]);
     }

@@ -7,8 +7,8 @@
 
     <div class="card mb-3">
         <div class="card-body">
-            <div class="row g-2">
-                <div class="col-md-6">
+            <div class="row g-2 mb-2">
+                <div class="col-md-4">
                     <div class="input-icon">
                         <span class="input-icon-addon">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
@@ -16,12 +16,36 @@
                         <input type="text" class="form-control" placeholder="Cari nama, email, no. registrasi..." wire:model.live.debounce.300ms="search">
                     </div>
                 </div>
-                <div class="col-md-5">
+                <div class="col-md-2">
                     <select class="form-select" wire:model.live="filterLocation">
                         <option value="">Semua Lokasi</option>
                         @foreach($locations as $loc)
                             <option value="{{ $loc->id }}">{{ $loc->name }}</option>
                         @endforeach
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" wire:model.live="filterDurationType">
+                        <option value="">Semua Tipe Sewa</option>
+                        <option value="daily">Harian</option>
+                        <option value="weekly">Mingguan</option>
+                        <option value="monthly">Bulanan</option>
+                        <option value="yearly">Tahunan</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" wire:model.live="filterPaymentStatus">
+                        <option value="">Semua Status Bayar</option>
+                        <option value="lunas">Lunas</option>
+                        <option value="tunggakan">Ada Tunggakan</option>
+                    </select>
+                </div>
+                <div class="col-md-1">
+                    <select class="form-select" wire:model.live="sort">
+                        <option value="latest">Terbaru</option>
+                        <option value="oldest">Terlama</option>
+                        <option value="name_asc">Nama A-Z</option>
+                        <option value="name_desc">Nama Z-A</option>
                     </select>
                 </div>
                 <div class="col-md-1">
@@ -42,6 +66,7 @@
                         <th>Penghuni</th>
                         <th>Lokasi / Kamar</th>
                         <th>Tgl Mulai Inap</th>
+                        <th>Status Pembayaran</th>
                         <th class="w-1"></th>
                     </tr>
                 </thead>
@@ -51,13 +76,30 @@
                         <td><code>{{ $reg->registration_number }}</code></td>
                         <td>
                             <div class="font-weight-medium">{{ $reg->user->name }}</div>
-                            <div class="text-secondary small">{{ $reg->user->email }}</div>
+                            <div class="text-secondary small">
+                                @switch($reg->duration_type)
+                                    @case('daily') Harian @break
+                                    @case('weekly') Mingguan @break
+                                    @case('monthly') Bulanan @break
+                                    @case('yearly') Tahunan @break
+                                @endswitch
+                            </div>
                         </td>
                         <td>
                             <div>{{ $reg->location->name }}</div>
                             <div class="text-secondary small">Kamar {{ $reg->room->room_number }}</div>
                         </td>
                         <td>{{ $reg->stay_start_date->format('d M Y') }}</td>
+                        <td>
+                            @php
+                                $remaining = ($reg->total_bill ?: 0) - ($reg->total_paid ?: 0);
+                            @endphp
+                            @if($remaining <= 0)
+                                <span class="badge bg-success-lt">Lunas</span>
+                            @else
+                                <span class="badge bg-warning-lt">Sisa: Rp {{ number_format($remaining, 0, ',', '.') }}</span>
+                            @endif
+                        </td>
                         <td>
                             <button class="btn btn-danger btn-sm" wire:click="openModal({{ $reg->id }})">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-logout" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" /><path d="M9 12h12l-3 -3" /><path d="M18 15l3 -3" /></svg>
@@ -67,7 +109,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="text-center py-4 text-secondary">Tidak ada penghuni aktif ditemukan.</td>
+                        <td colspan="6" class="text-center py-4 text-secondary">Tidak ada penghuni aktif ditemukan.</td>
                     </tr>
                     @endforelse
                 </tbody>
