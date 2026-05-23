@@ -106,7 +106,8 @@ class CheckOutManager extends Component
 
     public function render()
     {
-        $query = Registration::with('user', 'location', 'room')
+        $query = Registration::select('registrations.*')
+            ->with('user', 'location', 'room')
             ->withSum('bills as total_bill', 'amount')
             ->withSum(['payments as total_paid' => function($q) {
                 $q->where('status', '!=', 'Menunggu Konfirmasi');
