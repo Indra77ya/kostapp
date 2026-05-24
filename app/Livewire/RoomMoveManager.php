@@ -25,6 +25,8 @@ class RoomMoveManager extends Component
     public $filterLocationId = '';
     public $filterDateStart = '';
     public $filterDateEnd = '';
+    public $filterDurationType = '';
+    public $sort = 'latest';
 
     // Form fields
     public $registration_id, $new_room_id, $move_date, $reason;
@@ -272,9 +274,20 @@ class RoomMoveManager extends Component
         $this->resetPage();
     }
 
+    public function updatingFilterDurationType()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingSort()
+    {
+        $this->resetPage();
+    }
+
     public function resetFilters()
     {
-        $this->reset(['search', 'filterLocationId', 'filterDateStart', 'filterDateEnd']);
+        $this->reset(['search', 'filterLocationId', 'filterDateStart', 'filterDateEnd', 'filterDurationType', 'sort']);
+        $this->sort = 'latest';
         $this->resetPage();
     }
 
@@ -288,29 +301,55 @@ class RoomMoveManager extends Component
 
     public function render()
     {
-        $query = RoomMove::with(['registration.user', 'oldRoom', 'newRoom', 'registration.location']);
+        $query = RoomMove::query()
+            ->select('room_moves.*')
+            ->join('registrations', 'room_moves.registration_id', '=', 'registrations.id')
+            ->join('users', 'room_moves.user_id', '=', 'users.id')
+            ->with(['registration.user', 'oldRoom', 'newRoom', 'registration.location', 'oldRoom.location', 'newRoom.location']);
 
         if ($this->search) {
-            $query->whereHas('registration.user', function($q) {
-                $q->where('name', 'like', '%' . $this->search . '%')
-                  ->orWhere('email', 'like', '%' . $this->search . '%');
-            })->orWhereHas('registration', function($q) {
-                $q->where('registration_number', 'like', '%' . $this->search . '%');
+            $query->where(function($q) {
+                $q->where('users.name', 'like', '%' . $this->search . '%')
+                  ->orWhere('users.email', 'like', '%' . $this->search . '%')
+                  ->orWhere('registrations.registration_number', 'like', '%' . $this->search . '%');
             });
         }
 
         if ($this->filterLocationId) {
-            $query->whereHas('oldRoom', function($q) {
-                $q->where('location_id', $this->filterLocationId);
+            $query->where(function($q) {
+                $q->whereHas('oldRoom', function($sq) {
+                    $sq->where('location_id', $this->filterLocationId);
+                })->orWhereHas('newRoom', function($sq) {
+                    $sq->where('location_id', $this->filterLocationId);
+                });
             });
         }
 
+        if ($this->filterDurationType) {
+            $query->where('registrations.duration_type', $this->filterDurationType);
+        }
+
         if ($this->filterDateStart) {
-            $query->where('move_date', '>=', $this->filterDateStart);
+            $query->where('room_moves.move_date', '>=', $this->filterDateStart);
         }
 
         if ($this->filterDateEnd) {
-            $query->where('move_date', '<=', $this->filterDateEnd);
+            $query->where('room_moves.move_date', '<=', $this->filterDateEnd);
+        }
+
+        switch ($this->sort) {
+            case 'oldest':
+                $query->orderBy('room_moves.move_date', 'asc')->orderBy('room_moves.id', 'asc');
+                break;
+            case 'name_asc':
+                $query->orderBy('users.name', 'asc');
+                break;
+            case 'name_desc':
+                $query->orderBy('users.name', 'desc');
+                break;
+            default:
+                $query->orderBy('room_moves.move_date', 'desc')->orderBy('room_moves.id', 'desc');
+                break;
         }
 
         // Active registrations for the search dropdown in modal
