@@ -50,7 +50,7 @@
                 </div>
                 <div class="col-md-6">
                     <select class="form-select" wire:model.live="filterDurationType">
-                        <option value="">Jenis Sewa: Semua</option>
+                        <option value="">Semua Jenis</option>
                         <option value="daily">Harian</option>
                         <option value="weekly">Mingguan</option>
                         <option value="monthly">Bulanan</option>

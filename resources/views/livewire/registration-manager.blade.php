@@ -47,7 +47,7 @@
                 </div>
                 <div class="col-md-3">
                     <select class="form-select" wire:model.live="filterDurationType">
-                        <option value="">Jenis Sewa: Semua</option>
+                        <option value="">Semua Jenis</option>
                         <option value="daily">Harian</option>
                         <option value="weekly">Mingguan</option>
                         <option value="monthly">Bulanan</option>
@@ -56,7 +56,7 @@
                 </div>
                 <div class="col-md-3">
                     <select class="form-select" wire:model.live="filterIsOpenEnded">
-                        <option value="">Status Durasi: Semua</option>
+                        <option value="">Semua Durasi</option>
                         <option value="1">Hingga Keluar</option>
                         <option value="0">Durasi Tetap</option>
                     </select>
