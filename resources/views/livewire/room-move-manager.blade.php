@@ -15,8 +15,8 @@
 
     <div class="card mb-3">
         <div class="card-body">
-            <div class="row g-2">
-                <div class="col-md-4">
+            <div class="row g-2 mb-2">
+                <div class="col-md-11">
                     <div class="input-icon">
                         <span class="input-icon-addon">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
@@ -24,7 +24,14 @@
                         <input type="text" class="form-control" placeholder="Cari penghuni / reg..." wire:model.live.debounce.300ms="search">
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-1">
+                    <button class="btn btn-icon w-100" title="Reset Filter" wire:click="resetFilters">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-rotate" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19.95 11a8 8 0 1 0 -.5 4m.5 5v-5h-5" /></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="row g-2">
+                <div class="col-md-2">
                     <select class="form-select" wire:model.live="filterLocationId">
                         <option value="">Semua Lokasi</option>
                         @foreach($locations as $location)
@@ -33,15 +40,29 @@
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <input type="date" class="form-control" wire:model.live="filterDateStart" title="Tanggal Mulai">
+                    <select class="form-select" wire:model.live="filterDurationType">
+                        <option value="">Semua Jenis</option>
+                        <option value="daily">Harian</option>
+                        <option value="weekly">Mingguan</option>
+                        <option value="monthly">Bulanan</option>
+                        <option value="yearly">Tahunan</option>
+                    </select>
                 </div>
                 <div class="col-md-2">
-                    <input type="date" class="form-control" wire:model.live="filterDateEnd" title="Tanggal Akhir">
+                    <select class="form-select" wire:model.live="sort">
+                        <option value="latest">Terbaru</option>
+                        <option value="oldest">Terlama</option>
+                        <option value="name_asc">Nama (A-Z)</option>
+                        <option value="name_desc">Nama (Z-A)</option>
+                    </select>
                 </div>
-                <div class="col-md-1">
-                    <button class="btn btn-icon w-100" title="Reset Filter" wire:click="resetFilters">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-rotate" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19.95 11a8 8 0 1 0 -.5 4m.5 5v-5h-5" /></svg>
-                    </button>
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-text small">Tgl Pindah:</span>
+                        <input type="date" class="form-control px-2" wire:model.live="filterDateStart">
+                        <span class="input-group-text small px-1">-</span>
+                        <input type="date" class="form-control px-2" wire:model.live="filterDateEnd">
+                    </div>
                 </div>
             </div>
         </div>

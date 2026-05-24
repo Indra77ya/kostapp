@@ -44,8 +44,8 @@
 
     <div class="card mb-3">
         <div class="card-body">
-            <div class="row g-2">
-                <div class="col-md-3">
+            <div class="row g-2 mb-2">
+                <div class="col-md-11">
                     <div class="input-icon">
                         <span class="input-icon-addon">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
@@ -53,7 +53,14 @@
                         <input type="text" class="form-control" placeholder="Cari nomor kamar, tipe, atau fasilitas..." wire:model.live.debounce.300ms="search">
                     </div>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-1">
+                    <button class="btn btn-icon w-100" title="Reset Filter" wire:click="resetFilters">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-rotate" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19.95 11a8 8 0 1 0 -.5 4m.5 5v-5h-5" /></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="row g-2">
+                <div class="col-md-3">
                     <select class="form-select" wire:model.live="filterStatus">
                         <option value="">Semua Status</option>
                         <option value="available">Tersedia</option>
@@ -61,7 +68,7 @@
                         <option value="maintenance">Perbaikan</option>
                     </select>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-3">
                     <select class="form-select" wire:model.live="filterFloor">
                         <option value="">Semua Lantai</option>
                         @foreach($floors as $floor)
@@ -69,27 +76,22 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-3">
                     <select class="form-select" wire:model.live="filterRentalType">
-                        <option value="">Semua Tipe</option>
+                        <option value="">Semua Tipe Sewa</option>
                         <option value="daily">Harian</option>
                         <option value="weekly">Mingguan</option>
                         <option value="monthly">Bulanan</option>
                         <option value="yearly">Tahunan</option>
                     </select>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-3">
                     <select class="form-select" wire:model.live="sortOrder">
-                        <option value="room_number_asc">No. Kamar (↑)</option>
-                        <option value="room_number_desc">No. Kamar (↓)</option>
-                        <option value="price_asc">Harga Termurah</option>
-                        <option value="price_desc">Harga Termahal</option>
+                        <option value="room_number_asc">Urutkan: No. Kamar (↑)</option>
+                        <option value="room_number_desc">Urutkan: No. Kamar (↓)</option>
+                        <option value="price_asc">Urutkan: Harga Termurah</option>
+                        <option value="price_desc">Urutkan: Harga Termahal</option>
                     </select>
-                </div>
-                <div class="col-md-1">
-                    <button class="btn btn-icon w-100" title="Reset Filter" wire:click="resetFilters">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-rotate" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19.95 11a8 8 0 1 0 -.5 4m.5 5v-5h-5" /></svg>
-                    </button>
                 </div>
             </div>
         </div>

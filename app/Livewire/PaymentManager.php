@@ -32,6 +32,8 @@ class PaymentManager extends Component
     public $search = '';
     public $filterLocation = '';
     public $filterDurationType = '';
+    public $filterPaymentStatus = '';
+    public $sort = 'name_asc';
 
     // Form fields (Payment)
     public $registration_id, $bill_id, $payment_method_id, $payment_number;
@@ -455,10 +457,13 @@ class PaymentManager extends Component
     public function updatingSearch() { $this->resetPage(); }
     public function updatingFilterLocation() { $this->resetPage(); }
     public function updatingFilterDurationType() { $this->resetPage(); }
+    public function updatingFilterPaymentStatus() { $this->resetPage(); }
+    public function updatingSort() { $this->resetPage(); }
 
     public function resetFilters()
     {
-        $this->reset(['search', 'filterLocation', 'filterDurationType']);
+        $this->reset(['search', 'filterLocation', 'filterDurationType', 'filterPaymentStatus', 'sort']);
+        $this->sort = 'name_asc';
         $this->resetPage();
     }
 
@@ -489,9 +494,11 @@ class PaymentManager extends Component
             ]);
         }
 
-        $query = Registration::with('user', 'location', 'room')
-            ->withSum('bills', 'amount')
-            ->withSum(['payments' => function($q) {
+        $query = Registration::query()
+            ->select('registrations.*')
+            ->with('user', 'location', 'room')
+            ->withSum('bills as total_bill', 'amount')
+            ->withSum(['payments as total_paid' => function($q) {
                 $q->where('status', '!=', 'Menunggu Konfirmasi');
             }], 'amount')
             ->where('registrations.status', 'active');
@@ -510,12 +517,37 @@ class PaymentManager extends Component
             $query->where('duration_type', $this->filterDurationType);
         }
 
-        $registrations = $query->latest()->paginate(10);
+        if ($this->filterPaymentStatus === 'lunas') {
+            $query->whereRaw('(select COALESCE(sum(amount), 0) from bills where bills.registration_id = registrations.id) <= (select COALESCE(sum(amount), 0) from payments where payments.registration_id = registrations.id and status != "Menunggu Konfirmasi")');
+        } elseif ($this->filterPaymentStatus === 'tunggakan') {
+            $query->whereRaw('(select COALESCE(sum(amount), 0) from bills where bills.registration_id = registrations.id) > (select COALESCE(sum(amount), 0) from payments where payments.registration_id = registrations.id and status != "Menunggu Konfirmasi")');
+        }
 
-        // Calculate paid amount for each registration
+        // Sorting
+        switch ($this->sort) {
+            case 'name_desc':
+                $query->join('users', 'registrations.user_id', '=', 'users.id')
+                      ->orderBy('users.name', 'desc');
+                break;
+            case 'balance_desc':
+                $query->orderByRaw('((select COALESCE(sum(amount), 0) from bills where bills.registration_id = registrations.id) - (select COALESCE(sum(amount), 0) from payments where payments.registration_id = registrations.id and status != "Menunggu Konfirmasi")) DESC');
+                break;
+            case 'balance_asc':
+                $query->orderByRaw('((select COALESCE(sum(amount), 0) from bills where bills.registration_id = registrations.id) - (select COALESCE(sum(amount), 0) from payments where payments.registration_id = registrations.id and status != "Menunggu Konfirmasi")) ASC');
+                break;
+            case 'name_asc':
+            default:
+                $query->join('users', 'registrations.user_id', '=', 'users.id')
+                      ->orderBy('users.name', 'asc');
+                break;
+        }
+
+        $registrations = $query->paginate(10);
+
+        // Map aggregated sums to friendly names
         foreach ($registrations as $reg) {
-            $reg->total_bill = $reg->bills_sum_amount ?: 0;
-            $reg->paid_amount = $reg->payments_sum_amount ?: 0;
+            $reg->total_bill = $reg->total_bill ?: 0;
+            $reg->paid_amount = $reg->total_paid ?: 0;
             $reg->remaining_amount = $reg->total_bill - $reg->paid_amount;
         }
 

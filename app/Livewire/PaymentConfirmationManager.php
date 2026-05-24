@@ -17,6 +17,11 @@ class PaymentConfirmationManager extends Component
 
     protected $paginationTheme = 'bootstrap';
     public $search = '';
+    public $filterLocation = '';
+    public $filterPaymentMethod = '';
+    public $filterDateStart = '';
+    public $filterDateEnd = '';
+    public $sort = 'latest';
     public $selectedPaymentId;
     public $isDetailModalOpen = false;
 
@@ -102,6 +107,18 @@ class PaymentConfirmationManager extends Component
         $this->selectedPaymentId = null;
     }
 
+    public function resetFilters()
+    {
+        $this->reset(['search', 'filterLocation', 'filterPaymentMethod', 'filterDateStart', 'filterDateEnd', 'sort']);
+    }
+
+    public function updatingSearch() { $this->resetPage(); }
+    public function updatingFilterLocation() { $this->resetPage(); }
+    public function updatingFilterPaymentMethod() { $this->resetPage(); }
+    public function updatingFilterDateStart() { $this->resetPage(); }
+    public function updatingFilterDateEnd() { $this->resetPage(); }
+    public function updatingSort() { $this->resetPage(); }
+
     private function syncBillStatus($billId)
     {
         $bill = Bill::find($billId);
@@ -126,19 +143,56 @@ class PaymentConfirmationManager extends Component
 
     public function render()
     {
-        $payments = Payment::with(['registration.user', 'bill', 'paymentMethod'])
-            ->where('status', 'Menunggu Konfirmasi')
-            ->whereHas('registration.user', function($q) {
-                $q->where('name', 'like', '%' . $this->search . '%');
-            })
-            ->latest()
-            ->paginate(10);
+        $query = Payment::with(['registration.user', 'registration.room', 'registration.location', 'bill', 'paymentMethod'])
+            ->select('payments.*')
+            ->join('registrations', 'payments.registration_id', '=', 'registrations.id')
+            ->join('users', 'registrations.user_id', '=', 'users.id')
+            ->where('payments.status', 'Menunggu Konfirmasi');
+
+        if ($this->search) {
+            $query->where('users.name', 'like', '%' . $this->search . '%');
+        }
+
+        if ($this->filterLocation) {
+            $query->where('registrations.location_id', $this->filterLocation);
+        }
+
+        if ($this->filterPaymentMethod) {
+            $query->where('payments.payment_method_id', $this->filterPaymentMethod);
+        }
+
+        if ($this->filterDateStart) {
+            $query->whereDate('payments.payment_date', '>=', $this->filterDateStart);
+        }
+
+        if ($this->filterDateEnd) {
+            $query->whereDate('payments.payment_date', '<=', $this->filterDateEnd);
+        }
+
+        switch ($this->sort) {
+            case 'oldest':
+                $query->orderBy('payments.payment_date', 'asc');
+                break;
+            case 'name_asc':
+                $query->orderBy('users.name', 'asc');
+                break;
+            case 'name_desc':
+                $query->orderBy('users.name', 'desc');
+                break;
+            default:
+                $query->orderBy('payments.payment_date', 'desc');
+                break;
+        }
+
+        $payments = $query->paginate(10);
 
         $selectedPayment = $this->selectedPaymentId ? Payment::with(['registration.user', 'registration.room', 'registration.location', 'bill', 'paymentMethod'])->find($this->selectedPaymentId) : null;
 
         return view('livewire.payment-confirmation-manager', [
             'payments' => $payments,
-            'selectedPayment' => $selectedPayment
+            'selectedPayment' => $selectedPayment,
+            'locations' => \App\Models\Location::orderBy('name')->get(),
+            'paymentMethods' => \App\Models\PaymentMethod::where('is_active', true)->orderBy('name')->get()
         ]);
     }
 }
