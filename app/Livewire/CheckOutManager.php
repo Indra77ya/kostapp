@@ -37,7 +37,6 @@ class CheckOutManager extends Component
     public function mount()
     {
         $this->check_out_date = Carbon::now()->format('Y-m-d');
-        $this->sort = 'latest';
     }
 
     public function openModal($id)
