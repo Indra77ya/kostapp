@@ -59,9 +59,9 @@
                 <div class="col-md-6">
                     <div class="input-group">
                         <span class="input-group-text small">Tgl Pindah:</span>
-                        <input type="date" class="form-control" wire:model.live="filterDateStart">
-                        <span class="input-group-text small">-</span>
-                        <input type="date" class="form-control" wire:model.live="filterDateEnd">
+                        <input type="date" class="form-control px-2" wire:model.live="filterDateStart">
+                        <span class="input-group-text small px-1">-</span>
+                        <input type="date" class="form-control px-2" wire:model.live="filterDateEnd">
                     </div>
                 </div>
             </div>

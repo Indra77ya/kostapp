@@ -25,6 +25,8 @@ class CheckOutManager extends Component
     public $filterLocation = '';
     public $filterPaymentStatus = '';
     public $filterDurationType = '';
+    public $filterDateStart = '';
+    public $filterDateEnd = '';
     public $sort = 'latest';
 
     // Form fields
@@ -95,11 +97,13 @@ class CheckOutManager extends Component
     public function updatingFilterLocation() { $this->resetPage(); }
     public function updatingFilterPaymentStatus() { $this->resetPage(); }
     public function updatingFilterDurationType() { $this->resetPage(); }
+    public function updatingFilterDateStart() { $this->resetPage(); }
+    public function updatingFilterDateEnd() { $this->resetPage(); }
     public function updatingSort() { $this->resetPage(); }
 
     public function resetFilters()
     {
-        $this->reset(['search', 'filterLocation', 'filterPaymentStatus', 'filterDurationType', 'sort']);
+        $this->reset(['search', 'filterLocation', 'filterPaymentStatus', 'filterDurationType', 'filterDateStart', 'filterDateEnd', 'sort']);
         $this->resetPage();
     }
 
@@ -128,6 +132,14 @@ class CheckOutManager extends Component
 
         if ($this->filterDurationType) {
             $query->where('duration_type', $this->filterDurationType);
+        }
+
+        if ($this->filterDateStart) {
+            $query->where('stay_start_date', '>=', $this->filterDateStart);
+        }
+
+        if ($this->filterDateEnd) {
+            $query->where('stay_start_date', '<=', $this->filterDateEnd);
         }
 
         if ($this->filterPaymentStatus === 'lunas') {

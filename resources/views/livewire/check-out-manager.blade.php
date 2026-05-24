@@ -42,9 +42,9 @@
                 </div>
                 <div class="col-md-2">
                     <select class="form-select" wire:model.live="filterPaymentStatus">
-                        <option value="">Semua Status Bayar</option>
+                        <option value="">Semua Status</option>
                         <option value="lunas">Lunas</option>
-                        <option value="tunggakan">Ada Tunggakan</option>
+                        <option value="tunggakan">Tunggakan</option>
                     </select>
                 </div>
                 <div class="col-md-2">
@@ -56,7 +56,12 @@
                     </select>
                 </div>
                 <div class="col-md-4">
-                    {{-- Space for balance --}}
+                    <div class="input-group">
+                        <span class="input-group-text small">Tgl Inap:</span>
+                        <input type="date" class="form-control px-2" wire:model.live="filterDateStart">
+                        <span class="input-group-text small px-1">-</span>
+                        <input type="date" class="form-control px-2" wire:model.live="filterDateEnd">
+                    </div>
                 </div>
             </div>
         </div>
