@@ -24,7 +24,9 @@ class RegistrationManager extends Component
 
     protected $paginationTheme = 'bootstrap';
     public $isModalOpen = false;
+    public $isSuccessModalOpen = false;
     public $registrationId;
+    public $newlyCreatedRegistrationId;
 
     // List & Search & Filters
     public $search = '';
@@ -277,6 +279,12 @@ class RegistrationManager extends Component
         $this->resetForm();
     }
 
+    public function closeSuccessModal()
+    {
+        $this->isSuccessModalOpen = false;
+        $this->newlyCreatedRegistrationId = null;
+    }
+
     private function resetForm()
     {
         $this->registrationId = null;
@@ -468,10 +476,18 @@ class RegistrationManager extends Component
         $registration = Registration::find($regId);
         $message = "Check in {$this->name} berhasil disimpan.";
         $type = 'success';
+
+        $isNew = !$this->registrationId;
+
         $this->dispatch('notify', message: $message, type: $type);
         broadcast(new NotificationSent($message, $type))->toOthers();
         DatabaseUpdated::dispatch($registration->user_id);
         $this->closeModal();
+
+        if ($isNew) {
+            $this->newlyCreatedRegistrationId = $regId;
+            $this->isSuccessModalOpen = true;
+        }
     }
 
     private function generateBillsForRegistration($registration)
@@ -567,6 +583,7 @@ class RegistrationManager extends Component
             'registrations' => $query->latest()->paginate(10),
             'locations' => Location::all(),
             'rooms' => $rooms,
+            'newReg' => $this->newlyCreatedRegistrationId ? Registration::with(['user', 'location', 'room'])->find($this->newlyCreatedRegistrationId) : null,
         ]);
     }
 }
