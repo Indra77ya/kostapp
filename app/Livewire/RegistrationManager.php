@@ -497,7 +497,13 @@ class RegistrationManager extends Component
 
     public function deleteRegistration($id)
     {
-        $reg = Registration::find($id);
+        $reg = Registration::withCount('payments')->find($id);
+
+        if ($reg->payments_count > 0) {
+            $this->dispatch('notify', message: "Data check in {$reg->user->name} tidak bisa dihapus karena sudah ada riwayat pembayaran.", type: 'warning');
+            return;
+        }
+
         $name = $reg->user->name;
         $userId = $reg->user_id;
 
@@ -539,7 +545,7 @@ class RegistrationManager extends Component
 
     public function render()
     {
-        $query = Registration::with('user', 'location', 'room')->where('status', 'active');
+        $query = Registration::with('user', 'location', 'room')->withCount('payments')->where('status', 'active');
 
         if ($this->search) {
             $query->where(function($q) {
