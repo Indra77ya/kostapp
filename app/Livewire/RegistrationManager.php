@@ -505,6 +505,11 @@ class RegistrationManager extends Component
             // Revert room status to available
             Room::where('id', $reg->room_id)->update(['status' => 'available']);
 
+            // Delete associated files
+            if ($reg->photo_self) Storage::disk('public')->delete($reg->photo_self);
+            if ($reg->photo_identity) Storage::disk('public')->delete($reg->photo_identity);
+            if ($reg->photo_family_card) Storage::disk('public')->delete($reg->photo_family_card);
+
             // Delete registration
             $reg->delete();
 
