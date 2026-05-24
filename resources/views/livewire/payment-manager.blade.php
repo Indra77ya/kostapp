@@ -40,7 +40,7 @@
                 </div>
             </div>
             <div class="row g-2">
-                <div class="col-md-6">
+                <div class="col-md-3">
                     <select class="form-select" wire:model.live="filterLocation">
                         <option value="">Semua Lokasi</option>
                         @foreach($locations as $loc)
@@ -48,13 +48,28 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-3">
                     <select class="form-select" wire:model.live="filterDurationType">
                         <option value="">Semua Jenis</option>
                         <option value="daily">Harian</option>
                         <option value="weekly">Mingguan</option>
                         <option value="monthly">Bulanan</option>
                         <option value="yearly">Tahunan</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" wire:model.live="filterPaymentStatus">
+                        <option value="">Semua Status</option>
+                        <option value="lunas">Lunas</option>
+                        <option value="tunggakan">Ada Tunggakan</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" wire:model.live="sort">
+                        <option value="name_asc">Nama (A-Z)</option>
+                        <option value="name_desc">Nama (Z-A)</option>
+                        <option value="balance_desc">Sisa Terbanyak</option>
+                        <option value="balance_asc">Sisa Terkecil</option>
                     </select>
                 </div>
             </div>
