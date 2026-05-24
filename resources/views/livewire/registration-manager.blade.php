@@ -508,10 +508,10 @@
                                         }
                                         $message = "Halo *" . $newReg->user->name . "*, selamat bergabung!\n\n"
                                                  . "Berikut adalah detail login akun Anda:\n"
-                                                 . "📧 *Email:* " . $newReg->user->email . "\n"
-                                                 . "🔑 *Password:* " . $newReg->user->password_plain . "\n"
-                                                 . "📍 *Lokasi:* " . $newReg->location->name . "\n"
-                                                 . "🚪 *Kamar:* " . $newReg->room->room_number . "\n\n"
+                                                 . "*Email:* " . $newReg->user->email . "\n"
+                                                 . "*Password:* " . $newReg->user->password_plain . "\n"
+                                                 . "*Lokasi:* " . $newReg->location->name . "\n"
+                                                 . "*Kamar:* " . $newReg->room->room_number . "\n\n"
                                                  . "Silakan login di: " . url('/login') . "\n"
                                                  . "Simpan data ini baik-baik ya. Terima kasih!";
                                         $waLink = "https://wa.me/" . $phone . "?text=" . rawurlencode($message);
