@@ -37,15 +37,7 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="col-md-4">
-                    <div class="input-group">
-                        <span class="input-group-text small">Tgl Daftar:</span>
-                        <input type="date" class="form-control" wire:model.live="filterDateStart">
-                        <span class="input-group-text small">-</span>
-                        <input type="date" class="form-control" wire:model.live="filterDateEnd">
-                    </div>
-                </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <select class="form-select" wire:model.live="filterDurationType">
                         <option value="">Semua Jenis</option>
                         <option value="daily">Harian</option>
@@ -54,12 +46,20 @@
                         <option value="yearly">Tahunan</option>
                     </select>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <select class="form-select" wire:model.live="filterIsOpenEnded">
                         <option value="">Semua Durasi</option>
                         <option value="1">Hingga Keluar</option>
                         <option value="0">Durasi Tetap</option>
                     </select>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-text small">Tgl Daftar:</span>
+                        <input type="date" class="form-control" wire:model.live="filterDateStart">
+                        <span class="input-group-text small">-</span>
+                        <input type="date" class="form-control" wire:model.live="filterDateEnd">
+                    </div>
                 </div>
             </div>
         </div>
