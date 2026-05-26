@@ -25,6 +25,8 @@ class PaymentManager extends Component
     public $selectedRegistrationId;
     public $isModalOpen = false;
     public $isBillModalOpen = false;
+    public $isOverpaid = false;
+    public $overpaidAmount = 0;
     public $paymentId;
     public $billId;
 
@@ -120,11 +122,13 @@ class PaymentManager extends Component
         } elseif ($this->registration_id) {
             $registration = Registration::find($this->registration_id);
             if ($registration) {
+                $totalBill = Bill::where('registration_id', $this->registration_id)->sum('amount');
                 $totalPaid = Payment::where('registration_id', $this->registration_id)
                     ->when($this->paymentId, fn($q) => $q->where('id', '!=', $this->paymentId))
+                    ->where('status', '!=', 'Ditolak')
                     ->sum('amount');
 
-                $this->amount = $registration->total_price - $totalPaid;
+                $this->amount = $totalBill - $totalPaid;
                 if ($this->amount < 0) $this->amount = 0;
             }
         }
@@ -133,6 +137,9 @@ class PaymentManager extends Component
 
     private function calculateStatus()
     {
+        $this->isOverpaid = false;
+        $this->overpaidAmount = 0;
+
         if ($this->bill_id) {
             $bill = Bill::find($this->bill_id);
             if (!$bill) return;
@@ -151,8 +158,10 @@ class PaymentManager extends Component
                 $formattedDiff = number_format($diff, 0, ',', '.');
                 $this->status = "Belum Lunas (Sisa: Rp {$formattedDiff})";
             } elseif ($diff < 0) {
+                $this->isOverpaid = true;
+                $this->overpaidAmount = abs($diff);
                 $formattedDiff = number_format(abs($diff), 0, ',', '.');
-                $this->status = "Lunas (Kelebihan: Rp {$formattedDiff})";
+                $this->status = "Lunas (Kelebihan/Deposit: Rp {$formattedDiff})";
             } else {
                 $this->status = "Lunas";
             }
@@ -165,13 +174,14 @@ class PaymentManager extends Component
             $registration = Registration::find($this->registration_id);
             if (!$registration) return;
 
+            $totalBill = (float) Bill::where('registration_id', $this->registration_id)->sum('amount');
             $totalPaidPrev = Payment::where('registration_id', $this->registration_id)
                 ->when($this->paymentId, fn($q) => $q->where('id', '!=', $this->paymentId))
+                ->where('status', '!=', 'Ditolak')
                 ->sum('amount');
 
             $currentAmount = (float) ($this->amount ?: 0);
             $totalPaidNow = $totalPaidPrev + $currentAmount;
-            $totalBill = (float) $registration->total_price;
 
             $diff = $totalBill - $totalPaidNow;
 
@@ -179,8 +189,10 @@ class PaymentManager extends Component
                 $formattedDiff = number_format($diff, 0, ',', '.');
                 $this->status = "Belum Lunas (Sisa: Rp {$formattedDiff})";
             } elseif ($diff < 0) {
+                $this->isOverpaid = true;
+                $this->overpaidAmount = abs($diff);
                 $formattedDiff = number_format(abs($diff), 0, ',', '.');
-                $this->status = "Lunas (Kelebihan: Rp {$formattedDiff})";
+                $this->status = "Lunas (Kelebihan/Deposit: Rp {$formattedDiff})";
             } else {
                 $this->status = "Lunas";
             }
@@ -280,6 +292,8 @@ class PaymentManager extends Component
         $this->amount = null;
         $this->notes = null;
         $this->status = 'Lunas';
+        $this->isOverpaid = false;
+        $this->overpaidAmount = 0;
         $this->proof_of_payment = null;
         $this->sender_bank_name = null;
         $this->sender_account_number = null;

@@ -109,6 +109,8 @@
                         <td>
                             @if($reg->remaining_amount > 0)
                                 <span class="text-danger fw-bold">Rp {{ number_format($reg->remaining_amount, 0, ',', '.') }}</span>
+                            @elseif($reg->remaining_amount < 0)
+                                <span class="text-azure fw-bold">Deposit: Rp {{ number_format(abs($reg->remaining_amount), 0, ',', '.') }}</span>
                             @else
                                 <span class="text-success fw-bold">Lunas</span>
                             @endif
@@ -189,6 +191,8 @@
                         <td>
                             @if($bill->remaining_amount > 0)
                                 <span class="text-danger fw-bold">Rp {{ number_format($bill->remaining_amount, 0, ',', '.') }}</span>
+                            @elseif($bill->remaining_amount < 0)
+                                <span class="text-azure fw-bold">Deposit: Rp {{ number_format(abs($bill->remaining_amount), 0, ',', '.') }}</span>
                             @else
                                 <span class="text-success fw-bold">Lunas</span>
                             @endif
@@ -291,6 +295,19 @@
                 </div>
                 <div class="modal-body">
                     <form wire:submit.prevent="savePayment">
+                        @if($isOverpaid)
+                            <div class="alert alert-warning border-0 shadow-sm mb-4">
+                                <div class="d-flex">
+                                    <div>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v4" /><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" /><path d="M12 16h.01" /></svg>
+                                    </div>
+                                    <div>
+                                        <h4 class="alert-title">Peringatan: Kelebihan Pembayaran</h4>
+                                        <div class="text-secondary">Jumlah yang dimasukkan melebihi sisa tagihan sebesar <strong>Rp {{ number_format($overpaidAmount, 0, ',', '.') }}</strong>. Kelebihan ini akan dicatat sebagai deposit penghuni.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label required">Penghuni</label>

@@ -131,23 +131,33 @@
                             <span class="info-value">Rp {{ number_format($payment->bill->paid_amount, 0, ',', '.') }}</span>
                         </div>
                         <div style="border-top: 1px solid #e5e7eb; padding-top: 5px; display: flex; justify-content: space-between;">
-                            <span class="info-title" style="margin: 0; font-weight: bold; color: {{ $payment->bill->remaining_amount > 0 ? '#ef4444' : '#10b981' }};">Sisa Tagihan:</span>
-                            <span class="info-value" style="font-weight: bold; color: {{ $payment->bill->remaining_amount > 0 ? '#ef4444' : '#10b981' }};">Rp {{ number_format($payment->bill->remaining_amount, 0, ',', '.') }}</span>
+                            @if($payment->bill->remaining_amount >= 0)
+                                <span class="info-title" style="margin: 0; font-weight: bold; color: {{ $payment->bill->remaining_amount > 0 ? '#ef4444' : '#10b981' }};">Sisa Tagihan:</span>
+                                <span class="info-value" style="font-weight: bold; color: {{ $payment->bill->remaining_amount > 0 ? '#ef4444' : '#10b981' }};">Rp {{ number_format($payment->bill->remaining_amount, 0, ',', '.') }}</span>
+                            @else
+                                <span class="info-title" style="margin: 0; font-weight: bold; color: #0ea5e9;">Deposit:</span>
+                                <span class="info-value" style="font-weight: bold; color: #0ea5e9;">Rp {{ number_format(abs($payment->bill->remaining_amount), 0, ',', '.') }}</span>
+                            @endif
                         </div>
                     </div>
                 @elseif($payment->registration)
                     <div style="text-align: right; min-width: 250px;">
                         <div style="margin-bottom: 5px; display: flex; justify-content: space-between;">
-                            <span class="info-title" style="margin: 0;">Total Sewa:</span>
-                            <span class="info-value">Rp {{ number_format($payment->registration->total_price, 0, ',', '.') }}</span>
+                            <span class="info-title" style="margin: 0;">Total Tagihan (Semua):</span>
+                            <span class="info-value">Rp {{ number_format($totalBill, 0, ',', '.') }}</span>
                         </div>
                         <div style="margin-bottom: 5px; display: flex; justify-content: space-between;">
                             <span class="info-title" style="margin: 0;">Total Terbayar:</span>
                             <span class="info-value">Rp {{ number_format($totalPaid, 0, ',', '.') }}</span>
                         </div>
                         <div style="border-top: 1px solid #e5e7eb; padding-top: 5px; display: flex; justify-content: space-between;">
-                            <span class="info-title" style="margin: 0; font-weight: bold; color: {{ $remaining > 0 ? '#ef4444' : '#10b981' }};">Sisa:</span>
-                            <span class="info-value" style="font-weight: bold; color: {{ $remaining > 0 ? '#ef4444' : '#10b981' }};">Rp {{ number_format($remaining, 0, ',', '.') }}</span>
+                            @if($remaining >= 0)
+                                <span class="info-title" style="margin: 0; font-weight: bold; color: {{ $remaining > 0 ? '#ef4444' : '#10b981' }};">Sisa:</span>
+                                <span class="info-value" style="font-weight: bold; color: {{ $remaining > 0 ? '#ef4444' : '#10b981' }};">Rp {{ number_format($remaining, 0, ',', '.') }}</span>
+                            @else
+                                <span class="info-title" style="margin: 0; font-weight: bold; color: #0ea5e9;">Deposit:</span>
+                                <span class="info-value" style="font-weight: bold; color: #0ea5e9;">Rp {{ number_format(abs($remaining), 0, ',', '.') }}</span>
+                            @endif
                         </div>
                     </div>
                 @endif

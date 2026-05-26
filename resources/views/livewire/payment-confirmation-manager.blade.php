@@ -185,8 +185,22 @@
                             </div>
                         </div>
                         @endif
-                        @if($selectedPayment->bill)
                         <div class="col-12">
+                            @if($isOverpaidApproval)
+                                <div class="alert alert-warning border-0 shadow-sm mb-3">
+                                    <div class="d-flex">
+                                        <div>
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v4" /><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" /><path d="M12 16h.01" /></svg>
+                                        </div>
+                                        <div>
+                                            <h4 class="alert-title">Kelebihan Pembayaran</h4>
+                                            <div class="text-secondary small">Jika disetujui, pembayaran ini akan menghasilkan deposit sebesar <strong>Rp {{ number_format($overpaidDiff, 0, ',', '.') }}</strong> karena jumlah bayar melebihi sisa tagihan.</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+
+                            @if($selectedPayment->bill)
                             <div class="card bg-light border-0">
                                 <div class="card-body p-3">
                                     <div class="row text-center">
@@ -200,13 +214,19 @@
                                         </div>
                                         <div class="col border-start">
                                             <div class="text-secondary small text-uppercase mb-1">Sisa</div>
-                                            <div class="h4 mb-0 text-danger">Rp {{ number_format($selectedPayment->bill->remaining_amount, 0, ',', '.') }}</div>
+                                            <div class="h4 mb-0 text-danger">
+                                                @if($remainingBalance >= 0)
+                                                    Rp {{ number_format($remainingBalance, 0, ',', '.') }}
+                                                @else
+                                                    <span class="text-azure">(Deposit: Rp {{ number_format(abs($remainingBalance), 0, ',', '.') }})</span>
+                                                @endif
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                            @endif
                         </div>
-                        @endif
                         @if($selectedPayment->notes)
                         <div class="col-12">
                             <label class="form-label text-secondary small text-uppercase fw-bold">Catatan Penghuni</label>

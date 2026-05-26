@@ -46,11 +46,16 @@
                             <div class="col">
                                 @php
                                     $totalBill = $bills->sum('amount');
-                                    $totalPaid = $payments->where('status', '!=', 'Menunggu Konfirmasi')->sum('amount');
+                                    $totalPaid = $payments->where('status', '!=', 'Menunggu Konfirmasi')->where('status', '!=', 'Ditolak')->sum('amount');
                                     $balance = $totalBill - $totalPaid;
                                 @endphp
-                                <div class="font-weight-medium text-danger">Sisa Tagihan</div>
-                                <div class="h3 mb-0">Rp {{ number_format($balance, 0, ',', '.') }}</div>
+                                @if($balance >= 0)
+                                    <div class="font-weight-medium text-danger">Sisa Tagihan</div>
+                                    <div class="h3 mb-0">Rp {{ number_format($balance, 0, ',', '.') }}</div>
+                                @else
+                                    <div class="font-weight-medium text-azure">Deposit Penghuni</div>
+                                    <div class="h3 mb-0">Rp {{ number_format(abs($balance), 0, ',', '.') }}</div>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -174,6 +179,19 @@
                 </div>
                 <div class="modal-body">
                     <form wire:submit.prevent="savePayment">
+                        @if($isOverpaid)
+                            <div class="alert alert-warning border-0 shadow-sm mb-4">
+                                <div class="d-flex">
+                                    <div>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v4" /><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" /><path d="M12 16h.01" /></svg>
+                                    </div>
+                                    <div>
+                                        <h4 class="alert-title">Peringatan: Kelebihan Pembayaran</h4>
+                                        <div class="text-secondary small">Jumlah yang Anda masukkan melebihi sisa tagihan sebesar <strong>Rp {{ number_format($overpaidAmount, 0, ',', '.') }}</strong>. Kelebihan ini akan dicatat sebagai deposit Anda.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
                         <div class="mb-3">
                             <label class="form-label">Peruntukan Tagihan (Opsional)</label>
                             <select class="form-select" wire:model.live="bill_id">
@@ -238,7 +256,7 @@
                             <label class="form-label required">Jumlah Bayar</label>
                             <div class="input-group">
                                 <span class="input-group-text">Rp</span>
-                                <input type="number" class="form-control @error('amount') is-invalid @enderror" wire:model="amount">
+                                <input type="number" class="form-control @error('amount') is-invalid @enderror" wire:model.live="amount">
                             </div>
                             @error('amount') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>

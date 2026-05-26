@@ -24,6 +24,9 @@ class PaymentConfirmationManager extends Component
     public $sort = 'latest';
     public $selectedPaymentId;
     public $isDetailModalOpen = false;
+    public $remainingBalance = 0;
+    public $isOverpaidApproval = false;
+    public $overpaidDiff = 0;
 
     public function getListeners()
     {
@@ -98,6 +101,24 @@ class PaymentConfirmationManager extends Component
     public function showDetail($id)
     {
         $this->selectedPaymentId = $id;
+        $payment = Payment::find($id);
+
+        if ($payment) {
+            if ($payment->bill_id) {
+                $this->remainingBalance = (float) $payment->bill->remaining_amount;
+            } else {
+                $totalBill = Bill::where('registration_id', $payment->registration_id)->sum('amount');
+                $totalPaid = Payment::where('registration_id', $payment->registration_id)
+                    ->where('status', '!=', 'Menunggu Konfirmasi')
+                    ->where('status', '!=', 'Ditolak')
+                    ->sum('amount');
+                $this->remainingBalance = $totalBill - $totalPaid;
+            }
+
+            $this->isOverpaidApproval = $payment->amount > $this->remainingBalance;
+            $this->overpaidDiff = max(0, $payment->amount - $this->remainingBalance);
+        }
+
         $this->isDetailModalOpen = true;
     }
 

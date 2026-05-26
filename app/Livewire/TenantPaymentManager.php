@@ -22,6 +22,8 @@ class TenantPaymentManager extends Component
     protected $paginationTheme = 'bootstrap';
     public $viewMode = 'overview'; // 'overview' or 'history'
     public $isModalOpen = false;
+    public $isOverpaid = false;
+    public $overpaidAmount = 0;
 
     // Form fields
     public $bill_id, $payment_method_id, $payment_date, $amount, $notes, $proof_of_payment;
@@ -59,6 +61,49 @@ class TenantPaymentManager extends Component
         }
 
         $this->payment_number = $prefix . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+    }
+
+    public function updatedAmount()
+    {
+        $this->calculateOverpayment();
+    }
+
+    private function calculateOverpayment()
+    {
+        $this->isOverpaid = false;
+        $this->overpaidAmount = 0;
+
+        $registration = Registration::where('user_id', Auth::id())->where('status', 'active')->first();
+        if (!$registration) return;
+
+        $currentAmount = (float) ($this->amount ?: 0);
+
+        if ($this->bill_id) {
+            $bill = Bill::find($this->bill_id);
+            if ($bill) {
+                // We should consider all non-rejected payments
+                $totalPaidOnThisBill = Payment::where('bill_id', $this->bill_id)
+                    ->where('status', '!=', 'Ditolak')
+                    ->sum('amount');
+
+                $diff = (float)$bill->amount - ($totalPaidOnThisBill + $currentAmount);
+                if ($diff < 0) {
+                    $this->isOverpaid = true;
+                    $this->overpaidAmount = abs($diff);
+                }
+            }
+        } else {
+            $totalBill = Bill::where('registration_id', $registration->id)->sum('amount');
+            $totalPaid = Payment::where('registration_id', $registration->id)
+                ->where('status', '!=', 'Ditolak')
+                ->sum('amount');
+
+            $diff = $totalBill - ($totalPaid + $currentAmount);
+            if ($diff < 0) {
+                $this->isOverpaid = true;
+                $this->overpaidAmount = abs($diff);
+            }
+        }
     }
 
     public function openModal($billId = null)
@@ -101,6 +146,8 @@ class TenantPaymentManager extends Component
         $this->payment_date = Carbon::now()->format('Y-m-d');
         $this->amount = null;
         $this->notes = null;
+        $this->isOverpaid = false;
+        $this->overpaidAmount = 0;
         $this->proof_of_payment = null;
         $this->sender_bank_name = null;
         $this->sender_account_number = null;

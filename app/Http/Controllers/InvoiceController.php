@@ -58,14 +58,20 @@ class InvoiceController extends Controller
 
         $totalPaid = 0;
         $remaining = 0;
+        $totalBill = 0;
 
         if (!$payment->bill) {
+            $totalBill = Bill::where('registration_id', $payment->registration_id)->sum('amount');
+
+            // For general payments, we show the total status of the tenant.
+            // We include the current payment if it's not rejected, even if it's still pending confirmation,
+            // to show what the balance WILL be once confirmed, or at least reflect the current transaction.
             $totalPaid = Payment::where('registration_id', $payment->registration_id)
-                ->where('status', '!=', 'Menunggu Konfirmasi')
+                ->where('status', '!=', 'Ditolak')
                 ->sum('amount');
-            $remaining = max(0, $payment->registration->total_price - $totalPaid);
+            $remaining = $totalBill - $totalPaid;
         }
 
-        return view('invoices.payment', compact('payment', 'totalPaid', 'remaining'));
+        return view('invoices.payment', compact('payment', 'totalPaid', 'remaining', 'totalBill'));
     }
 }
