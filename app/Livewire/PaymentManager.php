@@ -152,7 +152,7 @@ class PaymentManager extends Component
                 $this->status = "Belum Lunas (Sisa: Rp {$formattedDiff})";
             } elseif ($diff < 0) {
                 $formattedDiff = number_format(abs($diff), 0, ',', '.');
-                $this->status = "Lunas (Kelebihan: Rp {$formattedDiff})";
+                $this->status = "Lunas (Deposit: Rp {$formattedDiff})";
             } else {
                 $this->status = "Lunas";
             }
@@ -180,7 +180,7 @@ class PaymentManager extends Component
                 $this->status = "Belum Lunas (Sisa: Rp {$formattedDiff})";
             } elseif ($diff < 0) {
                 $formattedDiff = number_format(abs($diff), 0, ',', '.');
-                $this->status = "Lunas (Kelebihan: Rp {$formattedDiff})";
+                $this->status = "Lunas (Deposit: Rp {$formattedDiff})";
             } else {
                 $this->status = "Lunas";
             }
@@ -418,7 +418,7 @@ class PaymentManager extends Component
         if (!$bill) return;
 
         $paidAmount = Payment::where('bill_id', $billId)
-            ->where('status', '!=', 'Menunggu Konfirmasi')
+            ->whereNotIn('status', ['Menunggu Konfirmasi', 'Ditolak'])
             ->sum('amount');
 
         $bill->paid_amount = $paidAmount;
@@ -499,7 +499,7 @@ class PaymentManager extends Component
             ->with('user', 'location', 'room')
             ->withSum('bills as total_bill', 'amount')
             ->withSum(['payments as total_paid' => function($q) {
-                $q->where('status', '!=', 'Menunggu Konfirmasi');
+                $q->whereNotIn('status', ['Menunggu Konfirmasi', 'Ditolak']);
             }], 'amount')
             ->where('registrations.status', 'active');
 
@@ -518,9 +518,9 @@ class PaymentManager extends Component
         }
 
         if ($this->filterPaymentStatus === 'lunas') {
-            $query->whereRaw('(select COALESCE(sum(amount), 0) from bills where bills.registration_id = registrations.id) <= (select COALESCE(sum(amount), 0) from payments where payments.registration_id = registrations.id and status != "Menunggu Konfirmasi")');
+            $query->whereRaw('(select COALESCE(sum(amount), 0) from bills where bills.registration_id = registrations.id) <= (select COALESCE(sum(amount), 0) from payments where payments.registration_id = registrations.id and status NOT IN ("Menunggu Konfirmasi", "Ditolak"))');
         } elseif ($this->filterPaymentStatus === 'tunggakan') {
-            $query->whereRaw('(select COALESCE(sum(amount), 0) from bills where bills.registration_id = registrations.id) > (select COALESCE(sum(amount), 0) from payments where payments.registration_id = registrations.id and status != "Menunggu Konfirmasi")');
+            $query->whereRaw('(select COALESCE(sum(amount), 0) from bills where bills.registration_id = registrations.id) > (select COALESCE(sum(amount), 0) from payments where payments.registration_id = registrations.id and status NOT IN ("Menunggu Konfirmasi", "Ditolak"))');
         }
 
         // Sorting
@@ -530,10 +530,10 @@ class PaymentManager extends Component
                       ->orderBy('users.name', 'desc');
                 break;
             case 'balance_desc':
-                $query->orderByRaw('((select COALESCE(sum(amount), 0) from bills where bills.registration_id = registrations.id) - (select COALESCE(sum(amount), 0) from payments where payments.registration_id = registrations.id and status != "Menunggu Konfirmasi")) DESC');
+                $query->orderByRaw('((select COALESCE(sum(amount), 0) from bills where bills.registration_id = registrations.id) - (select COALESCE(sum(amount), 0) from payments where payments.registration_id = registrations.id and status NOT IN ("Menunggu Konfirmasi", "Ditolak"))) DESC');
                 break;
             case 'balance_asc':
-                $query->orderByRaw('((select COALESCE(sum(amount), 0) from bills where bills.registration_id = registrations.id) - (select COALESCE(sum(amount), 0) from payments where payments.registration_id = registrations.id and status != "Menunggu Konfirmasi")) ASC');
+                $query->orderByRaw('((select COALESCE(sum(amount), 0) from bills where bills.registration_id = registrations.id) - (select COALESCE(sum(amount), 0) from payments where payments.registration_id = registrations.id and status NOT IN ("Menunggu Konfirmasi", "Ditolak"))) ASC');
                 break;
             case 'name_asc':
             default:

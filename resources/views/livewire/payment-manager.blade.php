@@ -366,6 +366,21 @@
                                 <input type="text" class="form-control bg-light font-weight-bold" wire:model="status" readonly>
                             </div>
 
+                            @if(str_contains($status, 'Deposit'))
+                                <div class="col-12 mb-3">
+                                    <div class="alert alert-info border-0 shadow-none mb-0">
+                                        <div class="d-flex">
+                                            <div>
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M12 8l.01 0" /><path d="M11 12l1 0l0 4l1 0" /></svg>
+                                            </div>
+                                            <div>
+                                                <strong>Info:</strong> Pembayaran ini melebihi tagihan. Selisihnya akan dicatat sebagai <strong>Deposit</strong> penghuni.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+
                             @php
                                 $selectedPm = \App\Models\PaymentMethod::find($payment_method_id);
                             @endphp

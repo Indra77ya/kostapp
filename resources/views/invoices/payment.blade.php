@@ -154,7 +154,7 @@
             </div>
         </div>
 
-        @if($payment->bill && $payment->bill->payments->where('status', '!=', 'Menunggu Konfirmasi')->count() > 1)
+        @if($payment->bill && $payment->bill->payments->whereNotIn('status', ['Menunggu Konfirmasi', 'Ditolak'])->count() > 1)
         <div class="history-section">
             <div class="info-title">Riwayat Pembayaran Tagihan Ini</div>
             <table class="history-table">
@@ -167,7 +167,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($payment->bill->payments->where('status', '!=', 'Menunggu Konfirmasi')->sortBy('payment_date') as $hist)
+                        @foreach($payment->bill->payments->whereNotIn('status', ['Menunggu Konfirmasi', 'Ditolak'])->sortBy('payment_date') as $hist)
                     <tr style="{{ $hist->id == $payment->id ? 'background-color: #f0fdf4; font-weight: bold;' : '' }}">
                         <td>{{ $hist->payment_number }} {{ $hist->id == $payment->id ? '(Saat Ini)' : '' }}</td>
                         <td>{{ $hist->payment_date->format('d/m/Y') }}</td>

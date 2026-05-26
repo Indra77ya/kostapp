@@ -186,6 +186,10 @@
                         </div>
                         @endif
                         @if($selectedPayment->bill)
+                            @php
+                                $remainingForBill = $selectedPayment->bill->amount - $selectedPayment->bill->paid_amount;
+                                $isOverpaid = $selectedPayment->amount > $remainingForBill;
+                            @endphp
                         <div class="col-12">
                             <div class="card bg-light border-0">
                                 <div class="card-body p-3">
@@ -200,12 +204,27 @@
                                         </div>
                                         <div class="col border-start">
                                             <div class="text-secondary small text-uppercase mb-1">Sisa</div>
-                                            <div class="h4 mb-0 text-danger">Rp {{ number_format($selectedPayment->bill->remaining_amount, 0, ',', '.') }}</div>
+                                            <div class="h4 mb-0 text-danger">Rp {{ number_format($remainingForBill, 0, ',', '.') }}</div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
+
+                            @if($isOverpaid)
+                                <div class="col-12">
+                                    <div class="alert alert-warning border-0 shadow-none mb-0">
+                                        <div class="d-flex">
+                                            <div>
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v4" /><path d="M12 17h.01" /><path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75" /></svg>
+                                            </div>
+                                            <div>
+                                                <strong>Peringatan:</strong> Menyetujui pembayaran ini akan mengakibatkan kelebihan bayar. Selisih sebesar <strong>Rp {{ number_format($selectedPayment->amount - $remainingForBill, 0, ',', '.') }}</strong> akan dicatat sebagai <strong>Deposit</strong>.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
                         @endif
                         @if($selectedPayment->notes)
                         <div class="col-12">

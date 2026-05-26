@@ -61,7 +61,7 @@ class InvoiceController extends Controller
 
         if (!$payment->bill) {
             $totalPaid = Payment::where('registration_id', $payment->registration_id)
-                ->where('status', '!=', 'Menunggu Konfirmasi')
+            ->whereNotIn('status', ['Menunggu Konfirmasi', 'Ditolak'])
                 ->sum('amount');
             $remaining = max(0, $payment->registration->total_price - $totalPaid);
         }

@@ -113,7 +113,7 @@ class CheckOutManager extends Component
             ->with('user', 'location', 'room')
             ->withSum('bills as total_bill', 'amount')
             ->withSum(['payments as total_paid' => function($q) {
-                $q->where('status', '!=', 'Menunggu Konfirmasi');
+                $q->whereNotIn('status', ['Menunggu Konfirmasi', 'Ditolak']);
             }], 'amount')
             ->where('registrations.status', 'active');
 
@@ -143,9 +143,9 @@ class CheckOutManager extends Component
         }
 
         if ($this->filterPaymentStatus === 'lunas') {
-            $query->whereRaw('(select COALESCE(sum(amount), 0) from bills where bills.registration_id = registrations.id) <= (select COALESCE(sum(amount), 0) from payments where payments.registration_id = registrations.id and status != "Menunggu Konfirmasi")');
+            $query->whereRaw('(select COALESCE(sum(amount), 0) from bills where bills.registration_id = registrations.id) <= (select COALESCE(sum(amount), 0) from payments where payments.registration_id = registrations.id and status NOT IN ("Menunggu Konfirmasi", "Ditolak"))');
         } elseif ($this->filterPaymentStatus === 'tunggakan') {
-            $query->whereRaw('(select COALESCE(sum(amount), 0) from bills where bills.registration_id = registrations.id) > (select COALESCE(sum(amount), 0) from payments where payments.registration_id = registrations.id and status != "Menunggu Konfirmasi")');
+            $query->whereRaw('(select COALESCE(sum(amount), 0) from bills where bills.registration_id = registrations.id) > (select COALESCE(sum(amount), 0) from payments where payments.registration_id = registrations.id and status NOT IN ("Menunggu Konfirmasi", "Ditolak"))');
         }
 
         // Sorting

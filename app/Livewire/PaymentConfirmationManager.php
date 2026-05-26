@@ -43,7 +43,7 @@ class PaymentConfirmationManager extends Component
                 $bill = $payment->bill;
                 $totalPaidPrev = Payment::where('bill_id', $payment->bill_id)
                     ->where('id', '!=', $payment->id)
-                    ->where('status', '!=', 'Menunggu Konfirmasi')
+                    ->whereNotIn('status', ['Menunggu Konfirmasi', 'Ditolak'])
                     ->sum('amount');
 
                 $totalPaidNow = $totalPaidPrev + $payment->amount;
@@ -84,9 +84,9 @@ class PaymentConfirmationManager extends Component
             $billDescription = $payment->bill ? $payment->bill->description : 'Pembayaran Umum';
             $tenantId = $payment->registration->user_id;
 
-            $payment->delete();
+            $payment->update(['status' => 'Ditolak']);
 
-            $this->dispatch('notify', message: 'Pembayaran ditolak dan dihapus.', type: 'info');
+            $this->dispatch('notify', message: 'Pembayaran ditolak.', type: 'info');
 
             // Notify the tenant privately
             broadcast(new NotificationSent("Pembayaran untuk {$billDescription} ditolak.", 'warning', $tenantId));
@@ -125,7 +125,7 @@ class PaymentConfirmationManager extends Component
         if (!$bill) return;
 
         $paidAmount = Payment::where('bill_id', $billId)
-            ->where('status', '!=', 'Menunggu Konfirmasi')
+            ->whereNotIn('status', ['Menunggu Konfirmasi', 'Ditolak'])
             ->sum('amount');
 
         $bill->paid_amount = $paidAmount;

@@ -27,6 +27,7 @@ class TenantPaymentManager extends Component
     public $bill_id, $payment_method_id, $payment_date, $amount, $notes, $proof_of_payment;
     public $sender_bank_name, $sender_account_number, $sender_account_name;
     public $payment_number;
+    public $overpayment_amount = 0;
 
     public function getListeners()
     {
@@ -40,6 +41,56 @@ class TenantPaymentManager extends Component
     {
         $this->payment_date = Carbon::now()->format('Y-m-d');
         $this->generatePaymentNumber();
+    }
+
+    public function updatedAmount()
+    {
+        $this->calculateOverpayment();
+    }
+
+    public function updatedBillId()
+    {
+        $this->calculateOverpayment();
+    }
+
+    private function calculateOverpayment()
+    {
+        $this->overpayment_amount = 0;
+        $currentAmount = (float) ($this->amount ?: 0);
+
+        if ($this->bill_id) {
+            $bill = Bill::find($this->bill_id);
+            if ($bill) {
+                $totalPaidOnThisBill = Payment::where('bill_id', $this->bill_id)
+                    ->whereNotIn('status', ['Menunggu Konfirmasi', 'Ditolak'])
+                    ->sum('amount');
+
+                $pendingAmount = Payment::where('bill_id', $this->bill_id)
+                    ->where('status', 'Menunggu Konfirmasi')
+                    ->sum('amount');
+
+                $remaining = $bill->amount - $totalPaidOnThisBill - $pendingAmount;
+                if ($currentAmount > $remaining) {
+                    $this->overpayment_amount = $currentAmount - $remaining;
+                }
+            }
+        } else {
+            $registration = Registration::where('user_id', Auth::id())->where('status', 'active')->first();
+            if ($registration) {
+                $totalBill = Bill::where('registration_id', $registration->id)->sum('amount');
+                $totalPaid = Payment::where('registration_id', $registration->id)
+                    ->whereNotIn('status', ['Menunggu Konfirmasi', 'Ditolak'])
+                    ->sum('amount');
+                $pendingAmount = Payment::where('registration_id', $registration->id)
+                    ->where('status', 'Menunggu Konfirmasi')
+                    ->sum('amount');
+
+                $remaining = $totalBill - $totalPaid - $pendingAmount;
+                if ($currentAmount > $remaining) {
+                    $this->overpayment_amount = $currentAmount - $remaining;
+                }
+            }
+        }
     }
 
     private function generatePaymentNumber()
@@ -72,7 +123,7 @@ class TenantPaymentManager extends Component
             if ($bill) {
                 // Calculate remaining for this specific bill
                 $totalPaidOnThisBill = Payment::where('bill_id', $billId)
-                    ->where('status', '!=', 'Menunggu Konfirmasi')
+                    ->whereNotIn('status', ['Menunggu Konfirmasi', 'Ditolak'])
                     ->sum('amount');
 
                 // Also subtract pending payments

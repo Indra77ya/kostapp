@@ -46,7 +46,7 @@
                             <div class="col">
                                 @php
                                     $totalBill = $bills->sum('amount');
-                                    $totalPaid = $payments->where('status', '!=', 'Menunggu Konfirmasi')->sum('amount');
+                                    $totalPaid = $payments->whereNotIn('status', ['Menunggu Konfirmasi', 'Ditolak'])->sum('amount');
                                     $balance = $totalBill - $totalPaid;
                                 @endphp
                                 <div class="font-weight-medium text-danger">Sisa Tagihan</div>
@@ -238,10 +238,23 @@
                             <label class="form-label required">Jumlah Bayar</label>
                             <div class="input-group">
                                 <span class="input-group-text">Rp</span>
-                                <input type="number" class="form-control @error('amount') is-invalid @enderror" wire:model="amount">
+                                <input type="number" class="form-control @error('amount') is-invalid @enderror" wire:model.live="amount">
                             </div>
                             @error('amount') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
+
+                        @if($overpayment_amount > 0)
+                            <div class="alert alert-info border-0 shadow-none mb-3">
+                                <div class="d-flex">
+                                    <div>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M12 8l.01 0" /><path d="M11 12l1 0l0 4l1 0" /></svg>
+                                    </div>
+                                    <div>
+                                        <strong>Info:</strong> Pembayaran ini melebihi sisa tagihan. Selisih sebesar <strong>Rp {{ number_format($overpayment_amount, 0, ',', '.') }}</strong> akan dicatat sebagai <strong>Deposit</strong>.
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
 
                         @if($selectedPm && $selectedPm->category !== 'Tunai')
                         <div class="card border-dashed mb-3">
