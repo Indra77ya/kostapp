@@ -24,7 +24,9 @@ class RegistrationManager extends Component
 
     protected $paginationTheme = 'bootstrap';
     public $isModalOpen = false;
+    public $isSuccessModalOpen = false;
     public $registrationId;
+    public $newlyCreatedRegistrationId;
 
     // List & Search & Filters
     public $search = '';
@@ -277,6 +279,12 @@ class RegistrationManager extends Component
         $this->resetForm();
     }
 
+    public function closeSuccessModal()
+    {
+        $this->isSuccessModalOpen = false;
+        $this->newlyCreatedRegistrationId = null;
+    }
+
     private function resetForm()
     {
         $this->registrationId = null;
@@ -468,10 +476,18 @@ class RegistrationManager extends Component
         $registration = Registration::find($regId);
         $message = "Check in {$this->name} berhasil disimpan.";
         $type = 'success';
+
+        $isNew = !$this->registrationId;
+
         $this->dispatch('notify', message: $message, type: $type);
         broadcast(new NotificationSent($message, $type))->toOthers();
         DatabaseUpdated::dispatch($registration->user_id);
         $this->closeModal();
+
+        if ($isNew) {
+            $this->newlyCreatedRegistrationId = $regId;
+            $this->isSuccessModalOpen = true;
+        }
     }
 
     private function generateBillsForRegistration($registration)
@@ -481,13 +497,24 @@ class RegistrationManager extends Component
 
     public function deleteRegistration($id)
     {
-        $reg = Registration::find($id);
+        $reg = Registration::withCount('payments')->find($id);
+
+        if ($reg->payments_count > 0) {
+            $this->dispatch('notify', message: "Data check in {$reg->user->name} tidak bisa dihapus karena sudah ada riwayat pembayaran.", type: 'warning');
+            return;
+        }
+
         $name = $reg->user->name;
         $userId = $reg->user_id;
 
         DB::transaction(function() use ($reg, $userId) {
             // Revert room status to available
             Room::where('id', $reg->room_id)->update(['status' => 'available']);
+
+            // Delete associated files
+            if ($reg->photo_self) Storage::disk('public')->delete($reg->photo_self);
+            if ($reg->photo_identity) Storage::disk('public')->delete($reg->photo_identity);
+            if ($reg->photo_family_card) Storage::disk('public')->delete($reg->photo_family_card);
 
             // Delete registration
             $reg->delete();
@@ -518,7 +545,7 @@ class RegistrationManager extends Component
 
     public function render()
     {
-        $query = Registration::with('user', 'location', 'room')->where('status', 'active');
+        $query = Registration::with('user', 'location', 'room')->withCount('payments')->where('status', 'active');
 
         if ($this->search) {
             $query->where(function($q) {
@@ -567,6 +594,7 @@ class RegistrationManager extends Component
             'registrations' => $query->latest()->paginate(10),
             'locations' => Location::all(),
             'rooms' => $rooms,
+            'newReg' => $this->newlyCreatedRegistrationId ? Registration::with(['user', 'location', 'room'])->find($this->newlyCreatedRegistrationId) : null,
         ]);
     }
 }

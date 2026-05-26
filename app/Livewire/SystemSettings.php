@@ -169,11 +169,12 @@ class SystemSettings extends Component
         })->delete();
 
         // Clear storage folders
-        if (File::exists(storage_path('app/public/locations'))) {
-            File::cleanDirectory(storage_path('app/public/locations'));
-        }
-        if (File::exists(storage_path('app/public/rooms'))) {
-            File::cleanDirectory(storage_path('app/public/rooms'));
+        $folders = ['locations', 'rooms', 'payment_methods', 'registrations', 'payments'];
+        foreach ($folders as $folder) {
+            $path = storage_path('app/public/' . $folder);
+            if (File::exists($path)) {
+                File::cleanDirectory($path);
+            }
         }
 
         $this->confirmingReset = false;

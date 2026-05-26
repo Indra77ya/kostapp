@@ -1,7 +1,7 @@
 <div>
     <div class="row mb-3 align-items-center">
         <div class="col">
-            <h2 class="page-title">Manajemen Check In</h2>
+            <h2 class="page-title">Check In</h2>
         </div>
         <div class="col-auto ms-auto">
             <button class="btn btn-primary" wire:click="openModal()">
@@ -100,7 +100,11 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-printer" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" /><path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" /><path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" /></svg>
                                 </a>
                                 <button class="btn btn-white btn-sm" wire:click="openModal({{ $reg->id }})">Edit</button>
-                                <button class="btn btn-white btn-sm text-danger" wire:click="deleteRegistration({{ $reg->id }})" wire:confirm="Yakin ingin menghapus data check in ini?">Hapus</button>
+                                @if($reg->payments_count > 0)
+                                    <button class="btn btn-white btn-sm text-muted" disabled title="Tidak bisa dihapus karena sudah ada pembayaran">Hapus</button>
+                                @else
+                                    <button class="btn btn-white btn-sm text-danger" wire:click="deleteRegistration({{ $reg->id }})" wire:confirm="Yakin ingin menghapus data check in ini?">Hapus</button>
+                                @endif
                             </div>
                         </td>
                     </tr>
@@ -445,6 +449,92 @@
                             </button>
                         </div>
                     </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal modal-blur fade {{ $isSuccessModalOpen ? 'show d-block' : '' }}" tabindex="-1" role="dialog" aria-hidden="true" style="{{ $isSuccessModalOpen ? 'background: rgba(0,0,0,0.5)' : '' }}">
+        <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <button type="button" class="btn-close" wire:click="closeSuccessModal()"></button>
+                <div class="modal-status bg-success"></div>
+                <div class="modal-body text-center py-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-green icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M9 12l2 2l4 -4" /></svg>
+                    <h3>Check In Berhasil!</h3>
+                    <div class="text-secondary">Data penghuni baru telah berhasil disimpan ke sistem.</div>
+
+                    @if($newReg)
+                    <div class="card mt-3 bg-light text-start">
+                        <div class="card-body p-3">
+                            <div class="mb-2">
+                                <label class="small text-muted fw-bold text-uppercase">Penghuni</label>
+                                <div class="fw-bold">{{ $newReg->user->name }}</div>
+                            </div>
+                            <div class="mb-2">
+                                <label class="small text-muted fw-bold text-uppercase">Lokasi & Kamar</label>
+                                <div>{{ $newReg->location->name }} - Kamar {{ $newReg->room->room_number }}</div>
+                            </div>
+                            <div class="hr-text my-3 small">Data Login</div>
+                            <div class="mb-2">
+                                <label class="small text-muted fw-bold text-uppercase">Email</label>
+                                <div class="input-group input-group-sm">
+                                    <input type="text" class="form-control" value="{{ $newReg->user->email }}" readonly>
+                                </div>
+                            </div>
+                            <div class="mb-0">
+                                <label class="small text-muted fw-bold text-uppercase">Password</label>
+                                <div class="input-group input-group-sm">
+                                    <input type="text" class="form-control" value="{{ $newReg->user->password_plain }}" readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+                </div>
+                <div class="modal-footer">
+                    <div class="w-100">
+                        <div class="row">
+                            <div class="col">
+                                <a href="{{ $newReg ? route('registrations.invoice', $newReg->id) : '#' }}" target="_blank" class="btn btn-white w-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-printer" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" /><path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" /><path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" /></svg>
+                                    Cetak Data
+                                </a>
+                            </div>
+                            <div class="col">
+                                @php
+                                    $waLink = '#';
+                                    if($newReg && $newReg->user->phone_number) {
+                                        $phone = preg_replace('/[^0-9]/', '', $newReg->user->phone_number);
+                                        if (str_starts_with($phone, '0')) {
+                                            $phone = '62' . substr($phone, 1);
+                                        }
+                                        $message = "Halo *" . $newReg->user->name . "*, selamat bergabung!\n\n"
+                                                 . "Berikut adalah detail login akun Anda:\n"
+                                                 . "*Email:* " . $newReg->user->email . "\n"
+                                                 . "*Password:* " . $newReg->user->password_plain . "\n"
+                                                 . "*Lokasi:* " . $newReg->location->name . "\n"
+                                                 . "*Kamar:* " . $newReg->room->room_number . "\n\n"
+                                                 . "Silakan login di: " . url('/login') . "\n"
+                                                 . "Simpan data ini baik-baik ya. Terima kasih!";
+                                        $waLink = "https://wa.me/" . $phone . "?text=" . rawurlencode($message);
+                                    }
+                                @endphp
+                                <a href="{{ $waLink }}" target="_blank" class="btn btn-success w-100 {{ !$newReg || !$newReg->user->phone_number ? 'disabled' : '' }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-whatsapp" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 21l1.65 -3.8a9 9 0 1 1 3.4 2.9l-5.05 .9" /><path d="M9 10a.5 .5 0 0 0 1 0v-1a.5 .5 0 0 0 -1 0v1a5 5 0 0 0 5 5h1a.5 .5 0 0 0 0 -1h-1a.5 .5 0 0 0 0 1" /></svg>
+                                    Kirim WA
+                                </a>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col">
+                                <button type="button" class="btn btn-link link-secondary w-100" wire:click="closeSuccessModal()">
+                                    Tutup
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
