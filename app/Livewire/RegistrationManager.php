@@ -43,6 +43,7 @@ class RegistrationManager extends Component
 
     // Financials
     public $room_price = 0, $discount_type = 'fixed', $discount_value = 0, $discount_duration = 0, $total_price = 0;
+    public $initial_deposit = 0;
     public $is_discount_open_ended = false;
     public $room_facilities = '';
 
@@ -234,6 +235,7 @@ class RegistrationManager extends Component
             $this->discount_duration = $reg->discount_duration;
             $this->is_discount_open_ended = (bool) $reg->is_discount_open_ended;
             $this->total_price = $reg->total_price;
+            $this->initial_deposit = $reg->initial_deposit;
 
             $this->name = $reg->user->name;
             $this->email = $reg->user->email;
@@ -303,6 +305,7 @@ class RegistrationManager extends Component
         $this->discount_duration = 0;
         $this->is_discount_open_ended = false;
         $this->total_price = 0;
+        $this->initial_deposit = 0;
         $this->room_facilities = '';
 
         $this->name = '';
@@ -417,6 +420,7 @@ class RegistrationManager extends Component
                 'discount_duration' => $this->discount_duration,
                 'is_discount_open_ended' => $this->is_discount_open_ended,
                 'total_price' => $this->total_price,
+                'initial_deposit' => $this->initial_deposit,
                 'identity_type' => $this->identity_type,
                 'identity_number' => $this->identity_number,
                 'gender' => $this->gender,

@@ -41,14 +41,19 @@ Route::middleware('auth')->group(function () {
             return view('room-moves.index');
         })->name('room-moves.index');
 
-        Route::middleware('role:owner|developer')->group(function () {
-            Route::get('/payments', function () {
-                return view('payments.index');
-            })->name('payments.index');
+        Route::get('/payments', function () {
+            return view('payments.index');
+        })->name('payments.index');
 
-            Route::get('/payments/confirmation', function () {
-                return view('payments.confirmation');
-            })->name('payments.confirmation');
+        Route::get('/payments/confirmation', function () {
+            return view('payments.confirmation');
+        })->name('payments.confirmation');
+
+        Route::get('/payments/deposits', function () {
+            return view('payments.deposits');
+        })->name('deposits.index');
+
+        Route::middleware('role:owner|developer')->group(function () {
 
             Route::get('/locations', function () {
                 return view('locations.index');

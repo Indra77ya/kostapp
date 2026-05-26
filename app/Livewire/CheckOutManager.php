@@ -33,6 +33,9 @@ class CheckOutManager extends Component
     public $check_out_date;
     public $check_out_notes;
     public $registration_data;
+    public $deposit_deduction = 0;
+    public $deposit_refund = 0;
+    public $deduction_notes = '';
 
     protected $listeners = ['echo:stats,DatabaseUpdated' => '$refresh'];
 
@@ -63,6 +66,8 @@ class CheckOutManager extends Component
         $this->validate([
             'check_out_date' => 'required|date',
             'check_out_notes' => 'nullable|string',
+            'deposit_deduction' => 'numeric|min:0',
+            'deposit_refund' => 'numeric|min:0',
         ]);
 
         $regId = $this->registrationId;
@@ -70,9 +75,33 @@ class CheckOutManager extends Component
 
         $outDate = $this->check_out_date;
         $outNotes = $this->check_out_notes;
+        $deduction = $this->deposit_deduction;
+        $refund = $this->deposit_refund;
+        $deductionNotes = $this->deduction_notes;
 
-        DB::transaction(function () use ($regId, $outDate, $outNotes) {
+        DB::transaction(function () use ($regId, $outDate, $outNotes, $deduction, $refund, $deductionNotes) {
             $reg = Registration::find($regId);
+
+            // 0. Handle Deposit Deductions and Refunds
+            if ($deduction > 0) {
+                \App\Models\Deposit::create([
+                    'registration_id' => $regId,
+                    'amount' => $deduction,
+                    'type' => 'debit',
+                    'description' => 'Potongan Deposit saat Check-out: ' . ($deductionNotes ?: 'Kerusakan/Denda'),
+                    'transaction_date' => $outDate,
+                ]);
+            }
+
+            if ($refund > 0) {
+                \App\Models\Deposit::create([
+                    'registration_id' => $regId,
+                    'amount' => $refund,
+                    'type' => 'debit',
+                    'description' => 'Pengembalian (Refund) Deposit saat Check-out',
+                    'transaction_date' => $outDate,
+                ]);
+            }
 
             // 1. Update Registration Status
             $reg->update([
