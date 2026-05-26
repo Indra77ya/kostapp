@@ -1,7 +1,7 @@
 <div>
     <div class="row mb-3 align-items-center">
         <div class="col">
-            <h2 class="page-title">Validasi Pembayaran</h2>
+            <h2 class="page-title">Konfirmasi Pembayaran</h2>
         </div>
     </div>
 
@@ -127,7 +127,7 @@
             <div class="modal-content">
                 @if($selectedPayment)
                 <div class="modal-header">
-                    <h5 class="modal-title">Detail Validasi Pembayaran</h5>
+                    <h5 class="modal-title">Detail Konfirmasi Pembayaran</h5>
                     <button type="button" class="btn-close" wire:click="closeModal()"></button>
                 </div>
                 <div class="modal-body">

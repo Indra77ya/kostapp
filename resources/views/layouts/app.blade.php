@@ -132,7 +132,7 @@
                           Transaksi Pembayaran
                         </a>
                         <a class="dropdown-item {{ request()->routeIs('payments.confirmation') ? 'active' : '' }}" href="{{ route('payments.confirmation') }}">
-                          Validasi Pembayaran
+                          Konfirmasi Pembayaran
                         </a>
                       </div>
                     </div>
