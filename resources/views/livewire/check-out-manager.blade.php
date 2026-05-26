@@ -1,7 +1,7 @@
 <div>
     <div class="row mb-3 align-items-center">
         <div class="col">
-            <h2 class="page-title">Manajemen Check Out</h2>
+            <h2 class="page-title">Check Out</h2>
         </div>
     </div>
 
