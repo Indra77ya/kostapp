@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Konfirmasi Pembayaran')
+@section('title', 'Validasi Pembayaran')
 @section('page_title', '')
 
 @section('content')

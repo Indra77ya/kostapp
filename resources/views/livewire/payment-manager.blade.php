@@ -1,7 +1,7 @@
 <div>
     <div class="row mb-3 align-items-center">
         <div class="col">
-            <h2 class="page-title">Input Pembayaran</h2>
+            <h2 class="page-title">Transaksi Pembayaran</h2>
         </div>
         @if($viewMode === 'history')
         <div class="col-auto ms-auto btn-list">

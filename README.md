@@ -42,7 +42,7 @@ Aplikasi ini mencakup seluruh siklus manajemen kost, mulai dari manajemen aset h
 -   **Dukungan Diskon**: Pengaturan diskon dengan durasi tertentu (misal: diskon 3 bulan pertama) atau diskon tetap (Hingga Keluar).
 -   **Sinkronisasi Penagihan Pintar**: Tagihan yang belum lunas akan otomatis diperbarui jika terjadi perubahan harga kamar atau konfigurasi diskon pada data registrasi penghuni.
 -   **Lapor Pembayaran (Tenant)**: Fitur bagi penghuni untuk melihat daftar tagihan, mengunggah bukti pembayaran, dan mengisi detail bank/e-wallet pengirim.
--   **Konfirmasi Pembayaran (Admin)**: Dashboard khusus bagi admin untuk memvalidasi bukti pembayaran lengkap dengan informasi rekening pengirim.
+-   **Validasi Pembayaran (Admin)**: Dashboard khusus bagi admin untuk memvalidasi bukti pembayaran lengkap dengan informasi rekening pengirim.
 -   **Riwayat & Cicilan**: Pencatatan riwayat pembayaran yang mendukung sistem cicilan (pelunasan bertahap).
 -   **Cetak Invoice & Kuitansi**: Generasi dokumen formal dengan tanda air dinamis ('LUNAS', 'CICILAN', 'BELUM LUNAS') dan breakdown saldo yang mendetail.
 
@@ -71,7 +71,7 @@ Aplikasi ini mencakup seluruh siklus manajemen kost, mulai dari manajemen aset h
 3.  **Real-Time Engine**: Menggunakan **Laravel Reverb** (WebSocket) untuk mendorong pembaruan data dan notifikasi ke browser pengguna secara instan melalui event broadcasting.
 4.  **Sistem Keamanan & Role**: Menggunakan **Spatie Permission**.
     -   `Developer/Owner`: Akses penuh ke seluruh sistem termasuk pengaturan sistem.
-    -   `Admin`: Akses operasional dan finansial (Check-in, Check-out, Pindah Kamar, Penghuni, Konfirmasi Pembayaran).
+    -   `Admin`: Akses operasional dan finansial (Check-in, Check-out, Pindah Kamar, Penghuni, Validasi Pembayaran).
     -   `Tenant (Penghuni)`: Akses terbatas untuk melihat profil sendiri, daftar tagihan, dan melaporkan pembayaran.
 
 ### Struktur Database Utama
