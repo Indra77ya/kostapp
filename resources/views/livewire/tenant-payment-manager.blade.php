@@ -49,8 +49,16 @@
                                     $totalPaid = $payments->where('status', '!=', 'Menunggu Konfirmasi')->sum('amount');
                                     $balance = $totalBill - $totalPaid;
                                 @endphp
-                                <div class="font-weight-medium text-danger">Sisa Tagihan</div>
-                                <div class="h3 mb-0">Rp {{ number_format($balance, 0, ',', '.') }}</div>
+                                @if($balance > 0)
+                                    <div class="font-weight-medium text-danger">Sisa Tagihan</div>
+                                    <div class="h3 mb-0 text-danger">Rp {{ number_format($balance, 0, ',', '.') }}</div>
+                                @elseif($balance < 0)
+                                    <div class="font-weight-medium text-primary">Saldo Deposit</div>
+                                    <div class="h3 mb-0 text-primary">Rp {{ number_format(abs($balance), 0, ',', '.') }}</div>
+                                @else
+                                    <div class="font-weight-medium text-success">Status Pembayaran</div>
+                                    <div class="h3 mb-0 text-success">Lunas</div>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -212,12 +220,18 @@
                                     </div>
                                     @if($selectedPm->category !== 'Tunai')
                                         <div class="row g-2 small">
+                                        @if($selectedPm->name !== 'Saldo Deposit')
                                             <div class="col-4 text-dark">Nama Bank/App:</div>
                                             <div class="col-8 fw-bold text-dark">{{ $selectedPm->name }}</div>
                                             <div class="col-4 text-dark">No. Rekening/ID:</div>
                                             <div class="col-8 fw-bold text-dark">{{ $selectedPm->account_number }}</div>
                                             <div class="col-4 text-dark">Atas Nama:</div>
                                             <div class="col-8 fw-bold text-dark">{{ $selectedPm->account_name }}</div>
+                                        @else
+                                            <div class="col-12 text-dark">
+                                                Gunakan saldo deposit Anda untuk melunasi tagihan. Sisa deposit: <strong>Rp {{ number_format($registration->deposit_balance, 0, ',', '.') }}</strong>
+                                            </div>
+                                        @endif
                                         </div>
                                     @else
                                         <div class="small text-dark">
@@ -243,7 +257,7 @@
                             @error('amount') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
-                        @if($selectedPm && $selectedPm->category !== 'Tunai')
+                        @if($selectedPm && $selectedPm->category !== 'Tunai' && $selectedPm->name !== 'Saldo Deposit')
                         <div class="card border-dashed mb-3">
                             <div class="card-body p-3">
                                 <div class="mb-2"><strong>Data {{ $selectedPm->category === 'E-Wallet' ? 'E-Wallet' : 'Bank' }}/Pengirim Anda:</strong></div>
@@ -268,7 +282,7 @@
                         </div>
                         @endif
 
-                        @if(!$selectedPm || $selectedPm->category !== 'Tunai')
+                        @if(!$selectedPm || ($selectedPm->category !== 'Tunai' && $selectedPm->name !== 'Saldo Deposit'))
                         <div class="mb-3">
                             <label class="form-label required">Bukti Pembayaran (Foto/Screenshot)</label>
                             <input type="file" class="form-control @error('proof_of_payment') is-invalid @enderror" wire:model="proof_of_payment">

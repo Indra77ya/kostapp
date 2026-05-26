@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Payment;
 use App\Models\Bill;
+use App\Models\Deposit;
 use App\Models\Registration;
 use Illuminate\Support\Facades\DB;
 use App\Events\DatabaseUpdated;
@@ -63,6 +64,8 @@ class PaymentConfirmationManager extends Component
             if ($payment->bill_id) {
                 $this->syncBillStatus($payment->bill_id);
             }
+
+            $this->syncDeposit($payment);
         });
 
         $billDescription = $payment->bill ? $payment->bill->description : 'Pembayaran Umum';
@@ -118,6 +121,54 @@ class PaymentConfirmationManager extends Component
     public function updatingFilterDateStart() { $this->resetPage(); }
     public function updatingFilterDateEnd() { $this->resetPage(); }
     public function updatingSort() { $this->resetPage(); }
+
+    private function syncDeposit($payment)
+    {
+        // Delete existing deposit linked to this payment
+        Deposit::where('payment_id', $payment->id)->delete();
+
+        if ($payment->status === 'Menunggu Konfirmasi' || $payment->status === 'Ditolak') {
+            return;
+        }
+
+        $pm = \App\Models\PaymentMethod::find($payment->payment_method_id);
+        if ($pm && $pm->name === 'Saldo Deposit') {
+            // Debit deposit (usage)
+            Deposit::create([
+                'registration_id' => $payment->registration_id,
+                'payment_id' => $payment->id,
+                'amount' => $payment->amount,
+                'type' => 'debit',
+                'description' => 'Pembayaran ' . ($payment->bill_id ? 'Tagihan ' . $payment->bill->bill_number : 'Umum') . ' menggunakan Saldo Deposit',
+                'transaction_date' => $payment->payment_date,
+            ]);
+            return;
+        }
+
+        // Handle credit deposit (overpayment or general deposit)
+        $excess = 0;
+        if ($payment->bill_id) {
+            $bill = $payment->bill;
+            $totalPaidOnBill = Payment::where('bill_id', $payment->bill_id)
+                ->where('status', '!=', 'Menunggu Konfirmasi')
+                ->where('status', '!=', 'Ditolak')
+                ->sum('amount');
+            $excess = $totalPaidOnBill - $bill->amount;
+        } else {
+            $excess = $payment->amount;
+        }
+
+        if ($excess > 0) {
+            Deposit::create([
+                'registration_id' => $payment->registration_id,
+                'payment_id' => $payment->id,
+                'amount' => $excess,
+                'type' => 'credit',
+                'description' => $payment->bill_id ? 'Kelebihan pembayaran tagihan ' . $payment->bill->bill_number : 'Penyetoran Deposit Umum',
+                'transaction_date' => $payment->payment_date,
+            ]);
+        }
+    }
 
     private function syncBillStatus($billId)
     {

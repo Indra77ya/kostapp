@@ -109,6 +109,8 @@
                         <td>
                             @if($reg->remaining_amount > 0)
                                 <span class="text-danger fw-bold">Rp {{ number_format($reg->remaining_amount, 0, ',', '.') }}</span>
+                            @elseif($reg->remaining_amount < 0)
+                                <span class="text-primary fw-bold">Deposit: Rp {{ number_format(abs($reg->remaining_amount), 0, ',', '.') }}</span>
                             @else
                                 <span class="text-success fw-bold">Lunas</span>
                             @endif
@@ -189,6 +191,8 @@
                         <td>
                             @if($bill->remaining_amount > 0)
                                 <span class="text-danger fw-bold">Rp {{ number_format($bill->remaining_amount, 0, ',', '.') }}</span>
+                            @elseif($bill->remaining_amount < 0)
+                                <span class="text-primary fw-bold">Deposit: Rp {{ number_format(abs($bill->remaining_amount), 0, ',', '.') }}</span>
                             @else
                                 <span class="text-success fw-bold">Lunas</span>
                             @endif

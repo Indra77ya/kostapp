@@ -25,6 +25,7 @@ class Registration extends Model
         'discount_duration',
         'is_discount_open_ended',
         'total_price',
+        'initial_deposit',
         'identity_type',
         'identity_number',
         'gender',
@@ -79,16 +80,54 @@ class Registration extends Model
         return $this->hasMany(Bill::class);
     }
 
+    public function deposits()
+    {
+        return $this->hasMany(Deposit::class);
+    }
+
+    public function getDepositBalanceAttribute()
+    {
+        $credit = $this->deposits()->where('type', 'credit')->sum('amount');
+        $debit = $this->deposits()->where('type', 'debit')->sum('amount');
+        return $credit - $debit;
+    }
+
     public function syncBills()
     {
         $startDate = \Carbon\Carbon::parse($this->stay_start_date);
+
+        // Handle Deposit Bill
+        if ($this->initial_deposit > 0) {
+            $depositBill = $this->bills()->where('description', 'like', 'Deposit Awal%')->first();
+            if ($depositBill) {
+                if ($depositBill->status !== 'Lunas') {
+                    $depositBill->update([
+                        'amount' => $this->initial_deposit,
+                    ]);
+                }
+            } else {
+                Bill::create([
+                    'registration_id' => $this->id,
+                    'bill_number' => 'BILL-DEP-' . $this->id . '-' . $startDate->format('dmY'),
+                    'description' => 'Deposit Awal (Uang Jaminan)',
+                    'discount' => 0,
+                    'amount' => $this->initial_deposit,
+                    'due_date' => $startDate,
+                    'status' => 'Belum Lunas',
+                ]);
+            }
+        }
+
         $count = (int) $this->duration_value;
 
         if ($this->is_open_ended) {
             $count = 12;
         }
 
-        $existingBills = $this->bills()->orderBy('due_date', 'asc')->get();
+        $existingBills = $this->bills()
+            ->where('description', 'not like', 'Deposit Awal%')
+            ->orderBy('due_date', 'asc')
+            ->get();
 
         for ($i = 0; $i < $count; $i++) {
             $billDate = clone $startDate;
