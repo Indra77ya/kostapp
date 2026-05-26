@@ -129,7 +129,7 @@
                     <div class="dropdown-menu-columns">
                       <div class="dropdown-menu-column">
                         <a class="dropdown-item {{ request()->routeIs('payments.index') ? 'active' : '' }}" href="{{ route('payments.index') }}">
-                          Input Pembayaran
+                          Transaksi Pembayaran
                         </a>
                         <a class="dropdown-item {{ request()->routeIs('payments.confirmation') ? 'active' : '' }}" href="{{ route('payments.confirmation') }}">
                           Konfirmasi Pembayaran
