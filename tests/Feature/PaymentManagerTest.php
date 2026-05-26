@@ -64,6 +64,15 @@ class PaymentManagerTest extends TestCase
         $tenant->assignRole('tenant');
         $registration = Registration::create(['user_id' => $tenant->id, 'room_id' => $room->id, 'location_id' => $location->id, 'registration_number' => 'REG-123', 'registration_date' => now(), 'stay_start_date' => now(), 'room_price' => 1000000, 'total_price' => 1000000, 'identity_type' => 'KTP', 'identity_number' => '12345', 'gender' => 'Laki-laki', 'birth_date' => '1990-01-01', 'status' => 'active']);
 
+        Bill::create([
+            'registration_id' => $registration->id,
+            'bill_number' => 'BILL-123',
+            'description' => 'Initial Bill',
+            'amount' => 1000000,
+            'due_date' => now(),
+            'status' => 'Belum Lunas'
+        ]);
+
         $paymentMethod = PaymentMethod::create(['name' => 'Cash', 'category' => 'Manual', 'is_active' => true]);
 
         Livewire::actingAs($owner)

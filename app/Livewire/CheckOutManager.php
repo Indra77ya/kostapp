@@ -143,9 +143,11 @@ class CheckOutManager extends Component
         }
 
         if ($this->filterPaymentStatus === 'lunas') {
-            $query->whereRaw('(select COALESCE(sum(amount), 0) from bills where bills.registration_id = registrations.id) <= (select COALESCE(sum(amount), 0) from payments where payments.registration_id = registrations.id and status != "Menunggu Konfirmasi")');
+            $query->whereRaw('(select COALESCE(sum(amount), 0) from bills where bills.registration_id = registrations.id) = (select COALESCE(sum(amount), 0) from payments where payments.registration_id = registrations.id and status != "Menunggu Konfirmasi" and status != "Ditolak")');
         } elseif ($this->filterPaymentStatus === 'tunggakan') {
-            $query->whereRaw('(select COALESCE(sum(amount), 0) from bills where bills.registration_id = registrations.id) > (select COALESCE(sum(amount), 0) from payments where payments.registration_id = registrations.id and status != "Menunggu Konfirmasi")');
+            $query->whereRaw('(select COALESCE(sum(amount), 0) from bills where bills.registration_id = registrations.id) > (select COALESCE(sum(amount), 0) from payments where payments.registration_id = registrations.id and status != "Menunggu Konfirmasi" and status != "Ditolak")');
+        } elseif ($this->filterPaymentStatus === 'deposit') {
+            $query->whereRaw('(select COALESCE(sum(amount), 0) from bills where bills.registration_id = registrations.id) < (select COALESCE(sum(amount), 0) from payments where payments.registration_id = registrations.id and status != "Menunggu Konfirmasi" and status != "Ditolak")');
         }
 
         // Sorting

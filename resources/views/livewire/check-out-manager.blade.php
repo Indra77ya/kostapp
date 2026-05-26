@@ -45,6 +45,7 @@
                         <option value="">Semua Status</option>
                         <option value="lunas">Lunas</option>
                         <option value="tunggakan">Tunggakan</option>
+                        <option value="deposit">Ada Deposit</option>
                     </select>
                 </div>
                 <div class="col-md-2">

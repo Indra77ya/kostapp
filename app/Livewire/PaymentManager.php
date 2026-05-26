@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use App\Events\DatabaseUpdated;
 use App\Events\NotificationSent;
 use Carbon\Carbon;
+use Livewire\Attributes\Url;
 
 class PaymentManager extends Component
 {
@@ -31,10 +32,15 @@ class PaymentManager extends Component
     public $billId;
 
     // List & Search & Filters
+    #[Url]
     public $search = '';
+    #[Url]
     public $filterLocation = '';
+    #[Url]
     public $filterDurationType = '';
+    #[Url]
     public $filterPaymentStatus = '';
+    #[Url]
     public $sort = 'name_asc';
 
     // Form fields (Payment)
@@ -532,9 +538,11 @@ class PaymentManager extends Component
         }
 
         if ($this->filterPaymentStatus === 'lunas') {
-            $query->whereRaw('(select COALESCE(sum(amount), 0) from bills where bills.registration_id = registrations.id) <= (select COALESCE(sum(amount), 0) from payments where payments.registration_id = registrations.id and status != "Menunggu Konfirmasi")');
+            $query->whereRaw('(select COALESCE(sum(amount), 0) from bills where bills.registration_id = registrations.id) = (select COALESCE(sum(amount), 0) from payments where payments.registration_id = registrations.id and status != "Menunggu Konfirmasi" and status != "Ditolak")');
         } elseif ($this->filterPaymentStatus === 'tunggakan') {
-            $query->whereRaw('(select COALESCE(sum(amount), 0) from bills where bills.registration_id = registrations.id) > (select COALESCE(sum(amount), 0) from payments where payments.registration_id = registrations.id and status != "Menunggu Konfirmasi")');
+            $query->whereRaw('(select COALESCE(sum(amount), 0) from bills where bills.registration_id = registrations.id) > (select COALESCE(sum(amount), 0) from payments where payments.registration_id = registrations.id and status != "Menunggu Konfirmasi" and status != "Ditolak")');
+        } elseif ($this->filterPaymentStatus === 'deposit') {
+            $query->whereRaw('(select COALESCE(sum(amount), 0) from bills where bills.registration_id = registrations.id) < (select COALESCE(sum(amount), 0) from payments where payments.registration_id = registrations.id and status != "Menunggu Konfirmasi" and status != "Ditolak")');
         }
 
         // Sorting
