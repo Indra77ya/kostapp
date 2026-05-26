@@ -104,10 +104,12 @@
                             @php
                                 $remaining = ($reg->total_bill ?: 0) - ($reg->total_paid ?: 0);
                             @endphp
-                            @if($remaining <= 0)
-                                <span class="badge bg-success-lt">Lunas</span>
+                            @if($remaining > 0)
+                                <span class="badge bg-warning-lt">Tunggakan: Rp {{ number_format($remaining, 0, ',', '.') }}</span>
+                            @elseif($remaining < 0)
+                                <span class="badge bg-primary-lt">Deposit: Rp {{ number_format(abs($remaining), 0, ',', '.') }}</span>
                             @else
-                                <span class="badge bg-warning-lt">Sisa: Rp {{ number_format($remaining, 0, ',', '.') }}</span>
+                                <span class="badge bg-success-lt">Lunas</span>
                             @endif
                         </td>
                         <td>

@@ -132,8 +132,14 @@
                         </div>
                         <div style="border-top: 1px solid #e5e7eb; padding-top: 5px; display: flex; justify-content: space-between;">
                             <span class="info-title" style="margin: 0; font-weight: bold; color: {{ $payment->bill->remaining_amount > 0 ? '#ef4444' : '#10b981' }};">Sisa Tagihan:</span>
-                            <span class="info-value" style="font-weight: bold; color: {{ $payment->bill->remaining_amount > 0 ? '#ef4444' : '#10b981' }};">Rp {{ number_format($payment->bill->remaining_amount, 0, ',', '.') }}</span>
+                            <span class="info-value" style="font-weight: bold; color: {{ $payment->bill->remaining_amount > 0 ? '#ef4444' : '#10b981' }};">Rp {{ number_format(max(0, $payment->bill->remaining_amount), 0, ',', '.') }}</span>
                         </div>
+                        @if($payment->bill->remaining_amount < 0)
+                            <div style="margin-top: 5px; display: flex; justify-content: space-between;">
+                                <span class="info-title" style="margin: 0; font-weight: bold; color: #3b82f6;">Saldo Lebih / Deposit:</span>
+                                <span class="info-value" style="font-weight: bold; color: #3b82f6;">Rp {{ number_format(abs($payment->bill->remaining_amount), 0, ',', '.') }}</span>
+                            </div>
+                        @endif
                     </div>
                 @elseif($payment->registration)
                     <div style="text-align: right; min-width: 250px;">
@@ -147,8 +153,14 @@
                         </div>
                         <div style="border-top: 1px solid #e5e7eb; padding-top: 5px; display: flex; justify-content: space-between;">
                             <span class="info-title" style="margin: 0; font-weight: bold; color: {{ $remaining > 0 ? '#ef4444' : '#10b981' }};">Sisa:</span>
-                            <span class="info-value" style="font-weight: bold; color: {{ $remaining > 0 ? '#ef4444' : '#10b981' }};">Rp {{ number_format($remaining, 0, ',', '.') }}</span>
+                            <span class="info-value" style="font-weight: bold; color: {{ $remaining > 0 ? '#ef4444' : '#10b981' }};">Rp {{ number_format(max(0, $remaining), 0, ',', '.') }}</span>
                         </div>
+                        @if($remaining < 0)
+                            <div style="margin-top: 5px; display: flex; justify-content: space-between;">
+                                <span class="info-title" style="margin: 0; font-weight: bold; color: #3b82f6;">Saldo Lebih / Deposit:</span>
+                                <span class="info-value" style="font-weight: bold; color: #3b82f6;">Rp {{ number_format(abs($remaining), 0, ',', '.') }}</span>
+                            </div>
+                        @endif
                     </div>
                 @endif
             </div>

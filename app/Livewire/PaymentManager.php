@@ -153,7 +153,7 @@ class PaymentManager extends Component
                 $this->status = "Belum Lunas (Sisa: Rp {$formattedDiff})";
             } elseif ($diff < 0) {
                 $formattedDiff = number_format(abs($diff), 0, ',', '.');
-                $this->status = "Lunas (Kelebihan: Rp {$formattedDiff})";
+                $this->status = "Lunas (Deposit: Rp {$formattedDiff})";
             } else {
                 $this->status = "Lunas";
             }
@@ -181,7 +181,7 @@ class PaymentManager extends Component
                 $this->status = "Belum Lunas (Sisa: Rp {$formattedDiff})";
             } elseif ($diff < 0) {
                 $formattedDiff = number_format(abs($diff), 0, ',', '.');
-                $this->status = "Lunas (Kelebihan: Rp {$formattedDiff})";
+                $this->status = "Lunas (Deposit: Rp {$formattedDiff})";
             } else {
                 $this->status = "Lunas";
             }
