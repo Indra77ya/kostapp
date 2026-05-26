@@ -13,8 +13,10 @@ Aplikasi ini mencakup seluruh siklus manajemen kost, mulai dari manajemen aset h
     -   Pendaftaran penghuni baru dengan data lengkap (Foto Diri, KTP, KK).
     -   Pencatatan data instansi/kampus dan kontak darurat.
     -   Otomatisasi pembuatan akun login untuk penghuni.
+    -   **Kirim Kredensial via WhatsApp**: Kirim detail login ke penghuni secara instan setelah registrasi berhasil.
     -   Generasi nomor registrasi otomatis (REG-DDMMYYYY-XXXX).
     -   Sinkronisasi otomatis status kamar menjadi 'Terisi'.
+    -   **Pembersihan Data Otomatis**: Menghapus file fisik (foto) dari storage saat data registrasi dihapus untuk efisiensi penyimpanan.
 -   **Check Out**:
     -   Proses keluar penghuni dengan pencatatan tanggal dan catatan tambahan.
     -   Otomatisasi pengembalian status kamar menjadi 'Tersedia'.
@@ -39,13 +41,14 @@ Aplikasi ini mencakup seluruh siklus manajemen kost, mulai dari manajemen aset h
 -   **Otomatisasi Tagihan**: Penjanaan tagihan otomatis saat check-in, termasuk dukungan untuk sewa bulanan, mingguan, harian, dan tahunan. Mendukung opsi masa inap tetap atau "Hingga Keluar" (Indefinite).
 -   **Dukungan Diskon**: Pengaturan diskon dengan durasi tertentu (misal: diskon 3 bulan pertama) atau diskon tetap (Hingga Keluar).
 -   **Sinkronisasi Penagihan Pintar**: Tagihan yang belum lunas akan otomatis diperbarui jika terjadi perubahan harga kamar atau konfigurasi diskon pada data registrasi penghuni.
--   **Lapor Pembayaran (Tenant)**: Fitur bagi penghuni untuk melihat daftar tagihan dan mengunggah bukti pembayaran secara mandiri.
--   **Konfirmasi Pembayaran (Admin)**: Dashboard khusus bagi admin untuk memvalidasi bukti pembayaran dari penghuni.
+-   **Lapor Pembayaran (Tenant)**: Fitur bagi penghuni untuk melihat daftar tagihan, mengunggah bukti pembayaran, dan mengisi detail bank/e-wallet pengirim.
+-   **Konfirmasi Pembayaran (Admin)**: Dashboard khusus bagi admin untuk memvalidasi bukti pembayaran lengkap dengan informasi rekening pengirim.
 -   **Riwayat & Cicilan**: Pencatatan riwayat pembayaran yang mendukung sistem cicilan (pelunasan bertahap).
--   **Cetak Invoice & Kuitansi**: Generasi dokumen formal untuk tagihan (Invoice) dan bukti bayar (Kuitansi) dengan tanda air 'LUNAS'.
+-   **Cetak Invoice & Kuitansi**: Generasi dokumen formal dengan tanda air dinamis ('LUNAS', 'CICILAN', 'BELUM LUNAS') dan breakdown saldo yang mendetail.
 
 ### 4. Dashboard & Notifikasi
 -   **Statistik Interaktif**: Pantau jumlah kamar total, kamar tersedia, dan pesanan aktif secara visual.
+-   **Penyaringan & Pengurutan Canggih**: Semua modul dilengkapi dengan sistem filter (lokasi, status, tipe sewa) dan pengurutan (A-Z, terbaru, tagihan tertinggi) yang responsif.
 -   **Notifikasi Real-Time**: Pemberitahuan instan untuk aktivitas penting (seperti pendaftaran baru atau laporan pembayaran) tanpa perlu refresh halaman.
 
 ---
@@ -72,7 +75,7 @@ Aplikasi ini mencakup seluruh siklus manajemen kost, mulai dari manajemen aset h
     -   `Tenant (Penghuni)`: Akses terbatas untuk melihat profil sendiri, daftar tagihan, dan melaporkan pembayaran.
 
 ### Struktur Database Utama
--   `users`: Menyimpan data staf dan penghuni (beserta `password_plain` untuk kemudahan admin).
+-   `users`: Menyimpan data staf dan penghuni (termasuk kolom `password_plain` untuk memfasilitasi berbagi kredensial login kepada tenant).
 -   `locations`: Data gedung kost.
 -   `rooms`: Data kamar beserta status dan relasi ke lokasi.
 -   `registrations`: Data transaksi sewa aktif beserta informasi diskon.
@@ -90,7 +93,7 @@ Aplikasi ini dilengkapi dengan modul Pengaturan Sistem (khusus Owner/Developer) 
 -   **Statistik Data**: Melihat jumlah total User, Lokasi, Kamar, Fasilitas, dan Aturan.
 -   **Backup Data**: Membuat file `.zip` yang berisi database dan seluruh foto unggahan (KTP, Foto Kamar, dll).
 -   **Restore Data**: Mengembalikan kondisi aplikasi dari file backup yang telah dibuat sebelumnya.
--   **Reset Sistem**: Menghapus seluruh data operasional (transaksi, kamar, lokasi) dan menyisakan akun Owner/Developer untuk memulai dari awal.
+-   **Reset Sistem (Cascading)**: Fitur pembersihan data dengan logika ketergantungan. Menghapus 'Master Data' (seperti Lokasi/Kamar) akan otomatis membersihkan 'Data Operasional' yang terkait (seperti Registrasi/Tagihan) untuk menjaga integritas database.
 
 ---
 
