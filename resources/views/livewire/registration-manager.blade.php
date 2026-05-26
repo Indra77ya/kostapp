@@ -1,7 +1,7 @@
 <div>
     <div class="row mb-3 align-items-center">
         <div class="col">
-            <h2 class="page-title">Manajemen Check In</h2>
+            <h2 class="page-title">Check In</h2>
         </div>
         <div class="col-auto ms-auto">
             <button class="btn btn-primary" wire:click="openModal()">
