@@ -134,9 +134,6 @@
                         <a class="dropdown-item {{ request()->routeIs('payments.confirmation') ? 'active' : '' }}" href="{{ route('payments.confirmation') }}">
                           Konfirmasi Pembayaran
                         </a>
-                        <a class="dropdown-item {{ request()->get('filterPaymentStatus') === 'deposit' ? 'active' : '' }}" href="{{ route('payments.index', ['filterPaymentStatus' => 'deposit']) }}">
-                          Saldo Deposit
-                        </a>
                       </div>
                     </div>
                   </div>
