@@ -158,33 +158,7 @@ class PaymentManager extends Component
                 $this->status = "Lunas";
             }
         } else {
-            if (!$this->registration_id) {
-                $this->status = 'Lunas';
-                return;
-            }
-
-            $registration = Registration::find($this->registration_id);
-            if (!$registration) return;
-
-            $totalPaidPrev = Payment::where('registration_id', $this->registration_id)
-                ->when($this->paymentId, fn($q) => $q->where('id', '!=', $this->paymentId))
-                ->sum('amount');
-
-            $currentAmount = (float) ($this->amount ?: 0);
-            $totalPaidNow = $totalPaidPrev + $currentAmount;
-            $totalBill = (float) $registration->total_price;
-
-            $diff = $totalBill - $totalPaidNow;
-
-            if ($diff > 0) {
-                $formattedDiff = number_format($diff, 0, ',', '.');
-                $this->status = "Belum Lunas (Sisa: Rp {$formattedDiff})";
-            } elseif ($diff < 0) {
-                $formattedDiff = number_format(abs($diff), 0, ',', '.');
-                $this->status = "Lunas (Deposit: Rp {$formattedDiff})";
-            } else {
-                $this->status = "Lunas";
-            }
+            $this->status = "Setor Deposit";
         }
     }
 

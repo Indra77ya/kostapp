@@ -185,7 +185,7 @@
                         <div class="mb-3">
                             <label class="form-label">Peruntukan Tagihan (Opsional)</label>
                             <select class="form-select" wire:model.live="bill_id">
-                                <option value="">Pembayaran Umum</option>
+                                <option value="">Setor Deposit</option>
                                 @foreach($bills as $b)
                                     @if($b->status !== 'Lunas')
                                         <option value="{{ $b->id }}">{{ $b->description }} (Rp {{ number_format($b->amount - $b->paid_amount, 0, ',', '.') }})</option>

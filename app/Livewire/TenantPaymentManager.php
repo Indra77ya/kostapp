@@ -162,27 +162,7 @@ class TenantPaymentManager extends Component
                 $this->status = "Lunas";
             }
         } else {
-            $totalPaidPrev = Payment::where('registration_id', $registration->id)
-                ->where('status', '!=', 'Ditolak')
-                ->sum('amount');
-
-            $currentAmount = (float) ($this->amount ?: 0);
-            $totalPaidNow = $totalPaidPrev + $currentAmount;
-
-            // Total bills instead of registration total_price to match standard balance calculation
-            $totalBill = Bill::where('registration_id', $registration->id)->sum('amount');
-
-            $diff = $totalBill - $totalPaidNow;
-
-            if ($diff > 0) {
-                $formattedDiff = number_format($diff, 0, ',', '.');
-                $this->status = "Belum Lunas (Sisa: Rp {$formattedDiff})";
-            } elseif ($diff < 0) {
-                $formattedDiff = number_format(abs($diff), 0, ',', '.');
-                $this->status = "Lunas (Deposit: Rp {$formattedDiff})";
-            } else {
-                $this->status = "Lunas";
-            }
+            $this->status = "Setor Deposit";
         }
     }
 
