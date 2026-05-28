@@ -39,6 +39,7 @@ class PaymentManager extends Component
     // Form fields (Payment)
     public $registration_id, $bill_id, $payment_method_id, $payment_number;
     public $payment_date, $amount, $notes, $status = 'Lunas';
+    public $excess_amount = 0;
     public $proof_of_payment;
     public $sender_bank_name, $sender_account_number, $sender_account_name;
 
@@ -134,6 +135,7 @@ class PaymentManager extends Component
 
     private function calculateStatus()
     {
+        $this->excess_amount = 0;
         if ($this->bill_id === 'umum') {
             $this->status = "";
         } elseif ($this->bill_id === 'deposit') {
@@ -156,7 +158,8 @@ class PaymentManager extends Component
                 $formattedDiff = number_format($diff, 0, ',', '.');
                 $this->status = "Belum Lunas (Sisa: Rp {$formattedDiff})";
             } elseif ($diff < 0) {
-                $formattedDiff = number_format(abs($diff), 0, ',', '.');
+                $this->excess_amount = abs($diff);
+                $formattedDiff = number_format($this->excess_amount, 0, ',', '.');
                 $this->status = "Lunas (Deposit: Rp {$formattedDiff})";
             } else {
                 $this->status = "Lunas";
@@ -268,6 +271,7 @@ class PaymentManager extends Component
         $this->amount = null;
         $this->notes = null;
         $this->status = '';
+        $this->excess_amount = 0;
         $this->proof_of_payment = null;
         $this->sender_bank_name = null;
         $this->sender_account_number = null;
