@@ -25,6 +25,7 @@ class TenantPaymentManager extends Component
 
     // Form fields
     public $bill_id, $payment_method_id, $payment_date, $amount, $notes, $proof_of_payment;
+    public $status = 'Lunas';
     public $sender_bank_name, $sender_account_number, $sender_account_name;
     public $payment_number;
 
@@ -73,6 +74,7 @@ class TenantPaymentManager extends Component
                 // Calculate remaining for this specific bill
                 $totalPaidOnThisBill = Payment::where('bill_id', $billId)
                     ->where('status', '!=', 'Menunggu Konfirmasi')
+                    ->where('status', '!=', 'Ditolak')
                     ->sum('amount');
 
                 // Also subtract pending payments
@@ -85,6 +87,7 @@ class TenantPaymentManager extends Component
             }
         }
 
+        $this->calculateStatus();
         $this->isModalOpen = true;
     }
 
@@ -101,11 +104,86 @@ class TenantPaymentManager extends Component
         $this->payment_date = Carbon::now()->format('Y-m-d');
         $this->amount = null;
         $this->notes = null;
+        $this->status = 'Lunas';
         $this->proof_of_payment = null;
         $this->sender_bank_name = null;
         $this->sender_account_number = null;
         $this->sender_account_name = null;
         $this->generatePaymentNumber();
+    }
+
+    public function updatedBillId()
+    {
+        if ($this->bill_id) {
+            $bill = Bill::find($this->bill_id);
+            if ($bill) {
+                $totalPaidOnThisBill = Payment::where('bill_id', $this->bill_id)
+                    ->where('status', '!=', 'Ditolak')
+                    ->sum('amount');
+
+                $this->amount = $bill->amount - $totalPaidOnThisBill;
+                if ($this->amount < 0) $this->amount = 0;
+            }
+        }
+        $this->calculateStatus();
+    }
+
+    public function updatedAmount()
+    {
+        $this->calculateStatus();
+    }
+
+    private function calculateStatus()
+    {
+        $registration = Registration::where('user_id', Auth::id())->where('status', 'active')->first();
+        if (!$registration) return;
+
+        if ($this->bill_id) {
+            $bill = Bill::find($this->bill_id);
+            if (!$bill) return;
+
+            $totalPaidPrev = Payment::where('bill_id', $this->bill_id)
+                ->where('status', '!=', 'Ditolak')
+                ->sum('amount');
+
+            $currentAmount = (float) ($this->amount ?: 0);
+            $totalPaidNow = $totalPaidPrev + $currentAmount;
+            $totalBill = (float) $bill->amount;
+
+            $diff = $totalBill - $totalPaidNow;
+
+            if ($diff > 0) {
+                $formattedDiff = number_format($diff, 0, ',', '.');
+                $this->status = "Belum Lunas (Sisa: Rp {$formattedDiff})";
+            } elseif ($diff < 0) {
+                $formattedDiff = number_format(abs($diff), 0, ',', '.');
+                $this->status = "Lunas (Deposit: Rp {$formattedDiff})";
+            } else {
+                $this->status = "Lunas";
+            }
+        } else {
+            $totalPaidPrev = Payment::where('registration_id', $registration->id)
+                ->where('status', '!=', 'Ditolak')
+                ->sum('amount');
+
+            $currentAmount = (float) ($this->amount ?: 0);
+            $totalPaidNow = $totalPaidPrev + $currentAmount;
+
+            // Total bills instead of registration total_price to match standard balance calculation
+            $totalBill = Bill::where('registration_id', $registration->id)->sum('amount');
+
+            $diff = $totalBill - $totalPaidNow;
+
+            if ($diff > 0) {
+                $formattedDiff = number_format($diff, 0, ',', '.');
+                $this->status = "Belum Lunas (Sisa: Rp {$formattedDiff})";
+            } elseif ($diff < 0) {
+                $formattedDiff = number_format(abs($diff), 0, ',', '.');
+                $this->status = "Lunas (Deposit: Rp {$formattedDiff})";
+            } else {
+                $this->status = "Lunas";
+            }
+        }
     }
 
     public function savePayment()

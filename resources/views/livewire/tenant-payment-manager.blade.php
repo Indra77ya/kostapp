@@ -252,9 +252,14 @@
                             <label class="form-label required">Jumlah Bayar</label>
                             <div class="input-group">
                                 <span class="input-group-text">Rp</span>
-                                <input type="number" class="form-control @error('amount') is-invalid @enderror" wire:model="amount">
+                                <input type="number" class="form-control @error('amount') is-invalid @enderror" wire:model.live="amount">
                             </div>
                             @error('amount') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Status</label>
+                            <input type="text" class="form-control" wire:model="status" readonly>
                         </div>
 
                         @if($selectedPm && $selectedPm->category !== 'Tunai' && $selectedPm->name !== 'Saldo Deposit')
