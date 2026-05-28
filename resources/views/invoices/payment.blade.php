@@ -153,39 +153,18 @@
                         </div>
                     </div>
                 @elseif($payment->registration)
-                    @if($isDeposit)
-                        <div style="text-align: right; min-width: 250px;">
-                            <div style="border-top: 1px solid #e5e7eb; padding-top: 5px; display: flex; justify-content: space-between;">
-                                <span class="info-title" style="margin: 0; font-weight: bold; color: #3b82f6;">Saldo Deposit Saat Ini:</span>
-                                <span class="info-value" style="font-weight: bold; color: #3b82f6;">Rp {{ number_format($payment->registration->deposit_balance, 0, ',', '.') }}</span>
-                            </div>
+                    <div style="text-align: right; min-width: 250px;">
+                        @if($payment->registration->total_debt > 0)
+                        <div style="margin-bottom: 5px; display: flex; justify-content: space-between;">
+                            <span class="info-title" style="margin: 0; font-weight: bold; color: #ef4444;">Total Sisa Tagihan:</span>
+                            <span class="info-value" style="font-weight: bold; color: #ef4444;">Rp {{ number_format($payment->registration->total_debt, 0, ',', '.') }}</span>
                         </div>
-                    @else
-                        <div style="text-align: right; min-width: 250px;">
-                            <div style="margin-bottom: 5px; display: flex; justify-content: space-between;">
-                                <span class="info-title" style="margin: 0;">Total Sewa:</span>
-                                <span class="info-value">Rp {{ number_format($payment->registration->total_price, 0, ',', '.') }}</span>
-                            </div>
-                            <div style="margin-bottom: 5px; display: flex; justify-content: space-between;">
-                                <span class="info-title" style="margin: 0;">Total Terbayar:</span>
-                                <span class="info-value">Rp {{ number_format($totalPaid, 0, ',', '.') }}</span>
-                            </div>
-                            <div style="border-top: 1px solid #e5e7eb; padding-top: 5px; display: flex; justify-content: space-between;">
-                                <span class="info-title" style="margin: 0; font-weight: bold; color: {{ $remaining > 0 ? '#ef4444' : '#10b981' }};">Sisa:</span>
-                                <span class="info-value" style="font-weight: bold; color: {{ $remaining > 0 ? '#ef4444' : '#10b981' }};">Rp {{ number_format(max(0, $remaining), 0, ',', '.') }}</span>
-                            </div>
-                            @if($remaining < 0)
-                                <div style="margin-top: 5px; display: flex; justify-content: space-between;">
-                                    <span class="info-title" style="margin: 0; font-weight: bold; color: #3b82f6;">Saldo Lebih / Deposit:</span>
-                                    <span class="info-value" style="font-weight: bold; color: #3b82f6;">Rp {{ number_format(abs($remaining), 0, ',', '.') }}</span>
-                                </div>
-                            @endif
-                            <div style="margin-top: 5px; display: flex; justify-content: space-between;">
-                                <span class="info-title" style="margin: 0; font-weight: bold; color: #3b82f6;">Saldo Deposit Saat Ini:</span>
-                                <span class="info-value" style="font-weight: bold; color: #3b82f6;">Rp {{ number_format($payment->registration->deposit_balance, 0, ',', '.') }}</span>
-                            </div>
+                        @endif
+                        <div style="border-top: 1px solid #e5e7eb; padding-top: 5px; display: flex; justify-content: space-between;">
+                            <span class="info-title" style="margin: 0; font-weight: bold; color: #3b82f6;">Saldo Deposit Saat Ini:</span>
+                            <span class="info-value" style="font-weight: bold; color: #3b82f6;">Rp {{ number_format($payment->registration->deposit_balance, 0, ',', '.') }}</span>
                         </div>
-                    @endif
+                    </div>
                 @endif
             </div>
         </div>

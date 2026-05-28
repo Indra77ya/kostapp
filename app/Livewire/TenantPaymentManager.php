@@ -135,11 +135,8 @@ class TenantPaymentManager extends Component
 
     private function calculateStatus()
     {
-        $registration = Registration::where('user_id', Auth::id())->where('status', 'active')->first();
-        if (!$registration) return;
-
         if ($this->bill_id === 'umum') {
-            $this->status = "";
+            $this->status = "Pembayaran Umum";
         } elseif ($this->bill_id === 'deposit') {
             $this->status = "Setor Deposit";
         } elseif (is_numeric($this->bill_id)) {

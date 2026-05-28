@@ -56,16 +56,6 @@ class InvoiceController extends Controller
             'paymentMethod'
         ]);
 
-        $totalPaid = 0;
-        $remaining = 0;
-
-        if (!$payment->bill) {
-            $totalPaid = Payment::where('registration_id', $payment->registration_id)
-                ->where('status', '!=', 'Menunggu Konfirmasi')
-                ->sum('amount');
-            $remaining = max(0, $payment->registration->total_price - $totalPaid);
-        }
-
-        return view('invoices.payment', compact('payment', 'totalPaid', 'remaining'));
+        return view('invoices.payment', compact('payment'));
     }
 }

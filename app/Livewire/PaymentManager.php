@@ -304,6 +304,11 @@ class PaymentManager extends Component
 
             $cleanNotes = str_replace('[DEPOSIT] ', '', $this->notes ?: '');
 
+            $paymentStatus = $this->status;
+            if (!$actualBillId && !$isDeposit && !$paymentStatus) {
+                $paymentStatus = "Pembayaran Umum";
+            }
+
             $data = [
                 'registration_id' => $this->registration_id,
                 'bill_id' => $actualBillId,
@@ -312,7 +317,7 @@ class PaymentManager extends Component
                 'payment_date' => $this->payment_date,
                 'amount' => $this->amount,
                 'notes' => ($isDeposit ? '[DEPOSIT] ' : '') . $cleanNotes,
-                'status' => $this->status ?: 'Lunas',
+                'status' => $paymentStatus ?: 'Lunas',
                 'sender_bank_name' => $this->sender_bank_name,
                 'sender_account_number' => $this->sender_account_number,
                 'sender_account_name' => $this->sender_account_name,
@@ -564,9 +569,9 @@ class PaymentManager extends Component
         }
 
         if ($this->filterPaymentStatus === 'lunas') {
-            $query->whereRaw('(select COALESCE(sum(amount), 0) from bills where bills.registration_id = registrations.id) <= (select COALESCE(sum(amount), 0) from payments where payments.registration_id = registrations.id and status != "Menunggu Konfirmasi")');
+            $query->whereRaw('(select COALESCE(sum(amount - paid_amount), 0) from bills where bills.registration_id = registrations.id and amount > paid_amount) = 0');
         } elseif ($this->filterPaymentStatus === 'tunggakan') {
-            $query->whereRaw('(select COALESCE(sum(amount), 0) from bills where bills.registration_id = registrations.id) > (select COALESCE(sum(amount), 0) from payments where payments.registration_id = registrations.id and status != "Menunggu Konfirmasi")');
+            $query->whereRaw('(select COALESCE(sum(amount - paid_amount), 0) from bills where bills.registration_id = registrations.id and amount > paid_amount) > 0');
         }
 
         // Sorting
@@ -594,7 +599,6 @@ class PaymentManager extends Component
         foreach ($registrations as $reg) {
             $reg->total_bill = $reg->total_bill ?: 0;
             $reg->paid_amount = $reg->total_paid ?: 0;
-            $reg->remaining_amount = $reg->total_bill - $reg->paid_amount;
         }
 
         return view('livewire.payment-manager', [

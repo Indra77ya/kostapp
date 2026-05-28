@@ -59,7 +59,7 @@ class PaymentConfirmationManager extends Component
                 if ($payment->notes && strpos($payment->notes, '[DEPOSIT]') !== false) {
                     $status = "Setor Deposit";
                 } else {
-                    $status = "Lunas";
+                    $status = "Pembayaran Umum";
                 }
             }
 

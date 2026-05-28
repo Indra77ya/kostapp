@@ -89,7 +89,12 @@ class Registration extends Model
     {
         $credit = $this->deposits()->where('type', 'credit')->sum('amount');
         $debit = $this->deposits()->where('type', 'debit')->sum('amount');
-        return $credit - $debit;
+        return (float) ($credit - $debit);
+    }
+
+    public function getTotalDebtAttribute()
+    {
+        return (float) $this->bills()->whereRaw('amount > paid_amount')->sum(\Illuminate\Support\Facades\DB::raw('amount - paid_amount'));
     }
 
     public function syncBills()

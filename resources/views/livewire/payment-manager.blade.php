@@ -107,11 +107,13 @@
                         <td>Rp {{ number_format($reg->total_bill, 0, ',', '.') }}</td>
                         <td>Rp {{ number_format($reg->paid_amount, 0, ',', '.') }}</td>
                         <td>
-                            @if($reg->remaining_amount > 0)
-                                <span class="text-danger fw-bold">Rp {{ number_format($reg->remaining_amount, 0, ',', '.') }}</span>
-                            @elseif($reg->remaining_amount < 0)
-                                <span class="text-primary fw-bold">Deposit: Rp {{ number_format(abs($reg->remaining_amount), 0, ',', '.') }}</span>
-                            @else
+                            @if($reg->total_debt > 0)
+                                <div class="text-danger fw-bold">Hutang: Rp {{ number_format($reg->total_debt, 0, ',', '.') }}</div>
+                            @endif
+                            @if($reg->deposit_balance > 0)
+                                <div class="text-primary fw-bold">Deposit: Rp {{ number_format($reg->deposit_balance, 0, ',', '.') }}</div>
+                            @endif
+                            @if($reg->total_debt <= 0 && $reg->deposit_balance <= 0)
                                 <span class="text-success fw-bold">Lunas</span>
                             @endif
                         </td>
@@ -153,8 +155,12 @@
                     </div>
                 </div>
                 <div class="col-auto text-end">
-                    <div class="text-secondary small">Total Tagihan</div>
-                    <div class="h2 mb-0">Rp {{ number_format($bills->sum('amount'), 0, ',', '.') }}</div>
+                    <div class="text-secondary small">Sisa Tagihan</div>
+                    <div class="h2 mb-0 text-danger">Rp {{ number_format($registration->total_debt, 0, ',', '.') }}</div>
+                </div>
+                <div class="col-auto text-end border-start ps-3">
+                    <div class="text-secondary small">Saldo Deposit</div>
+                    <div class="h2 mb-0 text-primary">Rp {{ number_format($registration->deposit_balance, 0, ',', '.') }}</div>
                 </div>
             </div>
         </div>
@@ -366,7 +372,7 @@
                                 <label class="form-label">Catatan</label>
                                 <textarea class="form-control" rows="3" wire:model="notes"></textarea>
                             </div>
-                            @if($status)
+                            @if($status && $bill_id !== 'umum')
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Status</label>
                                 <input type="text" class="form-control bg-light font-weight-bold" wire:model="status" readonly>

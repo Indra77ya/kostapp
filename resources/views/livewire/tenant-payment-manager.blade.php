@@ -35,33 +35,66 @@
                 </div>
             </div>
             <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col-auto">
-                                <span class="bg-danger text-white avatar avatar-lg">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-wallet" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 8v-3a1 1 0 0 0 -1 -1h-10a2 2 0 0 0 0 4h12a1 1 0 0 1 1 1v3m0 4v3a1 1 0 0 1 -1 1h-12a2 2 0 0 1 -2 -2v-12" /><path d="M20 12v4h-4a2 2 0 0 1 0 -4h4" /></svg>
-                                </span>
-                            </div>
-                            <div class="col">
-                                @php
-                                    $totalBill = $bills->sum('amount');
-                                    $totalPaid = $payments->where('status', '!=', 'Menunggu Konfirmasi')->sum('amount');
-                                    $balance = $totalBill - $totalPaid;
-                                @endphp
-                                @if($balance > 0)
-                                    <div class="font-weight-medium text-danger">Sisa Tagihan</div>
-                                    <div class="h3 mb-0 text-danger">Rp {{ number_format($balance, 0, ',', '.') }}</div>
-                                @elseif($balance < 0)
-                                    <div class="font-weight-medium text-primary">Saldo Deposit</div>
-                                    <div class="h3 mb-0 text-primary">Rp {{ number_format(abs($balance), 0, ',', '.') }}</div>
-                                @else
-                                    <div class="font-weight-medium text-success">Status Pembayaran</div>
-                                    <div class="h3 mb-0 text-success">Lunas</div>
-                                @endif
+                <div class="row g-2">
+                    @if($registration->total_debt > 0)
+                    <div class="{{ $registration->deposit_balance > 0 ? 'col-6' : 'col-12' }}">
+                        <div class="card h-100">
+                            <div class="card-body p-3">
+                                <div class="row align-items-center">
+                                    <div class="col-auto">
+                                        <span class="bg-danger text-white avatar avatar-sm">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-wallet" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 8v-3a1 1 0 0 0 -1 -1h-10a2 2 0 0 0 0 4h12a1 1 0 0 1 1 1v3m0 4v3a1 1 0 0 1 -1 1h-12a2 2 0 0 1 -2 -2v-12" /><path d="M20 12v4h-4a2 2 0 0 1 0 -4h4" /></svg>
+                                        </span>
+                                    </div>
+                                    <div class="col">
+                                        <div class="text-secondary small">Sisa Tagihan</div>
+                                        <div class="h4 mb-0 text-danger">Rp {{ number_format($registration->total_debt, 0, ',', '.') }}</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
+                    @endif
+
+                    @if($registration->deposit_balance > 0)
+                    <div class="{{ $registration->total_debt > 0 ? 'col-6' : 'col-12' }}">
+                        <div class="card h-100">
+                            <div class="card-body p-3">
+                                <div class="row align-items-center">
+                                    <div class="col-auto">
+                                        <span class="bg-primary text-white avatar avatar-sm">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-piggy-bank" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 21l0 -4" /><path d="M19 21l0 -4" /><path d="M9 21l1 0" /><path d="M14 21l1 0" /><path d="M3.96 15.22c0 -3.41 2.72 -6.16 6.04 -6.16c.13 0 .26 0 .39 .01c.21 -1.41 1.48 -2.49 3 -2.49c1.66 0 3 1.34 3 3c0 .12 0 .23 -.01 .34c2.21 .5 3.61 2.45 3.61 4.54a5 5 0 0 1 -5 5h-6a5 5 0 0 1 -5 -4.24z" /><path d="M12 9v3" /><path d="M10 11l4 0" /></svg>
+                                        </span>
+                                    </div>
+                                    <div class="col">
+                                        <div class="text-secondary small">Saldo Deposit</div>
+                                        <div class="h4 mb-0 text-primary">Rp {{ number_format($registration->deposit_balance, 0, ',', '.') }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
+                    @if($registration->total_debt <= 0 && $registration->deposit_balance <= 0)
+                    <div class="col-12">
+                        <div class="card h-100">
+                            <div class="card-body p-3">
+                                <div class="row align-items-center">
+                                    <div class="col-auto">
+                                        <span class="bg-success text-white avatar avatar-sm">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-check" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10" /></svg>
+                                        </span>
+                                    </div>
+                                    <div class="col">
+                                        <div class="text-secondary small">Status Pembayaran</div>
+                                        <div class="h4 mb-0 text-success">Lunas</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -258,7 +291,7 @@
                             @error('amount') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
-                        @if($status)
+                        @if($status && $bill_id !== 'umum')
                         <div class="mb-3">
                             <label class="form-label">Status</label>
                             <input type="text" class="form-control" wire:model="status" readonly>
