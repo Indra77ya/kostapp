@@ -318,7 +318,8 @@
                             <div class="col-md-12 mb-3">
                                 <label class="form-label">Pilih Tagihan (Opsional)</label>
                                 <select class="form-select @error('bill_id') is-invalid @enderror" wire:model.live="bill_id">
-                                    <option value="">Setor Deposit</option>
+                                    <option value="umum">Pembayaran Umum</option>
+                                    <option value="deposit">Setor Deposit</option>
                                     @if($viewMode === 'history')
                                         @foreach($bills as $b)
                                             <option value="{{ $b->id }}">{{ $b->bill_number }} - {{ $b->description }} (Sisa: Rp {{ number_format($b->remaining_amount, 0, ',', '.') }})</option>
@@ -365,10 +366,12 @@
                                 <label class="form-label">Catatan</label>
                                 <textarea class="form-control" rows="3" wire:model="notes"></textarea>
                             </div>
+                            @if($status)
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Status</label>
                                 <input type="text" class="form-control bg-light font-weight-bold" wire:model="status" readonly>
                             </div>
+                            @endif
 
                             @php
                                 $selectedPm = \App\Models\PaymentMethod::find($payment_method_id);

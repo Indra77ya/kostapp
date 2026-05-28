@@ -155,7 +155,10 @@ class PaymentConfirmationManager extends Component
                 ->sum('amount');
             $excess = $totalPaidOnBill - $bill->amount;
         } else {
-            $excess = $payment->amount;
+            // Only if it's marked as [DEPOSIT]
+            if ($payment->notes && strpos($payment->notes, '[DEPOSIT]') !== false) {
+                $excess = $payment->amount;
+            }
         }
 
         if ($excess > 0) {
@@ -164,7 +167,7 @@ class PaymentConfirmationManager extends Component
                 'payment_id' => $payment->id,
                 'amount' => $excess,
                 'type' => 'credit',
-                'description' => $payment->bill_id ? 'Kelebihan pembayaran tagihan ' . $payment->bill->bill_number : 'Penyetoran Deposit Umum',
+                'description' => $payment->bill_id ? 'Kelebihan pembayaran tagihan ' . $payment->bill->bill_number : 'Penyetoran Deposit',
                 'transaction_date' => $payment->payment_date,
             ]);
         }

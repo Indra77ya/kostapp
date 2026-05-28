@@ -62,13 +62,13 @@ class TenantPaymentManager extends Component
         $this->payment_number = $prefix . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
     }
 
-    public function openModal($billId = null)
+    public function openModal($billId = 'umum')
     {
         $this->resetValidation();
         $this->resetForm();
         $this->bill_id = $billId;
 
-        if ($billId) {
+        if (is_numeric($billId)) {
             $bill = Bill::find($billId);
             if ($bill) {
                 // Calculate remaining for this specific bill
@@ -99,12 +99,12 @@ class TenantPaymentManager extends Component
 
     private function resetForm()
     {
-        $this->bill_id = null;
+        $this->bill_id = 'umum';
         $this->payment_method_id = null;
         $this->payment_date = Carbon::now()->format('Y-m-d');
         $this->amount = null;
         $this->notes = null;
-        $this->status = 'Lunas';
+        $this->status = '';
         $this->proof_of_payment = null;
         $this->sender_bank_name = null;
         $this->sender_account_number = null;
@@ -114,7 +114,7 @@ class TenantPaymentManager extends Component
 
     public function updatedBillId()
     {
-        if ($this->bill_id) {
+        if (is_numeric($this->bill_id)) {
             $bill = Bill::find($this->bill_id);
             if ($bill) {
                 $totalPaidOnThisBill = Payment::where('bill_id', $this->bill_id)
@@ -138,7 +138,11 @@ class TenantPaymentManager extends Component
         $registration = Registration::where('user_id', Auth::id())->where('status', 'active')->first();
         if (!$registration) return;
 
-        if ($this->bill_id) {
+        if ($this->bill_id === 'umum') {
+            $this->status = "";
+        } elseif ($this->bill_id === 'deposit') {
+            $this->status = "Setor Deposit";
+        } elseif (is_numeric($this->bill_id)) {
             $bill = Bill::find($this->bill_id);
             if (!$bill) return;
 
@@ -162,7 +166,7 @@ class TenantPaymentManager extends Component
                 $this->status = "Lunas";
             }
         } else {
-            $this->status = "Setor Deposit";
+            $this->status = "";
         }
     }
 
@@ -172,6 +176,7 @@ class TenantPaymentManager extends Component
         $isTunai = $pm && $pm->category === 'Tunai';
 
         $rules = [
+            'bill_id' => 'nullable',
             'payment_method_id' => 'required|exists:payment_methods,id',
             'payment_date' => 'required|date',
             'amount' => 'required|numeric|min:0',
@@ -193,9 +198,12 @@ class TenantPaymentManager extends Component
             return;
         }
 
+        $actualBillId = is_numeric($this->bill_id) ? $this->bill_id : null;
+        $isDeposit = $this->bill_id === 'deposit';
+
         $data = [
             'registration_id' => $registration->id,
-            'bill_id' => $this->bill_id,
+            'bill_id' => $actualBillId,
             'payment_method_id' => $this->payment_method_id,
             'payment_number' => $this->payment_number,
             'payment_date' => $this->payment_date,
@@ -203,7 +211,7 @@ class TenantPaymentManager extends Component
             'sender_bank_name' => $this->sender_bank_name,
             'sender_account_number' => $this->sender_account_number,
             'sender_account_name' => $this->sender_account_name,
-            'notes' => $this->notes,
+            'notes' => ($isDeposit ? '[DEPOSIT] ' : '') . $this->notes,
             'status' => 'Menunggu Konfirmasi',
         ];
 

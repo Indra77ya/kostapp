@@ -108,7 +108,7 @@ class PaymentManager extends Component
 
     private function calculateAmountAndStatus()
     {
-        if ($this->bill_id) {
+        if (is_numeric($this->bill_id)) {
             $bill = Bill::find($this->bill_id);
             if ($bill) {
                 $totalPaidOnThisBill = Payment::where('bill_id', $this->bill_id)
@@ -134,7 +134,11 @@ class PaymentManager extends Component
 
     private function calculateStatus()
     {
-        if ($this->bill_id) {
+        if ($this->bill_id === 'umum') {
+            $this->status = "";
+        } elseif ($this->bill_id === 'deposit') {
+            $this->status = "Setor Deposit";
+        } elseif (is_numeric($this->bill_id)) {
             $bill = Bill::find($this->bill_id);
             if (!$bill) return;
 
@@ -158,7 +162,7 @@ class PaymentManager extends Component
                 $this->status = "Lunas";
             }
         } else {
-            $this->status = "Setor Deposit";
+            $this->status = "";
         }
     }
 
@@ -171,7 +175,16 @@ class PaymentManager extends Component
             $this->paymentId = $id;
             $payment = Payment::find($id);
             $this->registration_id = $payment->registration_id;
-            $this->bill_id = $payment->bill_id;
+
+            if ($payment->bill_id) {
+                $this->bill_id = $payment->bill_id;
+            } else {
+                if ($payment->notes && strpos($payment->notes, '[DEPOSIT]') !== false) {
+                    $this->bill_id = 'deposit';
+                } else {
+                    $this->bill_id = 'umum';
+                }
+            }
             $this->payment_method_id = $payment->payment_method_id;
             $this->payment_number = $payment->payment_number;
             $this->payment_date = $payment->payment_date->format('Y-m-d');
@@ -248,13 +261,13 @@ class PaymentManager extends Component
     {
         $this->paymentId = null;
         $this->registration_id = null;
-        $this->bill_id = null;
+        $this->bill_id = 'umum';
         $this->payment_method_id = null;
         $this->payment_number = null;
         $this->payment_date = Carbon::now()->format('Y-m-d');
         $this->amount = null;
         $this->notes = null;
-        $this->status = 'Lunas';
+        $this->status = '';
         $this->proof_of_payment = null;
         $this->sender_bank_name = null;
         $this->sender_account_number = null;
@@ -276,7 +289,7 @@ class PaymentManager extends Component
     {
         $rules = [
             'registration_id' => 'required|exists:registrations,id',
-            'bill_id' => 'nullable|exists:bills,id',
+            'bill_id' => 'nullable',
             'payment_method_id' => 'required|exists:payment_methods,id',
             'payment_date' => 'required|date',
             'amount' => 'required|numeric|min:0',
@@ -286,15 +299,20 @@ class PaymentManager extends Component
         $this->validate($rules);
 
         DB::transaction(function () {
+            $actualBillId = is_numeric($this->bill_id) ? $this->bill_id : null;
+            $isDeposit = $this->bill_id === 'deposit';
+
+            $cleanNotes = str_replace('[DEPOSIT] ', '', $this->notes ?: '');
+
             $data = [
                 'registration_id' => $this->registration_id,
-                'bill_id' => $this->bill_id,
+                'bill_id' => $actualBillId,
                 'payment_method_id' => $this->payment_method_id,
                 'payment_number' => $this->payment_number,
                 'payment_date' => $this->payment_date,
                 'amount' => $this->amount,
-                'notes' => $this->notes,
-                'status' => $this->status,
+                'notes' => ($isDeposit ? '[DEPOSIT] ' : '') . $cleanNotes,
+                'status' => $this->status ?: 'Lunas',
                 'sender_bank_name' => $this->sender_bank_name,
                 'sender_account_number' => $this->sender_account_number,
                 'sender_account_name' => $this->sender_account_name,
@@ -422,7 +440,10 @@ class PaymentManager extends Component
                 ->sum('amount');
             $excess = $totalPaidOnBill - $bill->amount;
         } else {
-            $excess = $payment->amount;
+            // Only if it's marked as [DEPOSIT]
+            if ($payment->notes && strpos($payment->notes, '[DEPOSIT]') !== false) {
+                $excess = $payment->amount;
+            }
         }
 
         if ($excess > 0) {
@@ -431,7 +452,7 @@ class PaymentManager extends Component
                 'payment_id' => $payment->id,
                 'amount' => $excess,
                 'type' => 'credit',
-                'description' => $payment->bill_id ? 'Kelebihan pembayaran tagihan ' . $payment->bill->bill_number : 'Penyetoran Deposit Umum',
+                'description' => $payment->bill_id ? 'Kelebihan pembayaran tagihan ' . $payment->bill->bill_number : 'Penyetoran Deposit',
                 'transaction_date' => $payment->payment_date,
             ]);
         }

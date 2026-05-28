@@ -185,7 +185,8 @@
                         <div class="mb-3">
                             <label class="form-label">Peruntukan Tagihan (Opsional)</label>
                             <select class="form-select" wire:model.live="bill_id">
-                                <option value="">Setor Deposit</option>
+                                <option value="umum">Pembayaran Umum</option>
+                                <option value="deposit">Setor Deposit</option>
                                 @foreach($bills as $b)
                                     @if($b->status !== 'Lunas')
                                         <option value="{{ $b->id }}">{{ $b->description }} (Rp {{ number_format($b->amount - $b->paid_amount, 0, ',', '.') }})</option>
@@ -257,10 +258,12 @@
                             @error('amount') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
+                        @if($status)
                         <div class="mb-3">
                             <label class="form-label">Status</label>
                             <input type="text" class="form-control" wire:model="status" readonly>
                         </div>
+                        @endif
 
                         @if($selectedPm && $selectedPm->category !== 'Tunai' && $selectedPm->name !== 'Saldo Deposit')
                         <div class="card border-dashed mb-3">
