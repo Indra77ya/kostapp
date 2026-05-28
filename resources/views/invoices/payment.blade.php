@@ -147,6 +147,10 @@
                                 <span class="info-value" style="font-weight: bold; color: #3b82f6;">Rp {{ number_format(abs($payment->bill->remaining_amount), 0, ',', '.') }}</span>
                             </div>
                         @endif
+                        <div style="margin-top: 5px; display: flex; justify-content: space-between;">
+                            <span class="info-title" style="margin: 0; font-weight: bold; color: #3b82f6;">Saldo Deposit Saat Ini:</span>
+                            <span class="info-value" style="font-weight: bold; color: #3b82f6;">Rp {{ number_format($payment->registration->deposit_balance, 0, ',', '.') }}</span>
+                        </div>
                     </div>
                 @elseif($payment->registration)
                     @if($isDeposit)
@@ -176,6 +180,10 @@
                                     <span class="info-value" style="font-weight: bold; color: #3b82f6;">Rp {{ number_format(abs($remaining), 0, ',', '.') }}</span>
                                 </div>
                             @endif
+                            <div style="margin-top: 5px; display: flex; justify-content: space-between;">
+                                <span class="info-title" style="margin: 0; font-weight: bold; color: #3b82f6;">Saldo Deposit Saat Ini:</span>
+                                <span class="info-value" style="font-weight: bold; color: #3b82f6;">Rp {{ number_format($payment->registration->deposit_balance, 0, ',', '.') }}</span>
+                            </div>
                         </div>
                     @endif
                 @endif
