@@ -143,11 +143,47 @@ Akses di: `http://127.0.0.1:8000`
 
 ---
 
+## Rekomendasi Spesifikasi Server (Deployment)
+
+Untuk menjalankan KostApp dengan lancar di lingkungan produksi, berikut adalah rekomendasi spesifikasi server:
+
+### 1. Spesifikasi Minimum (Hemat Biaya)
+Cocok untuk operasional kost skala kecil (di bawah 50 kamar).
+- **CPU**: 1 Core (vCPU)
+- **RAM**: 1 GB
+- **Penyimpanan**: 20 GB SSD
+- **Sistem Operasi**: Ubuntu 22.04 LTS atau 24.04 LTS
+- **Lokasi Server**: Indonesia (untuk akses lebih cepat)
+
+### 2. Spesifikasi Direkomendasikan
+Cocok untuk performa lebih stabil dan menangani lebih banyak koneksi real-time.
+- **CPU**: 1-2 Core (vCPU)
+- **RAM**: 2 GB
+- **Penyimpanan**: 40 GB SSD atau lebih
+- **Sistem Operasi**: Ubuntu 22.04 LTS atau 24.04 LTS
+- **Lokasi Server**: Indonesia
+
+### Perangkat Lunak yang Dibutuhkan
+- **Web Server**: Nginx (direkomendasikan) atau Apache
+- **PHP**: Versi 8.2 atau lebih tinggi (dengan ekstensi: `bcmath`, `ctype`, `fileinfo`, `json`, `mbstring`, `openssl`, `pdo`, `tokenizer`, `xml`, `curl`)
+- **Database**: SQLite (default), MySQL 8.0+, atau MariaDB 10.6+
+- **Process Manager**: Supervisor (Wajib untuk menjaga WebSocket Reverb dan Queue Worker tetap berjalan)
+
+---
+
 ## Panduan Deployment (Produksi)
 
-1.  Gunakan **Nginx** sebagai reverse proxy untuk port 80/443 ke port Reverb (8080).
-2.  Gunakan **Supervisor** untuk menjaga `reverb:start` dan `queue:work` tetap berjalan di latar belakang.
-3.  Pastikan `APP_DEBUG=false` dan `APP_URL` sudah sesuai di file `.env`.
+1.  **Nginx Config**: Gunakan Nginx sebagai reverse proxy untuk port 80/443 dan pastikan konfigurasi untuk WebSocket (Reverb) di port 8080 sudah benar.
+2.  **Supervisor**: Gunakan Supervisor untuk menjalankan dua proses berikut secara otomatis:
+    - `php artisan reverb:start`
+    - `php artisan queue:work --tries=3`
+3.  **Optimization**: Jalankan perintah optimasi Laravel:
+    ```bash
+    php artisan config:cache
+    php artisan route:cache
+    php artisan view:cache
+    ```
+4.  **Security**: Pastikan `APP_DEBUG=false` dan `APP_URL` sudah sesuai di file `.env`.
 
 ---
 Dibuat untuk efisiensi bisnis Kost Anda.
