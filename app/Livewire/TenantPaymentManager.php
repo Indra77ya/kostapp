@@ -229,6 +229,37 @@ class TenantPaymentManager extends Component
         $this->closeModal();
     }
 
+    public function deletePayment($id)
+    {
+        $payment = Payment::find($id);
+
+        if (!$payment) {
+            $this->dispatch('notify', message: 'Data pembayaran tidak ditemukan.', type: 'danger');
+            return;
+        }
+
+        // Security check: must belong to tenant and status must be "Menunggu Konfirmasi"
+        $registration = Registration::where('user_id', Auth::id())->where('status', 'active')->first();
+        if (!$registration || $payment->registration_id !== $registration->id) {
+            $this->dispatch('notify', message: 'Anda tidak memiliki akses untuk menghapus data ini.', type: 'danger');
+            return;
+        }
+
+        if ($payment->status !== 'Menunggu Konfirmasi') {
+            $this->dispatch('notify', message: 'Hanya pembayaran dengan status "Menunggu Konfirmasi" yang dapat dihapus.', type: 'danger');
+            return;
+        }
+
+        if ($payment->proof_of_payment) {
+            Storage::disk('public')->delete($payment->proof_of_payment);
+        }
+
+        $payment->delete();
+
+        $this->dispatch('notify', message: 'Laporan pembayaran berhasil dihapus.', type: 'success');
+        DatabaseUpdated::dispatch(Auth::id());
+    }
+
     public function render()
     {
         $registration = Registration::with('room', 'location')
