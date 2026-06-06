@@ -322,7 +322,7 @@
                                 <input type="text" class="form-control bg-light" wire:model="payment_number" readonly>
                             </div>
                             <div class="col-md-12 mb-3">
-                                <label class="form-label">Pilih Tagihan (Opsional)</label>
+                                <label class="form-label">Pilih Tagihan</label>
                                 <select class="form-select @error('bill_id') is-invalid @enderror" wire:model.live="bill_id">
                                     <option value="umum">Pembayaran Umum</option>
                                     <option value="deposit">Setor Deposit</option>
