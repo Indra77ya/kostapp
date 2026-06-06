@@ -221,7 +221,7 @@
                 <div class="modal-body">
                     <form wire:submit.prevent="savePayment">
                         <div class="mb-3">
-                            <label class="form-label">Peruntukan Tagihan (Opsional)</label>
+                            <label class="form-label">Pilih Tagihan (Opsional)</label>
                             <select class="form-select" wire:model.live="bill_id">
                                 <option value="umum">Pembayaran Umum</option>
                                 <option value="deposit">Setor Deposit</option>
