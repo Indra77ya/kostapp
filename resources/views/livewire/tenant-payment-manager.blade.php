@@ -353,7 +353,7 @@
                         </div>
                         @endif
 
-                        @if(!$selectedPm || ($selectedPm->category !== 'Tunai' && $selectedPm->name !== 'Saldo Deposit'))
+                        @if($selectedPm && ($selectedPm->category !== 'Tunai' && $selectedPm->name !== 'Saldo Deposit'))
                         <div class="mb-3">
                             <label class="form-label required">Bukti Pembayaran (Foto/Screenshot)</label>
                             <input type="file" class="form-control @error('proof_of_payment') is-invalid @enderror" wire:model="proof_of_payment">
