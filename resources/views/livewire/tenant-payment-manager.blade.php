@@ -135,7 +135,7 @@
                                 @endif
                             </td>
                             <td>
-                                @if($bill->status !== 'Lunas')
+                                @if($bill->status !== 'Lunas' && $bill->pending_payments_count === 0)
                                     <button class="btn btn-white btn-sm" wire:click="openModal({{ $bill->id }})">Bayar</button>
                                 @endif
                             </td>
