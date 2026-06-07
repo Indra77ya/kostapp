@@ -25,6 +25,8 @@ class TenantPaymentManager extends Component
 
     // Form fields
     public $bill_id, $payment_method_id, $payment_date, $amount, $notes, $proof_of_payment;
+    public $status = 'Lunas';
+    public $excess_amount = 0;
     public $sender_bank_name, $sender_account_number, $sender_account_name;
     public $payment_number;
 
@@ -61,18 +63,19 @@ class TenantPaymentManager extends Component
         $this->payment_number = $prefix . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
     }
 
-    public function openModal($billId = null)
+    public function openModal($billId = 'umum')
     {
         $this->resetValidation();
         $this->resetForm();
         $this->bill_id = $billId;
 
-        if ($billId) {
+        if (is_numeric($billId)) {
             $bill = Bill::find($billId);
             if ($bill) {
                 // Calculate remaining for this specific bill
                 $totalPaidOnThisBill = Payment::where('bill_id', $billId)
                     ->where('status', '!=', 'Menunggu Konfirmasi')
+                    ->where('status', '!=', 'Ditolak')
                     ->sum('amount');
 
                 // Also subtract pending payments
@@ -85,6 +88,7 @@ class TenantPaymentManager extends Component
             }
         }
 
+        $this->calculateStatus();
         $this->isModalOpen = true;
     }
 
@@ -96,16 +100,75 @@ class TenantPaymentManager extends Component
 
     private function resetForm()
     {
-        $this->bill_id = null;
+        $this->bill_id = 'umum';
         $this->payment_method_id = null;
         $this->payment_date = Carbon::now()->format('Y-m-d');
         $this->amount = null;
         $this->notes = null;
+        $this->status = '';
+        $this->excess_amount = 0;
         $this->proof_of_payment = null;
         $this->sender_bank_name = null;
         $this->sender_account_number = null;
         $this->sender_account_name = null;
         $this->generatePaymentNumber();
+    }
+
+    public function updatedBillId()
+    {
+        if (is_numeric($this->bill_id)) {
+            $bill = Bill::find($this->bill_id);
+            if ($bill) {
+                $totalPaidOnThisBill = Payment::where('bill_id', $this->bill_id)
+                    ->where('status', '!=', 'Ditolak')
+                    ->sum('amount');
+
+                $this->amount = $bill->amount - $totalPaidOnThisBill;
+                if ($this->amount < 0) $this->amount = 0;
+            }
+        }
+        $this->calculateStatus();
+    }
+
+    public function updatedAmount()
+    {
+        $this->calculateStatus();
+    }
+
+    private function calculateStatus()
+    {
+        $this->excess_amount = 0;
+        if ($this->bill_id === 'umum') {
+            $this->status = "Pembayaran Umum";
+        } elseif ($this->bill_id === 'deposit') {
+            $this->status = "Setor Deposit";
+        } elseif (is_numeric($this->bill_id)) {
+            $bill = Bill::find($this->bill_id);
+            if (!$bill) return;
+
+            $totalPaidPrev = Payment::where('bill_id', $this->bill_id)
+                ->where('status', '!=', 'Ditolak')
+                ->sum('amount');
+
+            $currentAmount = (float) ($this->amount ?: 0);
+            $totalPaidNow = $totalPaidPrev + $currentAmount;
+            $totalBill = (float) $bill->amount;
+
+            $diff = $totalBill - $totalPaidNow;
+
+            if ($diff > 0) {
+                $formattedDiff = number_format($diff, 0, ',', '.');
+                $this->status = "Belum Lunas (Sisa: Rp {$formattedDiff})";
+            } elseif ($diff < 0) {
+                $this->excess_amount = abs($diff);
+                $formattedDiff = number_format($this->excess_amount, 0, ',', '.');
+                $this->status = "Lunas (Deposit: Rp {$formattedDiff})";
+            } else {
+                $this->status = "Lunas";
+            }
+        } else {
+            $this->status = "";
+        }
     }
 
     public function savePayment()
@@ -114,6 +177,7 @@ class TenantPaymentManager extends Component
         $isTunai = $pm && $pm->category === 'Tunai';
 
         $rules = [
+            'bill_id' => 'nullable',
             'payment_method_id' => 'required|exists:payment_methods,id',
             'payment_date' => 'required|date',
             'amount' => 'required|numeric|min:0',
@@ -135,9 +199,12 @@ class TenantPaymentManager extends Component
             return;
         }
 
+        $actualBillId = is_numeric($this->bill_id) ? $this->bill_id : null;
+        $isDeposit = $this->bill_id === 'deposit';
+
         $data = [
             'registration_id' => $registration->id,
-            'bill_id' => $this->bill_id,
+            'bill_id' => $actualBillId,
             'payment_method_id' => $this->payment_method_id,
             'payment_number' => $this->payment_number,
             'payment_date' => $this->payment_date,
@@ -145,7 +212,7 @@ class TenantPaymentManager extends Component
             'sender_bank_name' => $this->sender_bank_name,
             'sender_account_number' => $this->sender_account_number,
             'sender_account_name' => $this->sender_account_name,
-            'notes' => $this->notes,
+            'notes' => ($isDeposit ? '[DEPOSIT] ' : '') . $this->notes,
             'status' => 'Menunggu Konfirmasi',
         ];
 
@@ -162,6 +229,37 @@ class TenantPaymentManager extends Component
         $this->closeModal();
     }
 
+    public function deletePayment($id)
+    {
+        $payment = Payment::find($id);
+
+        if (!$payment) {
+            $this->dispatch('notify', message: 'Data pembayaran tidak ditemukan.', type: 'danger');
+            return;
+        }
+
+        // Security check: must belong to tenant and status must be "Menunggu Konfirmasi"
+        $registration = Registration::where('user_id', Auth::id())->where('status', 'active')->first();
+        if (!$registration || $payment->registration_id !== $registration->id) {
+            $this->dispatch('notify', message: 'Anda tidak memiliki akses untuk menghapus data ini.', type: 'danger');
+            return;
+        }
+
+        if ($payment->status !== 'Menunggu Konfirmasi') {
+            $this->dispatch('notify', message: 'Hanya pembayaran dengan status "Menunggu Konfirmasi" yang dapat dihapus.', type: 'danger');
+            return;
+        }
+
+        if ($payment->proof_of_payment) {
+            Storage::disk('public')->delete($payment->proof_of_payment);
+        }
+
+        $payment->delete();
+
+        $this->dispatch('notify', message: 'Laporan pembayaran berhasil dihapus.', type: 'success');
+        DatabaseUpdated::dispatch(Auth::id());
+    }
+
     public function render()
     {
         $registration = Registration::with('room', 'location')
@@ -174,6 +272,9 @@ class TenantPaymentManager extends Component
 
         if ($registration) {
             $bills = Bill::where('registration_id', $registration->id)
+                ->withCount(['payments as pending_payments_count' => function($q) {
+                    $q->where('status', 'Menunggu Konfirmasi');
+                }])
                 ->orderBy('due_date', 'asc')
                 ->get();
 
