@@ -157,6 +157,7 @@
                     <thead>
                         <tr>
                             <th>No. Pembayaran</th>
+                            <th>Keterangan</th>
                             <th>Tgl Bayar</th>
                             <th>Jumlah</th>
                             <th>Status</th>
@@ -167,6 +168,15 @@
                         @forelse($payments as $payment)
                         <tr>
                             <td><code>{{ $payment->payment_number }}</code></td>
+                            <td>
+                                @if($payment->bill)
+                                    {{ $payment->bill->description }}
+                                @elseif($payment->notes && strpos($payment->notes, '[DEPOSIT]') !== false)
+                                    Setoran Deposit
+                                @else
+                                    Pembayaran Umum
+                                @endif
+                            </td>
                             <td>{{ $payment->payment_date->format('d M Y') }}</td>
                             <td>Rp {{ number_format($payment->amount, 0, ',', '.') }}</td>
                             <td>
