@@ -331,9 +331,9 @@
                                             <td class="text-secondary">Status</td>
                                             <td>
                                                 @if($viewingRegistration->status === 'active')
-                                                    <span class="badge bg-success">AKTIF</span>
+                                                    <span class="badge bg-success-lt">AKTIF</span>
                                                 @else
-                                                    <span class="badge bg-secondary">SUDAH KELUAR</span>
+                                                    <span class="badge bg-secondary-lt">SUDAH KELUAR</span>
                                                 @endif
                                             </td>
                                         </tr>
