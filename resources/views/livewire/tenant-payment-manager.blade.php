@@ -124,7 +124,9 @@
                             <td>{{ $bill->due_date->format('d M Y') }}</td>
                             <td class="fw-bold">Rp {{ number_format($bill->amount, 0, ',', '.') }}</td>
                             <td>
-                                @if($bill->status === 'Belum Lunas')
+                                @if($bill->pending_payments_count > 0)
+                                    <span class="badge bg-info text-white">Menunggu Konfirmasi</span>
+                                @elseif($bill->status === 'Belum Lunas')
                                     <span class="badge bg-danger text-white">Belum Lunas</span>
                                 @elseif($bill->status === 'Cicilan')
                                     <span class="badge bg-warning text-white">Cicilan</span>

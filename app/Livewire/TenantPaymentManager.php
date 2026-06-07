@@ -272,6 +272,9 @@ class TenantPaymentManager extends Component
 
         if ($registration) {
             $bills = Bill::where('registration_id', $registration->id)
+                ->withCount(['payments as pending_payments_count' => function($q) {
+                    $q->where('status', 'Menunggu Konfirmasi');
+                }])
                 ->orderBy('due_date', 'asc')
                 ->get();
 
