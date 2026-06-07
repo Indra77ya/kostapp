@@ -327,6 +327,16 @@
                                 <div class="card-body p-0">
                                     <table class="table table-vcenter card-table">
                                         <tr><td class="text-secondary w-25">No. Registrasi</td><td><span class="badge bg-blue-lt">{{ $viewingRegistration->registration_number }}</span></td></tr>
+                                        <tr>
+                                            <td class="text-secondary">Status</td>
+                                            <td>
+                                                @if($viewingRegistration->status === 'active')
+                                                    <span class="badge bg-success">AKTIF</span>
+                                                @else
+                                                    <span class="badge bg-secondary">SUDAH KELUAR</span>
+                                                @endif
+                                            </td>
+                                        </tr>
                                         <tr><td class="text-secondary">Nama Lengkap</td><td>{{ $viewingRegistration->user->name }}</td></tr>
                                         <tr><td class="text-secondary">Email</td><td>{{ $viewingRegistration->user->email }}</td></tr>
                                         <tr><td class="text-secondary">No. Telepon</td><td>{{ $viewingRegistration->user->phone_number ?? '-' }}</td></tr>
@@ -348,10 +358,63 @@
                                         <tr><td class="text-secondary w-50">Lokasi</td><td>{{ $viewingRegistration->location->name }}</td></tr>
                                         <tr><td class="text-secondary">Kamar</td><td>{{ $viewingRegistration->room->room_number }} ({{ $viewingRegistration->room->room_type }})</td></tr>
                                         <tr><td class="text-secondary">Lantai</td><td>Lantai {{ $viewingRegistration->room->floor }}</td></tr>
-                                        <tr><td class="text-secondary">Tgl Mulai Kost</td><td>{{ $viewingRegistration->stay_start_date->format('d M Y') }}</td></tr>
+                                        <tr><td class="text-secondary">Tanggal Daftar</td><td>{{ $viewingRegistration->registration_date->format('d M Y') }}</td></tr>
+                                        <tr><td class="text-secondary">Mulai Menginap</td><td>{{ $viewingRegistration->stay_start_date->format('d M Y') }}</td></tr>
+                                        <tr>
+                                            <td class="text-secondary">Jenis Sewa</td>
+                                            <td>
+                                                @if($viewingRegistration->duration_type == 'daily') Harian
+                                                @elseif($viewingRegistration->duration_type == 'weekly') Mingguan
+                                                @elseif($viewingRegistration->duration_type == 'monthly') Bulanan
+                                                @elseif($viewingRegistration->duration_type == 'yearly') Tahunan
+                                                @else {{ ucfirst($viewingRegistration->duration_type) }}
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-secondary">Durasi Sewa</td>
+                                            <td>
+                                                @if($viewingRegistration->is_open_ended)
+                                                    Hingga Keluar
+                                                @else
+                                                    {{ $viewingRegistration->duration_value }}
+                                                    @if($viewingRegistration->duration_type == 'daily') Hari
+                                                    @elseif($viewingRegistration->duration_type == 'weekly') Minggu
+                                                    @elseif($viewingRegistration->duration_type == 'monthly') Bulan
+                                                    @elseif($viewingRegistration->duration_type == 'yearly') Tahun
+                                                    @endif
+                                                @endif
+                                            </td>
+                                        </tr>
                                         <tr><td class="text-secondary">Harga Kamar</td><td>Rp {{ number_format($viewingRegistration->room_price, 0, ',', '.') }}</td></tr>
-                                        <tr><td class="text-secondary">Diskon</td><td>{{ $viewingRegistration->discount_type === 'percent' ? $viewingRegistration->discount_value . '%' : 'Rp ' . number_format($viewingRegistration->discount_value, 0, ',', '.') }}</td></tr>
-                                        <tr><td class="text-secondary">Total Biaya/Bulan</td><td><strong class="text-primary">Rp {{ number_format($viewingRegistration->total_price, 0, ',', '.') }}</strong></td></tr>
+                                        <tr>
+                                            <td class="text-secondary">Diskon</td>
+                                            <td>
+                                                @if($viewingRegistration->discount_value > 0)
+                                                    @if($viewingRegistration->discount_type == 'percent')
+                                                        {{ $viewingRegistration->discount_value }}%
+                                                    @else
+                                                        Rp {{ number_format($viewingRegistration->discount_value, 0, ',', '.') }}
+                                                    @endif
+
+                                                    @if($viewingRegistration->is_discount_open_ended)
+                                                        <span class="text-muted small">(Hingga Keluar)</span>
+                                                    @elseif($viewingRegistration->discount_duration > 0)
+                                                        <span class="text-muted small">(Selama {{ $viewingRegistration->discount_duration }}
+                                                        @if($viewingRegistration->duration_type == 'daily') Hari)
+                                                        @elseif($viewingRegistration->duration_type == 'weekly') Minggu)
+                                                        @elseif($viewingRegistration->duration_type == 'monthly') Bulan)
+                                                        @elseif($viewingRegistration->duration_type == 'yearly') Tahun)
+                                                        @else Periode)
+                                                        @endif
+                                                        </span>
+                                                    @endif
+                                                @else
+                                                    -
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        <tr><td class="text-secondary">Total Harga Pendaftaran</td><td><strong class="text-primary">Rp {{ number_format($viewingRegistration->total_price, 0, ',', '.') }}</strong></td></tr>
                                     </table>
                                 </div>
                             </div>
@@ -445,6 +508,12 @@
                     @endif
                 </div>
                 <div class="modal-footer">
+                    @if($viewingRegistration)
+                        <a href="{{ route('registrations.invoice', $viewingRegistration->id) }}" target="_blank" class="btn btn-info">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-printer" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" /><path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" /><path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" /></svg>
+                            Cetak Data Diri
+                        </a>
+                    @endif
                     <button type="button" class="btn btn-secondary ms-auto" wire:click="closeDetailModal()">Tutup</button>
                 </div>
             </div>
