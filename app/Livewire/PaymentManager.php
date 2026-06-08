@@ -81,6 +81,10 @@ class PaymentManager extends Component
     public function selectRegistration($id)
     {
         $this->selectedRegistrationId = $id;
+        $registration = Registration::find($id);
+        if ($registration) {
+            $registration->syncBills();
+        }
         $this->viewMode = 'history';
         $this->resetPage();
     }

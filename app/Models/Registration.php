@@ -97,6 +97,16 @@ class Registration extends Model
         return (float) $this->bills()->whereRaw('amount > paid_amount')->sum(\Illuminate\Support\Facades\DB::raw('amount - paid_amount'));
     }
 
+    public function getBatchSize()
+    {
+        switch ($this->duration_type) {
+            case 'daily': return 7;
+            case 'weekly': return 4;
+            case 'yearly': return 5;
+            default: return 12; // monthly
+        }
+    }
+
     public function syncBills()
     {
         $startDate = \Carbon\Carbon::parse($this->stay_start_date);
@@ -126,7 +136,21 @@ class Registration extends Model
         $count = (int) $this->duration_value;
 
         if ($this->is_open_ended) {
-            $count = 12;
+            $batchSize = $this->getBatchSize();
+            $existingBillsCount = $this->bills()->where('description', 'not like', 'Deposit Awal%')->count();
+
+            // Initial count should be at least one batch
+            $count = max($batchSize, $existingBillsCount);
+
+            // Check if the last bill's due date has passed or is today
+            $lastBill = $this->bills()
+                ->where('description', 'not like', 'Deposit Awal%')
+                ->orderBy('due_date', 'desc')
+                ->first();
+
+            if ($lastBill && \Carbon\Carbon::parse($lastBill->due_date)->isPast()) {
+                $count += $batchSize;
+            }
         }
 
         $existingBills = $this->bills()
