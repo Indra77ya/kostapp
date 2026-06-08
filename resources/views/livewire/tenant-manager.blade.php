@@ -414,7 +414,21 @@
                                                 @endif
                                             </td>
                                         </tr>
-                                        <tr><td class="text-secondary">Total Harga Pendaftaran</td><td><strong class="text-primary">Rp {{ number_format($viewingRegistration->total_price, 0, ',', '.') }}</strong></td></tr>
+                                        <tr>
+                                            <td class="text-secondary">Total Harga Pendaftaran
+                                                @if($viewingRegistration->is_open_ended)
+                                                    @php
+                                                        $batch = $viewingRegistration->getBatchSize();
+                                                        $unit = 'Bln';
+                                                        if($viewingRegistration->duration_type == 'daily') $unit = 'Hari';
+                                                        elseif($viewingRegistration->duration_type == 'weekly') $unit = 'Minggu';
+                                                        elseif($viewingRegistration->duration_type == 'yearly') $unit = 'Thn';
+                                                    @endphp
+                                                    <div class="small text-muted">(Estimasi {{ $batch }} {{ $unit }})</div>
+                                                @endif
+                                            </td>
+                                            <td><strong class="text-primary">Rp {{ number_format($viewingRegistration->total_price, 0, ',', '.') }}</strong></td>
+                                        </tr>
                                     </table>
                                 </div>
                             </div>
