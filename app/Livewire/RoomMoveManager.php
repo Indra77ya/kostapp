@@ -137,7 +137,8 @@ class RoomMoveManager extends Component
         $discountDur = (int) ($this->discount_duration ?: 0);
 
         if ($this->is_open_ended) {
-            $duration = 12; // Standard view for 12 cycles if open ended
+            $registration = new Registration(['duration_type' => $this->duration_type]);
+            $duration = $registration->getBatchSize();
         }
 
         $total = 0;
