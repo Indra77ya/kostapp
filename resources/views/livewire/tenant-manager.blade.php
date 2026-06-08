@@ -299,30 +299,28 @@
                 </div>
                 <div class="modal-body">
                     @if($viewingRegistration)
-                    <div class="row">
+                    <div class="row align-items-stretch">
                         <div class="col-md-4 mb-3">
-                            <div class="card card-sm">
-                                <div class="card-body p-2 text-center">
-                                    <div class="mb-2">
-                                        <strong>Foto Diri</strong>
-                                    </div>
+                            <div class="card h-100">
+                                <div class="card-header"><h3 class="card-title">Foto Diri</h3></div>
+                                <div class="card-body p-2 text-center d-flex align-items-center justify-content-center">
                                     @if($viewingRegistration->photo_self)
                                         <a href="{{ asset('storage/' . $viewingRegistration->photo_self) }}" target="_blank">
                                             <img src="{{ asset('storage/' . $viewingRegistration->photo_self) }}"
                                                  class="img-fluid rounded border cursor-pointer"
-                                                 style="max-height: 200px; width: 100%; object-fit: cover;"
+                                                 style="max-height: 350px;"
                                                  title="Klik untuk memperbesar (Tab Baru)">
                                         </a>
                                     @else
-                                        <div class="bg-light d-flex align-items-center justify-content-center rounded border" style="height: 200px;">
+                                        <div class="bg-light d-flex align-items-center justify-content-center rounded border w-100" style="height: 350px;">
                                             <span class="text-secondary small">Tidak ada foto</span>
                                         </div>
                                     @endif
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-8">
-                            <div class="card mb-3">
+                        <div class="col-md-8 mb-3">
+                            <div class="card h-100">
                                 <div class="card-header"><h3 class="card-title">Informasi Pribadi</h3></div>
                                 <div class="card-body p-0">
                                     <table class="table table-vcenter card-table">
