@@ -93,7 +93,12 @@
                         </td>
                         <td>{{ $reg->registration_date->format('d M Y') }}</td>
                         <td>{{ $reg->stay_start_date->format('d M Y') }}</td>
-                        <td>Rp {{ number_format($reg->total_price, 0, ',', '.') }}</td>
+                        <td>
+                            <div>Rp {{ number_format($reg->total_price, 0, ',', '.') }}</div>
+                            @if($reg->is_open_ended)
+                                <div class="text-secondary small">(Estimasi)</div>
+                            @endif
+                        </td>
                         <td>
                             <div class="btn-list flex-nowrap">
                                 <a href="{{ route('registrations.invoice', $reg->id) }}" target="_blank" class="btn btn-white btn-sm" title="Cetak Data Diri">
@@ -214,7 +219,7 @@
                                             elseif($duration_type == 'weekly') $unit = 'Minggu';
                                             elseif($duration_type == 'yearly') $unit = 'Thn';
                                         @endphp
-                                        (Estimasi {{ $batch }} {{ $unit }})
+                                        (Estimasi {{ $batch }} {{ $unit }} Pertama)
                                     @endif
                                 </label>
                                 <div class="input-group">

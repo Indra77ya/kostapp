@@ -148,7 +148,7 @@ class Registration extends Model
                 ->orderBy('due_date', 'desc')
                 ->first();
 
-            if ($lastBill && \Carbon\Carbon::parse($lastBill->due_date)->isPast()) {
+            if ($lastBill && !\Carbon\Carbon::parse($lastBill->due_date)->isFuture()) {
                 $count += $batchSize;
             }
         }

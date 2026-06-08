@@ -424,7 +424,7 @@
                                                         elseif($viewingRegistration->duration_type == 'weekly') $unit = 'Minggu';
                                                         elseif($viewingRegistration->duration_type == 'yearly') $unit = 'Thn';
                                                     @endphp
-                                                    <div class="small text-muted">(Estimasi {{ $batch }} {{ $unit }})</div>
+                                                    <div class="small text-muted">(Estimasi {{ $batch }} {{ $unit }} Pertama)</div>
                                                 @endif
                                             </td>
                                             <td><strong class="text-primary">Rp {{ number_format($viewingRegistration->total_price, 0, ',', '.') }}</strong></td>

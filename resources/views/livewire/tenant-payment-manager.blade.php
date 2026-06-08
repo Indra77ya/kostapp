@@ -109,6 +109,7 @@
                         <tr>
                             <th>Keterangan</th>
                             <th>Jatuh Tempo</th>
+                            <th>Diskon</th>
                             <th>Jumlah</th>
                             <th>Status</th>
                             <th class="w-1"></th>
@@ -122,6 +123,7 @@
                                 <div class="text-secondary small">{{ $bill->bill_number }}</div>
                             </td>
                             <td>{{ $bill->due_date->format('d M Y') }}</td>
+                            <td class="text-secondary">Rp {{ number_format($bill->discount, 0, ',', '.') }}</td>
                             <td class="fw-bold">Rp {{ number_format($bill->amount, 0, ',', '.') }}</td>
                             <td>
                                 @if($bill->pending_payments_count > 0)
@@ -238,7 +240,7 @@
                                 <option value="umum">Pembayaran Umum</option>
                                 <option value="deposit">Setor Deposit</option>
                                 @foreach($bills as $b)
-                                    @if($b->status !== 'Lunas')
+                                    @if($b->status !== 'Lunas' && $b->pending_payments_count === 0)
                                         <option value="{{ $b->id }}">{{ $b->description }} (Rp {{ number_format($b->amount - $b->paid_amount, 0, ',', '.') }})</option>
                                     @endif
                                 @endforeach

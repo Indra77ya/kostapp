@@ -277,7 +277,7 @@
                                             elseif($duration_type == 'weekly') $unit = 'Minggu';
                                             elseif($duration_type == 'yearly') $unit = 'Thn';
                                         @endphp
-                                        (Estimasi {{ $batch }} {{ $unit }})
+                                        (Estimasi {{ $batch }} {{ $unit }} Pertama)
                                     @endif
                                 </label>
                                 <div class="input-group">
