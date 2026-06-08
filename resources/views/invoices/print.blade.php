@@ -153,7 +153,7 @@
                                     elseif($registration->duration_type == 'weekly') $unit = 'Minggu';
                                     elseif($registration->duration_type == 'yearly') $unit = 'Thn';
                                 @endphp
-                                (Estimasi {{ $batch }} {{ $unit }} Pertama)
+                                (Estimasi {{ $batch }} {{ $unit }})
                             @endif
                         </span>
                         <span class="value" style="font-weight: bold; color: #3b82f6;">Rp {{ number_format($registration->total_price, 0, ',', '.') }}</span>
