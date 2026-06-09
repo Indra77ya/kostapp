@@ -95,7 +95,7 @@ class PaymentManager extends Component
 
             // Calculate last page for payments
             $paymentsCount = Payment::where('registration_id', $id)->count();
-            $lastPaymentPage = ceil($paymentsCount / 10); // Using 10 as default paginate size in render
+            $lastPaymentPage = ceil($paymentsCount / 12); // Using 12 as requested
             $this->setPage($lastPaymentPage, 'paymentsPage');
         }
         $this->viewMode = 'history';
@@ -556,7 +556,7 @@ class PaymentManager extends Component
             $payments = Payment::with(['paymentMethod', 'bill'])
                 ->where('registration_id', $this->selectedRegistrationId)
                 ->latest()
-                ->paginate(10, ['*'], 'paymentsPage');
+                ->paginate(12, ['*'], 'paymentsPage');
 
             return view('livewire.payment-manager', [
                 'registration' => $registration,

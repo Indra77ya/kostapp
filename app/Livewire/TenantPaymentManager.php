@@ -55,7 +55,7 @@ class TenantPaymentManager extends Component
             $this->setPage($lastPage, 'billsPage');
 
             $paymentsCount = Payment::where('registration_id', $registration->id)->count();
-            $lastPaymentPage = ceil($paymentsCount / 10);
+            $lastPaymentPage = ceil($paymentsCount / 12);
             $this->setPage($lastPaymentPage, 'paymentsPage');
         }
     }
@@ -311,7 +311,7 @@ class TenantPaymentManager extends Component
             $payments = Payment::with(['paymentMethod', 'bill'])
                 ->where('registration_id', $registration->id)
                 ->latest()
-                ->paginate(10, ['*'], 'paymentsPage');
+                ->paginate(12, ['*'], 'paymentsPage');
         }
 
         $selectedPm = $this->payment_method_id ? PaymentMethod::find($this->payment_method_id) : null;
