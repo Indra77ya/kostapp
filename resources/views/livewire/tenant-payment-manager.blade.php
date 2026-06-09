@@ -244,10 +244,8 @@
                             <select class="form-select" wire:model.live="bill_id">
                                 <option value="umum">Pembayaran Umum</option>
                                 <option value="deposit">Setor Deposit</option>
-                                @foreach($bills as $b)
-                                    @if($b->status !== 'Lunas' && $b->pending_payments_count === 0)
-                                        <option value="{{ $b->id }}">{{ $b->description }} (Rp {{ number_format($b->amount - $b->paid_amount, 0, ',', '.') }})</option>
-                                    @endif
+                                @foreach($selectableBills as $b)
+                                    <option value="{{ $b->id }}">{{ $b->description }} (Rp {{ number_format($b->amount - $b->paid_amount, 0, ',', '.') }})</option>
                                 @endforeach
                             </select>
                         </div>

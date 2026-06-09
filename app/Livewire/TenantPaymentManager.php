@@ -47,10 +47,16 @@ class TenantPaymentManager extends Component
         // Calculate last page for bills on mount
         $registration = Registration::where('user_id', Auth::id())->where('status', 'active')->first();
         if ($registration) {
+            $registration->syncBills(); // Sync first to ensure we have the latest counts
             $this->billsPerPage = $registration->getBatchSize();
+
             $billsCount = Bill::where('registration_id', $registration->id)->count();
             $lastPage = ceil($billsCount / $this->billsPerPage);
             $this->setPage($lastPage, 'billsPage');
+
+            $paymentsCount = Payment::where('registration_id', $registration->id)->count();
+            $lastPaymentPage = ceil($paymentsCount / 10);
+            $this->setPage($lastPaymentPage, 'paymentsPage');
         }
     }
 
@@ -283,6 +289,7 @@ class TenantPaymentManager extends Component
         }
 
         $bills = [];
+        $selectableBills = [];
         $payments = [];
 
         if ($registration) {
@@ -292,6 +299,15 @@ class TenantPaymentManager extends Component
                 }])
                 ->orderBy('due_date', 'asc')
                 ->paginate($this->billsPerPage, ['*'], 'billsPage');
+
+            $selectableBills = Bill::where('registration_id', $registration->id)
+                ->where('status', '!=', 'Lunas')
+                ->withCount(['payments as pending_payments_count' => function($q) {
+                    $q->where('status', 'Menunggu Konfirmasi');
+                }])
+                ->having('pending_payments_count', '=', 0)
+                ->orderBy('due_date', 'asc')
+                ->get();
 
             $payments = Payment::with(['paymentMethod', 'bill'])
                 ->where('registration_id', $registration->id)
@@ -304,6 +320,7 @@ class TenantPaymentManager extends Component
         return view('livewire.tenant-payment-manager', [
             'registration' => $registration,
             'bills' => $bills,
+            'selectableBills' => $selectableBills,
             'payments' => $payments,
             'paymentMethods' => PaymentMethod::where('is_active', true)->get(),
             'selectedPm' => $selectedPm,

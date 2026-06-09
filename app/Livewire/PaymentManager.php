@@ -92,6 +92,11 @@ class PaymentManager extends Component
             $billsCount = Bill::where('registration_id', $id)->count();
             $lastPage = ceil($billsCount / $this->billsPerPage);
             $this->setPage($lastPage, 'billsPage');
+
+            // Calculate last page for payments
+            $paymentsCount = Payment::where('registration_id', $id)->count();
+            $lastPaymentPage = ceil($paymentsCount / 10); // Using 10 as default paginate size in render
+            $this->setPage($lastPaymentPage, 'paymentsPage');
         }
         $this->viewMode = 'history';
         $this->resetPage(); // Reset main paginator (for payments)
