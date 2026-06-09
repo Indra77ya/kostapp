@@ -47,6 +47,7 @@ class TenantPaymentManager extends Component
         // Calculate last page for bills on mount
         $registration = Registration::where('user_id', Auth::id())->where('status', 'active')->first();
         if ($registration) {
+            $this->billsPerPage = $registration->getBatchSize();
             $billsCount = Bill::where('registration_id', $registration->id)->count();
             $lastPage = ceil($billsCount / $this->billsPerPage);
             $this->setPage($lastPage, 'billsPage');
@@ -278,6 +279,7 @@ class TenantPaymentManager extends Component
 
         if ($registration) {
             $registration->syncBills();
+            $this->billsPerPage = $registration->getBatchSize();
         }
 
         $bills = [];

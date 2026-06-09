@@ -86,6 +86,8 @@ class PaymentManager extends Component
         if ($registration) {
             $registration->syncBills();
 
+            $this->billsPerPage = $registration->getBatchSize();
+
             // Calculate last page for bills
             $billsCount = Bill::where('registration_id', $id)->count();
             $lastPage = ceil($billsCount / $this->billsPerPage);
