@@ -302,10 +302,9 @@ class TenantPaymentManager extends Component
 
             $selectableBills = Bill::where('registration_id', $registration->id)
                 ->where('status', '!=', 'Lunas')
-                ->withCount(['payments as pending_payments_count' => function($q) {
+                ->whereDoesntHave('payments', function($q) {
                     $q->where('status', 'Menunggu Konfirmasi');
-                }])
-                ->having('pending_payments_count', '=', 0)
+                })
                 ->orderBy('due_date', 'asc')
                 ->get();
 

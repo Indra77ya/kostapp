@@ -32,7 +32,7 @@ class TenantBillPendingStatusTest extends TestCase
         $room = Room::create(['room_number' => '101', 'location_id' => $location->id, 'type' => 'Standard', 'price_monthly' => 1000000, 'status' => 'occupied']);
         $tenant = User::factory()->create();
         $tenant->assignRole('tenant');
-        $reg = Registration::create(['user_id' => $tenant->id, 'room_id' => $room->id, 'location_id' => $location->id, 'registration_number' => 'REG-123', 'registration_date' => now(), 'stay_start_date' => now(), 'room_price' => 1000000, 'total_price' => 1000000, 'identity_type' => 'KTP', 'identity_number' => '12345', 'gender' => 'Laki-laki', 'birth_date' => '1990-01-01', 'status' => 'active']);
+        $reg = Registration::create(['user_id' => $tenant->id, 'room_id' => $room->id, 'location_id' => $location->id, 'registration_number' => 'REG-123', 'registration_date' => now(), 'stay_start_date' => now(), 'duration_type' => 'monthly', 'duration_value' => 1, 'room_price' => 1000000, 'total_price' => 1000000, 'identity_type' => 'KTP', 'identity_number' => '12345', 'gender' => 'Laki-laki', 'birth_date' => '1990-01-01', 'status' => 'active']);
 
         $bill = Bill::create([
             'registration_id' => $reg->id,
@@ -46,9 +46,10 @@ class TenantBillPendingStatusTest extends TestCase
         $pm = PaymentMethod::create(['name' => 'Cash', 'category' => 'Manual', 'is_active' => true]);
 
         // Initially shows Belum Lunas
-        Livewire::actingAs($tenant)
-            ->test(TenantPaymentManager::class)
-            ->assertSee('Target Bill')
+        $test = Livewire::actingAs($tenant)->test(TenantPaymentManager::class);
+
+        $test->assertSee('Tagihan Sewa Kamar')
+            ->assertSee('BILL-001')
             ->assertSee('Belum Lunas');
 
         // Add pending payment
@@ -65,7 +66,8 @@ class TenantBillPendingStatusTest extends TestCase
         // Now should show Menunggu Konfirmasi in the bill row
         Livewire::actingAs($tenant)
             ->test(TenantPaymentManager::class)
-            ->assertSee('Target Bill')
+            ->assertSee('Tagihan Sewa Kamar')
+            ->assertSee('BILL-001')
             ->assertSee('Menunggu Konfirmasi');
     }
 }
