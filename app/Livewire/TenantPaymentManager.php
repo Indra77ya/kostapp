@@ -22,6 +22,7 @@ class TenantPaymentManager extends Component
     protected $paginationTheme = 'bootstrap';
     public $viewMode = 'overview'; // 'overview' or 'history'
     public $isModalOpen = false;
+    public $billsPerPage = 10;
 
     // Form fields
     public $bill_id, $payment_method_id, $payment_date, $amount, $notes, $proof_of_payment;
@@ -42,6 +43,14 @@ class TenantPaymentManager extends Component
     {
         $this->payment_date = Carbon::now()->format('Y-m-d');
         $this->generatePaymentNumber();
+
+        // Calculate last page for bills on mount
+        $registration = Registration::where('user_id', Auth::id())->where('status', 'active')->first();
+        if ($registration) {
+            $billsCount = Bill::where('registration_id', $registration->id)->count();
+            $lastPage = ceil($billsCount / $this->billsPerPage);
+            $this->setPage($lastPage, 'billsPage');
+        }
     }
 
     private function generatePaymentNumber()
@@ -280,12 +289,12 @@ class TenantPaymentManager extends Component
                     $q->where('status', 'Menunggu Konfirmasi');
                 }])
                 ->orderBy('due_date', 'asc')
-                ->get();
+                ->paginate($this->billsPerPage, ['*'], 'billsPage');
 
             $payments = Payment::with(['paymentMethod', 'bill'])
                 ->where('registration_id', $registration->id)
                 ->latest()
-                ->paginate(10);
+                ->paginate(10, ['*'], 'paymentsPage');
         }
 
         $selectedPm = $this->payment_method_id ? PaymentMethod::find($this->payment_method_id) : null;

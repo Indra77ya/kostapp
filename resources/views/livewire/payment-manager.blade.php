@@ -224,12 +224,17 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="8" class="text-center py-4 text-secondary">Belum ada daftar tagihan.</td>
+                        <td colspan="9" class="text-center py-4 text-secondary">Belum ada daftar tagihan.</td>
                     </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
+        @if($bills->hasPages())
+        <div class="card-footer d-flex align-items-center">
+            {{ $bills->links() }}
+        </div>
+        @endif
     </div>
 
     <div class="card">
