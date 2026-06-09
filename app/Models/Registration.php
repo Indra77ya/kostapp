@@ -142,13 +142,13 @@ class Registration extends Model
             // Initial count should be at least one batch
             $count = max($batchSize, $existingBillsCount);
 
-            // Check if the last bill's due date has passed or is today
+            // Check if the last bill's due date has passed or is today OR if it is already paid
             $lastBill = $this->bills()
                 ->where('description', 'not like', 'Deposit Awal%')
                 ->orderBy('due_date', 'desc')
                 ->first();
 
-            if ($lastBill && !\Carbon\Carbon::parse($lastBill->due_date)->isFuture()) {
+            if ($lastBill && (!\Carbon\Carbon::parse($lastBill->due_date)->isFuture() || $lastBill->status === 'Lunas')) {
                 $count += $batchSize;
             }
         }

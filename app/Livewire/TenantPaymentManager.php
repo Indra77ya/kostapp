@@ -40,10 +40,6 @@ class TenantPaymentManager extends Component
 
     public function mount()
     {
-        $registration = Registration::where('user_id', Auth::id())->where('status', 'active')->first();
-        if ($registration) {
-            $registration->syncBills();
-        }
         $this->payment_date = Carbon::now()->format('Y-m-d');
         $this->generatePaymentNumber();
     }
@@ -270,6 +266,10 @@ class TenantPaymentManager extends Component
             ->where('user_id', Auth::id())
             ->where('status', 'active')
             ->first();
+
+        if ($registration) {
+            $registration->syncBills();
+        }
 
         $bills = [];
         $payments = [];
