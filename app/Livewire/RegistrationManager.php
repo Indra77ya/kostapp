@@ -175,7 +175,7 @@ class RegistrationManager extends Component
         $discountDur = (int) ($this->discount_duration ?: 0);
 
         if ($this->is_open_ended) {
-            $duration = 12; // Standard view for 12 months if open ended
+            $duration = Registration::getBatchSizeByType($this->duration_type);
         }
 
         $total = 0;

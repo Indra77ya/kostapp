@@ -93,7 +93,12 @@
                         </td>
                         <td>{{ $reg->registration_date->format('d M Y') }}</td>
                         <td>{{ $reg->stay_start_date->format('d M Y') }}</td>
-                        <td>Rp {{ number_format($reg->total_price, 0, ',', '.') }}</td>
+                        <td>
+                            <div>Rp {{ number_format($reg->total_price, 0, ',', '.') }}</div>
+                            @if($reg->is_open_ended)
+                                <div class="text-secondary small">(Estimasi)</div>
+                            @endif
+                        </td>
                         <td>
                             <div class="btn-list flex-nowrap">
                                 <a href="{{ route('registrations.invoice', $reg->id) }}" target="_blank" class="btn btn-white btn-sm" title="Cetak Data Diri">
@@ -204,7 +209,19 @@
                                 </div>
                             </div>
                             <div class="col-md-3 mb-3">
-                                <label class="form-label small fw-bold text-muted">Total Harga {{ $is_open_ended ? '(12 Bln)' : '' }}</label>
+                                <label class="form-label small fw-bold text-muted">Total Harga
+                                    @if($is_open_ended)
+                                        @php
+                                            $registrationModel = new \App\Models\Registration(['duration_type' => $duration_type]);
+                                            $batch = $registrationModel->getBatchSize();
+                                            $unit = 'Bln';
+                                            if($duration_type == 'daily') $unit = 'Hari';
+                                            elseif($duration_type == 'weekly') $unit = 'Minggu';
+                                            elseif($duration_type == 'yearly') $unit = 'Thn';
+                                        @endphp
+                                        (Estimasi {{ $batch }} {{ $unit }})
+                                    @endif
+                                </label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light text-muted">Rp</span>
                                     <input type="text" class="form-control fw-bold bg-light" value="{{ number_format($total_price, 0, ',', '.') }}" readonly>

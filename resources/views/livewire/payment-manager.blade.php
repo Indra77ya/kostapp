@@ -197,8 +197,6 @@
                         <td>
                             @if($bill->remaining_amount > 0)
                                 <span class="text-danger fw-bold">Rp {{ number_format($bill->remaining_amount, 0, ',', '.') }}</span>
-                            @elseif($bill->remaining_amount < 0)
-                                <span class="text-primary fw-bold">Deposit: Rp {{ number_format(abs($bill->remaining_amount), 0, ',', '.') }}</span>
                             @else
                                 <span class="text-success fw-bold">Lunas</span>
                             @endif
@@ -224,12 +222,17 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="8" class="text-center py-4 text-secondary">Belum ada daftar tagihan.</td>
+                        <td colspan="9" class="text-center py-4 text-secondary">Belum ada daftar tagihan.</td>
                     </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
+        @if($bills->hasPages())
+        <div class="card-footer d-flex align-items-center">
+            {{ $bills->links() }}
+        </div>
+        @endif
     </div>
 
     <div class="card">

@@ -22,6 +22,7 @@ class TenantPaymentManager extends Component
     protected $paginationTheme = 'bootstrap';
     public $viewMode = 'overview'; // 'overview' or 'history'
     public $isModalOpen = false;
+    public $billsPerPage = 10;
 
     // Form fields
     public $bill_id, $payment_method_id, $payment_date, $amount, $notes, $proof_of_payment;
@@ -42,6 +43,21 @@ class TenantPaymentManager extends Component
     {
         $this->payment_date = Carbon::now()->format('Y-m-d');
         $this->generatePaymentNumber();
+
+        // Calculate last page for bills on mount
+        $registration = Registration::where('user_id', Auth::id())->where('status', 'active')->first();
+        if ($registration) {
+            $registration->syncBills(); // Sync first to ensure we have the latest counts
+            $this->billsPerPage = $registration->getBatchSize();
+
+            $billsCount = Bill::where('registration_id', $registration->id)->count();
+            $lastPage = ceil($billsCount / $this->billsPerPage);
+            $this->setPage($lastPage, 'billsPage');
+
+            $paymentsCount = Payment::where('registration_id', $registration->id)->count();
+            $lastPaymentPage = ceil($paymentsCount / 12);
+            $this->setPage($lastPaymentPage, 'paymentsPage');
+        }
     }
 
     private function generatePaymentNumber()
@@ -267,7 +283,13 @@ class TenantPaymentManager extends Component
             ->where('status', 'active')
             ->first();
 
+        if ($registration) {
+            $registration->syncBills();
+            $this->billsPerPage = $registration->getBatchSize();
+        }
+
         $bills = [];
+        $selectableBills = [];
         $payments = [];
 
         if ($registration) {
@@ -276,12 +298,20 @@ class TenantPaymentManager extends Component
                     $q->where('status', 'Menunggu Konfirmasi');
                 }])
                 ->orderBy('due_date', 'asc')
+                ->paginate($this->billsPerPage, ['*'], 'billsPage');
+
+            $selectableBills = Bill::where('registration_id', $registration->id)
+                ->where('status', '!=', 'Lunas')
+                ->whereDoesntHave('payments', function($q) {
+                    $q->where('status', 'Menunggu Konfirmasi');
+                })
+                ->orderBy('due_date', 'asc')
                 ->get();
 
             $payments = Payment::with(['paymentMethod', 'bill'])
                 ->where('registration_id', $registration->id)
-                ->latest()
-                ->paginate(10);
+                ->orderBy('created_at', 'asc')
+                ->paginate(12, ['*'], 'paymentsPage');
         }
 
         $selectedPm = $this->payment_method_id ? PaymentMethod::find($this->payment_method_id) : null;
@@ -289,6 +319,7 @@ class TenantPaymentManager extends Component
         return view('livewire.tenant-payment-manager', [
             'registration' => $registration,
             'bills' => $bills,
+            'selectableBills' => $selectableBills,
             'payments' => $payments,
             'paymentMethods' => PaymentMethod::where('is_active', true)->get(),
             'selectedPm' => $selectedPm,

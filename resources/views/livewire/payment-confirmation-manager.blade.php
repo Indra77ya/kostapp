@@ -219,8 +219,6 @@
                                             <div class="text-secondary small text-uppercase mb-1">Sisa</div>
                                             @if($selectedPayment->bill->remaining_amount > 0)
                                                 <div class="h4 mb-0 text-danger">Rp {{ number_format($selectedPayment->bill->remaining_amount, 0, ',', '.') }}</div>
-                                            @elseif($selectedPayment->bill->remaining_amount < 0)
-                                                <div class="h4 mb-0 text-primary">Deposit: Rp {{ number_format(abs($selectedPayment->bill->remaining_amount), 0, ',', '.') }}</div>
                                             @else
                                                 <div class="h4 mb-0 text-success">Lunas</div>
                                             @endif

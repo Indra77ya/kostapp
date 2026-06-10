@@ -143,7 +143,19 @@
                 </div>
                 <div class="row">
                     <div class="col">
-                        <span class="label">Total Harga Pendaftaran</span>
+                        <span class="label">
+                            Total Harga Pendaftaran
+                            @if($registration->is_open_ended)
+                                @php
+                                    $batch = $registration->getBatchSize();
+                                    $unit = 'Bln';
+                                    if($registration->duration_type == 'daily') $unit = 'Hari';
+                                    elseif($registration->duration_type == 'weekly') $unit = 'Minggu';
+                                    elseif($registration->duration_type == 'yearly') $unit = 'Thn';
+                                @endphp
+                                (Estimasi {{ $batch }} {{ $unit }})
+                            @endif
+                        </span>
                         <span class="value" style="font-weight: bold; color: #3b82f6;">Rp {{ number_format($registration->total_price, 0, ',', '.') }}</span>
                     </div>
                     <div class="col">

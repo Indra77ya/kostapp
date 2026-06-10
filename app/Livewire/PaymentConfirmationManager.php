@@ -72,6 +72,9 @@ class PaymentConfirmationManager extends Component
             $this->syncDeposit($payment);
         });
 
+        // Trigger bill sync to generate next batch for open-ended rentals if needed
+        $payment->registration->syncBills();
+
         $billDescription = $payment->bill ? $payment->bill->description : 'Pembayaran Umum';
         $message = "Pembayaran untuk {$billDescription} telah disetujui.";
 

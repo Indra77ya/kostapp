@@ -109,6 +109,7 @@
                         <tr>
                             <th>Keterangan</th>
                             <th>Jatuh Tempo</th>
+                            <th>Diskon</th>
                             <th>Jumlah</th>
                             <th>Status</th>
                             <th class="w-1"></th>
@@ -122,6 +123,7 @@
                                 <div class="text-secondary small">{{ $bill->bill_number }}</div>
                             </td>
                             <td>{{ $bill->due_date->format('d M Y') }}</td>
+                            <td class="text-secondary">Rp {{ number_format($bill->discount, 0, ',', '.') }}</td>
                             <td class="fw-bold">Rp {{ number_format($bill->amount, 0, ',', '.') }}</td>
                             <td>
                                 @if($bill->pending_payments_count > 0)
@@ -142,12 +144,17 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="5" class="text-center py-4 text-secondary">Belum ada daftar tagihan.</td>
+                            <td colspan="6" class="text-center py-4 text-secondary">Belum ada daftar tagihan.</td>
                         </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
+            @if($bills->hasPages())
+            <div class="card-footer d-flex align-items-center">
+                {{ $bills->links() }}
+            </div>
+            @endif
         </div>
 
         <div class="card">
@@ -237,10 +244,8 @@
                             <select class="form-select" wire:model.live="bill_id">
                                 <option value="umum">Pembayaran Umum</option>
                                 <option value="deposit">Setor Deposit</option>
-                                @foreach($bills as $b)
-                                    @if($b->status !== 'Lunas')
-                                        <option value="{{ $b->id }}">{{ $b->description }} (Rp {{ number_format($b->amount - $b->paid_amount, 0, ',', '.') }})</option>
-                                    @endif
+                                @foreach($selectableBills as $b)
+                                    <option value="{{ $b->id }}">{{ $b->description }} (Rp {{ number_format(max(0, $b->amount - $b->paid_amount), 0, ',', '.') }})</option>
                                 @endforeach
                             </select>
                         </div>

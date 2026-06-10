@@ -28,6 +28,7 @@ class PaymentManager extends Component
     public $isBillModalOpen = false;
     public $paymentId;
     public $billId;
+    public $billsPerPage = 10;
 
     // List & Search & Filters
     public $search = '';
@@ -81,8 +82,24 @@ class PaymentManager extends Component
     public function selectRegistration($id)
     {
         $this->selectedRegistrationId = $id;
+        $registration = Registration::find($id);
+        if ($registration) {
+            $registration->syncBills();
+
+            $this->billsPerPage = $registration->getBatchSize();
+
+            // Calculate last page for bills
+            $billsCount = Bill::where('registration_id', $id)->count();
+            $lastPage = ceil($billsCount / $this->billsPerPage);
+            $this->setPage($lastPage, 'billsPage');
+
+            // Calculate last page for payments
+            $paymentsCount = Payment::where('registration_id', $id)->count();
+            $lastPaymentPage = ceil($paymentsCount / 12); // Using 12 as requested
+            $this->setPage($lastPaymentPage, 'paymentsPage');
+        }
         $this->viewMode = 'history';
-        $this->resetPage();
+        $this->resetPage(); // Reset main paginator (for payments)
     }
 
     public function backToList()
@@ -534,12 +551,12 @@ class PaymentManager extends Component
 
             $bills = Bill::where('registration_id', $this->selectedRegistrationId)
                 ->orderBy('due_date', 'asc')
-                ->get();
+                ->paginate($this->billsPerPage, ['*'], 'billsPage');
 
             $payments = Payment::with(['paymentMethod', 'bill'])
                 ->where('registration_id', $this->selectedRegistrationId)
-                ->latest()
-                ->paginate(10);
+            ->orderBy('created_at', 'asc')
+            ->paginate(12, ['*'], 'paymentsPage');
 
             return view('livewire.payment-manager', [
                 'registration' => $registration,

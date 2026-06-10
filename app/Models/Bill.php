@@ -36,6 +36,6 @@ class Bill extends Model
 
     public function getRemainingAmountAttribute()
     {
-        return $this->amount - $this->paid_amount;
+        return max(0, $this->amount - $this->paid_amount);
     }
 }
