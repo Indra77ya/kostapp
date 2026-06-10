@@ -555,8 +555,8 @@ class PaymentManager extends Component
 
             $payments = Payment::with(['paymentMethod', 'bill'])
                 ->where('registration_id', $this->selectedRegistrationId)
-                ->latest()
-                ->paginate(12, ['*'], 'paymentsPage');
+            ->orderBy('created_at', 'asc')
+            ->paginate(12, ['*'], 'paymentsPage');
 
             return view('livewire.payment-manager', [
                 'registration' => $registration,

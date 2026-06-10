@@ -175,8 +175,7 @@ class RegistrationManager extends Component
         $discountDur = (int) ($this->discount_duration ?: 0);
 
         if ($this->is_open_ended) {
-            $registration = new Registration(['duration_type' => $this->duration_type]);
-            $duration = $registration->getBatchSize();
+            $duration = Registration::getBatchSizeByType($this->duration_type);
         }
 
         $total = 0;

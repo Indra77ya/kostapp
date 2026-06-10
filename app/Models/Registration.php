@@ -97,14 +97,19 @@ class Registration extends Model
         return (float) $this->bills()->whereRaw('amount > paid_amount')->sum(\Illuminate\Support\Facades\DB::raw('amount - paid_amount'));
     }
 
-    public function getBatchSize()
+    public static function getBatchSizeByType($durationType)
     {
-        switch ($this->duration_type) {
+        switch ($durationType) {
             case 'daily': return 7;
             case 'weekly': return 4;
             case 'yearly': return 5;
             default: return 12; // monthly
         }
+    }
+
+    public function getBatchSize()
+    {
+        return self::getBatchSizeByType($this->duration_type);
     }
 
     public function syncBills()

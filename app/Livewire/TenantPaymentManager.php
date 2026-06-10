@@ -310,7 +310,7 @@ class TenantPaymentManager extends Component
 
             $payments = Payment::with(['paymentMethod', 'bill'])
                 ->where('registration_id', $registration->id)
-                ->latest()
+                ->orderBy('created_at', 'asc')
                 ->paginate(12, ['*'], 'paymentsPage');
         }
 

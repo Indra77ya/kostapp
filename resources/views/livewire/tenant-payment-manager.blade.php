@@ -245,7 +245,7 @@
                                 <option value="umum">Pembayaran Umum</option>
                                 <option value="deposit">Setor Deposit</option>
                                 @foreach($selectableBills as $b)
-                                    <option value="{{ $b->id }}">{{ $b->description }} (Rp {{ number_format($b->amount - $b->paid_amount, 0, ',', '.') }})</option>
+                                    <option value="{{ $b->id }}">{{ $b->description }} (Rp {{ number_format(max(0, $b->amount - $b->paid_amount), 0, ',', '.') }})</option>
                                 @endforeach
                             </select>
                         </div>
