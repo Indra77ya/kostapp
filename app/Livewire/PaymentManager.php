@@ -62,10 +62,35 @@ class PaymentManager extends Component
 
     public function generatePaymentNumber()
     {
+        if (is_numeric($this->bill_id)) {
+            $bill = Bill::find($this->bill_id);
+            if ($bill) {
+                $billSuffix = str_replace('BILL-', '', $bill->bill_number);
+                $prefix = "PAY-{$billSuffix}-";
+
+                $lastPayment = Payment::where('payment_number', 'like', $prefix . '%')
+                    ->when($this->paymentId, fn($q) => $q->where('id', '!=', $this->paymentId))
+                    ->orderBy('payment_number', 'desc')
+                    ->first();
+
+                if ($lastPayment) {
+                    $lastNumber = (int) substr($lastPayment->payment_number, -2);
+                    $nextNumber = $lastNumber + 1;
+                } else {
+                    $nextNumber = 1;
+                }
+
+                $this->payment_number = $prefix . str_pad($nextNumber, 2, '0', STR_PAD_LEFT);
+                return;
+            }
+        }
+
         $date = Carbon::now()->format('dmY');
         $prefix = "PAY-{$date}-";
 
         $lastPayment = Payment::where('payment_number', 'like', $prefix . '%')
+            ->when($this->paymentId, fn($q) => $q->where('id', '!=', $this->paymentId))
+            ->whereRaw('length(payment_number) = ?', [strlen($prefix) + 4])
             ->orderBy('payment_number', 'desc')
             ->first();
 
@@ -117,6 +142,7 @@ class PaymentManager extends Component
     public function updatedBillId($value)
     {
         $this->calculateAmountAndStatus();
+        $this->generatePaymentNumber();
     }
 
     public function updatedAmount()
