@@ -32,6 +32,7 @@ class PaymentManager extends Component
 
     // List & Search & Filters
     public $search = '';
+    public $historySearch = '';
     public $filterLocation = '';
     public $filterDurationType = '';
     public $filterPaymentStatus = '';
@@ -553,6 +554,7 @@ class PaymentManager extends Component
     }
 
     public function updatingSearch() { $this->resetPage(); }
+    public function updatingHistorySearch() { $this->resetPage('billsPage'); $this->resetPage('paymentsPage'); }
     public function updatingFilterLocation() { $this->resetPage(); }
     public function updatingFilterDurationType() { $this->resetPage(); }
     public function updatingFilterPaymentStatus() { $this->resetPage(); }
@@ -575,13 +577,29 @@ class PaymentManager extends Component
         if ($this->viewMode === 'history') {
             $registration = Registration::with('user', 'room', 'location')->find($this->selectedRegistrationId);
 
-            $bills = Bill::where('registration_id', $this->selectedRegistrationId)
-                ->orderBy('due_date', 'asc')
+            $billsQuery = Bill::where('registration_id', $this->selectedRegistrationId);
+            if ($this->historySearch) {
+                $billsQuery->where(function($q) {
+                    $q->where('bill_number', 'like', '%' . $this->historySearch . '%')
+                      ->orWhere('description', 'like', '%' . $this->historySearch . '%');
+                });
+            }
+            $bills = $billsQuery->orderBy('due_date', 'asc')
                 ->paginate($this->billsPerPage, ['*'], 'billsPage');
 
-            $payments = Payment::with(['paymentMethod', 'bill'])
-                ->where('registration_id', $this->selectedRegistrationId)
-            ->orderBy('created_at', 'asc')
+            $paymentsQuery = Payment::with(['paymentMethod', 'bill'])
+                ->where('registration_id', $this->selectedRegistrationId);
+            if ($this->historySearch) {
+                $paymentsQuery->where(function($q) {
+                    $q->where('payment_number', 'like', '%' . $this->historySearch . '%')
+                      ->orWhere('notes', 'like', '%' . $this->historySearch . '%')
+                      ->orWhereHas('bill', function($bq) {
+                          $bq->where('bill_number', 'like', '%' . $this->historySearch . '%')
+                            ->orWhere('description', 'like', '%' . $this->historySearch . '%');
+                      });
+                });
+            }
+            $payments = $paymentsQuery->orderBy('created_at', 'asc')
             ->paginate(12, ['*'], 'paymentsPage');
 
             return view('livewire.payment-manager', [

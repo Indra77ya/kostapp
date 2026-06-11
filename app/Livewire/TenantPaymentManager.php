@@ -21,6 +21,7 @@ class TenantPaymentManager extends Component
 
     protected $paginationTheme = 'bootstrap';
     public $viewMode = 'overview'; // 'overview' or 'history'
+    public $historySearch = '';
     public $isModalOpen = false;
     public $billsPerPage = 10;
 
@@ -269,6 +270,8 @@ class TenantPaymentManager extends Component
         $this->closeModal();
     }
 
+    public function updatingHistorySearch() { $this->resetPage('billsPage'); $this->resetPage('paymentsPage'); }
+
     public function deletePayment($id)
     {
         $payment = Payment::find($id);
@@ -317,11 +320,19 @@ class TenantPaymentManager extends Component
         $payments = [];
 
         if ($registration) {
-            $bills = Bill::where('registration_id', $registration->id)
+            $billsQuery = Bill::where('registration_id', $registration->id)
                 ->withCount(['payments as pending_payments_count' => function($q) {
                     $q->where('status', 'Menunggu Konfirmasi');
-                }])
-                ->orderBy('due_date', 'asc')
+                }]);
+
+            if ($this->historySearch) {
+                $billsQuery->where(function($q) {
+                    $q->where('bill_number', 'like', '%' . $this->historySearch . '%')
+                      ->orWhere('description', 'like', '%' . $this->historySearch . '%');
+                });
+            }
+
+            $bills = $billsQuery->orderBy('due_date', 'asc')
                 ->paginate($this->billsPerPage, ['*'], 'billsPage');
 
             $selectableBills = Bill::where('registration_id', $registration->id)
@@ -332,9 +343,21 @@ class TenantPaymentManager extends Component
                 ->orderBy('due_date', 'asc')
                 ->get();
 
-            $payments = Payment::with(['paymentMethod', 'bill'])
-                ->where('registration_id', $registration->id)
-                ->orderBy('created_at', 'asc')
+            $paymentsQuery = Payment::with(['paymentMethod', 'bill'])
+                ->where('registration_id', $registration->id);
+
+            if ($this->historySearch) {
+                $paymentsQuery->where(function($q) {
+                    $q->where('payment_number', 'like', '%' . $this->historySearch . '%')
+                      ->orWhere('notes', 'like', '%' . $this->historySearch . '%')
+                      ->orWhereHas('bill', function($bq) {
+                          $bq->where('bill_number', 'like', '%' . $this->historySearch . '%')
+                            ->orWhere('description', 'like', '%' . $this->historySearch . '%');
+                      });
+                });
+            }
+
+            $payments = $paymentsQuery->orderBy('created_at', 'asc')
                 ->paginate(12, ['*'], 'paymentsPage');
         }
 

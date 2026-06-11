@@ -140,6 +140,16 @@
     @if($viewMode === 'history')
     <div class="card mb-3">
         <div class="card-body">
+            <div class="row g-2 mb-3">
+                <div class="col">
+                    <div class="input-icon">
+                        <span class="input-icon-addon">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
+                        </span>
+                        <input type="text" class="form-control" placeholder="Cari No. Tagihan, No. Pembayaran, atau Keterangan..." wire:model.live.debounce.300ms="historySearch">
+                    </div>
+                </div>
+            </div>
             <div class="row align-items-center">
                 <div class="col-auto">
                     @if($registration->user->avatar)
