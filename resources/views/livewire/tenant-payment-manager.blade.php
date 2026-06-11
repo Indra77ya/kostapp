@@ -119,10 +119,13 @@
                 <table class="table table-vcenter card-table">
                     <thead>
                         <tr>
+                            <th>No. Tagihan</th>
                             <th>Keterangan</th>
                             <th>Jatuh Tempo</th>
                             <th>Diskon</th>
                             <th>Jumlah</th>
+                            <th>Terbayar</th>
+                            <th>Sisa</th>
                             <th>Status</th>
                             <th class="w-1"></th>
                         </tr>
@@ -130,13 +133,19 @@
                     <tbody>
                         @forelse($bills as $bill)
                         <tr>
-                            <td>
-                                <div>{{ $bill->description }}</div>
-                                <div class="text-secondary small">{{ $bill->bill_number }}</div>
-                            </td>
+                            <td><code>{{ $bill->bill_number }}</code></td>
+                            <td>{{ $bill->description }}</td>
                             <td>{{ $bill->due_date->format('d M Y') }}</td>
                             <td class="text-secondary">Rp {{ number_format($bill->discount, 0, ',', '.') }}</td>
-                            <td class="fw-bold">Rp {{ number_format($bill->amount, 0, ',', '.') }}</td>
+                            <td class="fw-bold text-primary">Rp {{ number_format($bill->amount, 0, ',', '.') }}</td>
+                            <td>Rp {{ number_format($bill->paid_amount, 0, ',', '.') }}</td>
+                            <td>
+                                @if($bill->remaining_amount > 0)
+                                    <span class="text-danger fw-bold">Rp {{ number_format($bill->remaining_amount, 0, ',', '.') }}</span>
+                                @else
+                                    <span class="text-success fw-bold">Lunas</span>
+                                @endif
+                            </td>
                             <td>
                                 @if($bill->pending_payments_count > 0)
                                     <span class="badge bg-info text-white">Menunggu Konfirmasi</span>
@@ -179,6 +188,7 @@
                         <tr>
                             <th>No. Pembayaran</th>
                             <th>Keterangan</th>
+                            <th>Metode</th>
                             <th>Tgl Bayar</th>
                             <th>Jumlah</th>
                             <th>Status</th>
@@ -198,6 +208,7 @@
                                     Pembayaran Umum
                                 @endif
                             </td>
+                            <td>{{ $payment->paymentMethod->name }}</td>
                             <td>{{ $payment->payment_date->format('d M Y') }}</td>
                             <td>Rp {{ number_format($payment->amount, 0, ',', '.') }}</td>
                             <td>
