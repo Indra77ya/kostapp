@@ -142,7 +142,10 @@ class Registration extends Model
 
         if ($this->is_open_ended) {
             $batchSize = $this->getBatchSize();
-            $existingBillsCount = $this->bills()->where('description', 'not like', 'Deposit Awal%')->count();
+            $existingBillsCount = $this->bills()
+                ->where('description', 'not like', 'Deposit Awal%')
+                ->where('bill_number', 'not like', 'BILL-M-%')
+                ->count();
 
             // Initial count should be at least one batch
             $count = max($batchSize, $existingBillsCount);
@@ -150,6 +153,7 @@ class Registration extends Model
             // Check if the last bill's due date has passed or is today OR if it is already paid
             $lastBill = $this->bills()
                 ->where('description', 'not like', 'Deposit Awal%')
+                ->where('bill_number', 'not like', 'BILL-M-%')
                 ->orderBy('due_date', 'desc')
                 ->first();
 
@@ -160,6 +164,7 @@ class Registration extends Model
 
         $existingBills = $this->bills()
             ->where('description', 'not like', 'Deposit Awal%')
+            ->where('bill_number', 'not like', 'BILL-M-%')
             ->orderBy('due_date', 'asc')
             ->get();
 

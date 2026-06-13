@@ -32,6 +32,7 @@ class PaymentManager extends Component
 
     // List & Search & Filters
     public $search = '';
+    public $historySearch = '';
     public $filterLocation = '';
     public $filterDurationType = '';
     public $filterPaymentStatus = '';
@@ -62,10 +63,35 @@ class PaymentManager extends Component
 
     public function generatePaymentNumber()
     {
+        if (is_numeric($this->bill_id)) {
+            $bill = Bill::find($this->bill_id);
+            if ($bill) {
+                $billSuffix = str_replace('BILL-', '', $bill->bill_number);
+                $prefix = "PAY-{$billSuffix}-";
+
+                $lastPayment = Payment::where('payment_number', 'like', $prefix . '%')
+                    ->when($this->paymentId, fn($q) => $q->where('id', '!=', $this->paymentId))
+                    ->orderBy('payment_number', 'desc')
+                    ->first();
+
+                if ($lastPayment) {
+                    $lastNumber = (int) substr($lastPayment->payment_number, -2);
+                    $nextNumber = $lastNumber + 1;
+                } else {
+                    $nextNumber = 1;
+                }
+
+                $this->payment_number = $prefix . str_pad($nextNumber, 2, '0', STR_PAD_LEFT);
+                return;
+            }
+        }
+
         $date = Carbon::now()->format('dmY');
         $prefix = "PAY-{$date}-";
 
         $lastPayment = Payment::where('payment_number', 'like', $prefix . '%')
+            ->when($this->paymentId, fn($q) => $q->where('id', '!=', $this->paymentId))
+            ->whereRaw('length(payment_number) = ?', [strlen($prefix) + 4])
             ->orderBy('payment_number', 'desc')
             ->first();
 
@@ -117,6 +143,7 @@ class PaymentManager extends Component
     public function updatedBillId($value)
     {
         $this->calculateAmountAndStatus();
+        $this->generatePaymentNumber();
     }
 
     public function updatedAmount()
@@ -527,6 +554,7 @@ class PaymentManager extends Component
     }
 
     public function updatingSearch() { $this->resetPage(); }
+    public function updatingHistorySearch() { $this->resetPage('billsPage'); $this->resetPage('paymentsPage'); }
     public function updatingFilterLocation() { $this->resetPage(); }
     public function updatingFilterDurationType() { $this->resetPage(); }
     public function updatingFilterPaymentStatus() { $this->resetPage(); }
@@ -549,13 +577,29 @@ class PaymentManager extends Component
         if ($this->viewMode === 'history') {
             $registration = Registration::with('user', 'room', 'location')->find($this->selectedRegistrationId);
 
-            $bills = Bill::where('registration_id', $this->selectedRegistrationId)
-                ->orderBy('due_date', 'asc')
+            $billsQuery = Bill::where('registration_id', $this->selectedRegistrationId);
+            if ($this->historySearch) {
+                $billsQuery->where(function($q) {
+                    $q->where('bill_number', 'like', '%' . $this->historySearch . '%')
+                      ->orWhere('description', 'like', '%' . $this->historySearch . '%');
+                });
+            }
+            $bills = $billsQuery->orderBy('due_date', 'asc')
                 ->paginate($this->billsPerPage, ['*'], 'billsPage');
 
-            $payments = Payment::with(['paymentMethod', 'bill'])
-                ->where('registration_id', $this->selectedRegistrationId)
-            ->orderBy('created_at', 'asc')
+            $paymentsQuery = Payment::with(['paymentMethod', 'bill'])
+                ->where('registration_id', $this->selectedRegistrationId);
+            if ($this->historySearch) {
+                $paymentsQuery->where(function($q) {
+                    $q->where('payment_number', 'like', '%' . $this->historySearch . '%')
+                      ->orWhere('notes', 'like', '%' . $this->historySearch . '%')
+                      ->orWhereHas('bill', function($bq) {
+                          $bq->where('bill_number', 'like', '%' . $this->historySearch . '%')
+                            ->orWhere('description', 'like', '%' . $this->historySearch . '%');
+                      });
+                });
+            }
+            $payments = $paymentsQuery->orderBy('created_at', 'asc')
             ->paginate(12, ['*'], 'paymentsPage');
 
             return view('livewire.payment-manager', [

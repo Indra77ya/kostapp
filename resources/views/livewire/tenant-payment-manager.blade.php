@@ -17,6 +17,18 @@
         </div>
     @else
         <div class="row g-3 mb-3">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="input-icon">
+                            <span class="input-icon-addon">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
+                            </span>
+                            <input type="text" class="form-control" placeholder="Cari No. Tagihan, No. Pembayaran, atau Keterangan..." wire:model.live.debounce.300ms="historySearch">
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-body">
@@ -107,10 +119,13 @@
                 <table class="table table-vcenter card-table">
                     <thead>
                         <tr>
+                            <th>No. Tagihan</th>
                             <th>Keterangan</th>
                             <th>Jatuh Tempo</th>
                             <th>Diskon</th>
                             <th>Jumlah</th>
+                            <th>Terbayar</th>
+                            <th>Sisa</th>
                             <th>Status</th>
                             <th class="w-1"></th>
                         </tr>
@@ -118,13 +133,19 @@
                     <tbody>
                         @forelse($bills as $bill)
                         <tr>
-                            <td>
-                                <div>{{ $bill->description }}</div>
-                                <div class="text-secondary small">{{ $bill->bill_number }}</div>
-                            </td>
+                            <td><code>{{ $bill->bill_number }}</code></td>
+                            <td>{{ $bill->description }}</td>
                             <td>{{ $bill->due_date->format('d M Y') }}</td>
                             <td class="text-secondary">Rp {{ number_format($bill->discount, 0, ',', '.') }}</td>
-                            <td class="fw-bold">Rp {{ number_format($bill->amount, 0, ',', '.') }}</td>
+                            <td class="fw-bold text-primary">Rp {{ number_format($bill->amount, 0, ',', '.') }}</td>
+                            <td>Rp {{ number_format($bill->paid_amount, 0, ',', '.') }}</td>
+                            <td>
+                                @if($bill->remaining_amount > 0)
+                                    <span class="text-danger fw-bold">Rp {{ number_format($bill->remaining_amount, 0, ',', '.') }}</span>
+                                @else
+                                    <span class="text-success fw-bold">Lunas</span>
+                                @endif
+                            </td>
                             <td>
                                 @if($bill->pending_payments_count > 0)
                                     <span class="badge bg-info text-white">Menunggu Konfirmasi</span>
@@ -167,6 +188,7 @@
                         <tr>
                             <th>No. Pembayaran</th>
                             <th>Keterangan</th>
+                            <th>Metode</th>
                             <th>Tgl Bayar</th>
                             <th>Jumlah</th>
                             <th>Status</th>
@@ -186,6 +208,7 @@
                                     Pembayaran Umum
                                 @endif
                             </td>
+                            <td>{{ $payment->paymentMethod->name }}</td>
                             <td>{{ $payment->payment_date->format('d M Y') }}</td>
                             <td>Rp {{ number_format($payment->amount, 0, ',', '.') }}</td>
                             <td>
