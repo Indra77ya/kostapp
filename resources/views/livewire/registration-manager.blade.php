@@ -122,7 +122,7 @@
             </table>
         </div>
         <div class="card-footer d-flex align-items-center">
-            {{ $registrations->links() }}
+            {{$registrations->links(data: ['scrollTo' => false])}}
         </div>
     </div>
 

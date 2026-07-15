@@ -63,7 +63,7 @@
             Menampilkan {{ $paymentMethods->firstItem() }} sampai {{ $paymentMethods->lastItem() }} dari {{ $paymentMethods->total() }} metode pembayaran
         </div>
         <div>
-            {{ $paymentMethods->links() }}
+            {{$paymentMethods->links(data: ['scrollTo' => false])}}
         </div>
     </div>
 

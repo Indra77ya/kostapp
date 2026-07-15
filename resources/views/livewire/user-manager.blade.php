@@ -56,7 +56,7 @@
             Menampilkan {{ $users->firstItem() }} sampai {{ $users->lastItem() }} dari {{ $users->total() }} pengguna
         </div>
         <div>
-            {{ $users->links() }}
+            {{$users->links(data: ['scrollTo' => false])}}
         </div>
     </div>
 

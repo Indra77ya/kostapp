@@ -80,7 +80,7 @@
                 Menampilkan {{ $facilities->firstItem() }} sampai {{ $facilities->lastItem() }} dari {{ $facilities->total() }} fasilitas
             </p>
             <div class="ms-auto">
-                {{ $facilities->links() }}
+                {{$facilities->links(data: ['scrollTo' => false])}}
             </div>
         </div>
         @endif

@@ -132,7 +132,7 @@
             </table>
         </div>
         <div class="card-footer d-flex align-items-center">
-            {{ $registrations->links() }}
+            {{$registrations->links(data: ['scrollTo' => false])}}
         </div>
     </div>
     @endif
@@ -240,7 +240,7 @@
         </div>
         @if($bills->hasPages())
         <div class="card-footer d-flex align-items-center">
-            {{ $bills->links() }}
+            {{$bills->links(data: ['scrollTo' => false])}}
         </div>
         @endif
     </div>
@@ -309,7 +309,7 @@
             </table>
         </div>
         <div class="card-footer d-flex align-items-center">
-            {{ $payments->links() }}
+            {{$payments->links(data: ['scrollTo' => false])}}
         </div>
     </div>
     @endif

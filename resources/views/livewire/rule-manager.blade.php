@@ -72,7 +72,7 @@
             Menampilkan {{ $rules->firstItem() }} sampai {{ $rules->lastItem() }} dari {{ $rules->total() }} peraturan
         </div>
         <div>
-            {{ $rules->links() }}
+            {{$rules->links(data: ['scrollTo' => false])}}
         </div>
     </div>
 

@@ -102,7 +102,7 @@
             Menampilkan {{ $rooms->firstItem() }} sampai {{ $rooms->lastItem() }} dari {{ $rooms->total() }} kamar
         </div>
         <div>
-            {{ $rooms->links() }}
+            {{$rooms->links(data: ['scrollTo' => false])}}
         </div>
     </div>
 
