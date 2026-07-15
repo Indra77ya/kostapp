@@ -93,7 +93,7 @@
             Menampilkan {{ $tenants->firstItem() }} sampai {{ $tenants->lastItem() }} dari {{ $tenants->total() }} penghuni
         </div>
         <div>
-            {{ $tenants->links() }}
+            {{$tenants->links(data: ['scrollTo' => false])}}
         </div>
     </div>
 

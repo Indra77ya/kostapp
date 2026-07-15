@@ -114,7 +114,7 @@
         </div>
         @if($moves->hasPages())
         <div class="card-footer d-flex align-items-center">
-            {{ $moves->links() }}
+            {{$moves->links(data: ['scrollTo' => false])}}
         </div>
         @endif
     </div>

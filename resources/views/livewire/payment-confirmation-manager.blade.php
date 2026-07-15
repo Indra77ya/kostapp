@@ -117,7 +117,7 @@
             </table>
         </div>
         <div class="card-footer d-flex align-items-center">
-            {{ $payments->links() }}
+            {{$payments->links(data: ['scrollTo' => false])}}
         </div>
     </div>
 

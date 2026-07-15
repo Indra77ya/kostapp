@@ -48,7 +48,7 @@
             Menampilkan {{ $locations->firstItem() }} sampai {{ $locations->lastItem() }} dari {{ $locations->total() }} lokasi
         </div>
         <div>
-            {{ $locations->links() }}
+            {{$locations->links(data: ['scrollTo' => false])}}
         </div>
     </div>
 
