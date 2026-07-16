@@ -584,6 +584,15 @@ class PaymentManager extends Component
                       ->orWhere('description', 'like', '%' . $this->historySearch . '%');
                 });
             }
+            $selectableBillsQuery = Bill::where('registration_id', $this->selectedRegistrationId);
+            if ($this->historySearch) {
+                $selectableBillsQuery->where(function($q) {
+                    $q->where('bill_number', 'like', '%' . $this->historySearch . '%')
+                      ->orWhere('description', 'like', '%' . $this->historySearch . '%');
+                });
+            }
+            $selectableBills = $selectableBillsQuery->orderBy('due_date', 'asc')->get();
+
             $bills = $billsQuery->orderBy('due_date', 'asc')
                 ->paginate($this->billsPerPage, ['*'], 'billsPage');
 
@@ -605,6 +614,7 @@ class PaymentManager extends Component
             return view('livewire.payment-manager', [
                 'registration' => $registration,
                 'bills' => $bills,
+                'selectableBills' => $selectableBills,
                 'payments' => $payments,
                 'paymentMethods' => PaymentMethod::where('is_active', true)->get(),
             ]);
