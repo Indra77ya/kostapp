@@ -335,13 +335,20 @@ class TenantPaymentManager extends Component
             $bills = $billsQuery->orderBy('due_date', 'asc')
                 ->paginate($this->billsPerPage, ['*'], 'billsPage');
 
-            $selectableBills = Bill::where('registration_id', $registration->id)
+            $selectableBillsQuery = Bill::where('registration_id', $registration->id)
                 ->where('status', '!=', 'Lunas')
                 ->whereDoesntHave('payments', function($q) {
                     $q->where('status', 'Menunggu Konfirmasi');
-                })
-                ->orderBy('due_date', 'asc')
-                ->get();
+                });
+
+            if ($this->historySearch) {
+                $selectableBillsQuery->where(function($q) {
+                    $q->where('bill_number', 'like', '%' . $this->historySearch . '%')
+                      ->orWhere('description', 'like', '%' . $this->historySearch . '%');
+                });
+            }
+
+            $selectableBills = $selectableBillsQuery->orderBy('due_date', 'asc')->get();
 
             $paymentsQuery = Payment::with(['paymentMethod', 'bill'])
                 ->where('registration_id', $registration->id);
