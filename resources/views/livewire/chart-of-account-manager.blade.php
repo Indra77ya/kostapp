@@ -5,7 +5,11 @@
                 <h2 class="page-title">Bagan Akun (Chart of Accounts)</h2>
                 <div class="text-muted mt-1">Daftar kode dan nama akun akuntansi standar SAK Indonesia</div>
             </div>
-            <div class="col-auto ms-auto d-print-none">
+            <div class="col-auto ms-auto d-print-none btn-list">
+                <button wire:click="seedDefaultAccounts()" wire:confirm="Muat ulang bagan akun standar SAK Indonesia?" class="btn btn-outline-secondary d-none d-sm-inline-block">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="0 0 24 24" fill="none"/><path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" /><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" /></svg>
+                    Muat Akun Standar (SAK)
+                </button>
                 <button wire:click="openModal()" class="btn btn-primary d-none d-sm-inline-block">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="0 0 24 24" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
                     Tambah Akun

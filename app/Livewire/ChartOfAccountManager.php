@@ -72,6 +72,14 @@ class ChartOfAccountManager extends Component
         $this->is_active = true;
     }
 
+    public function seedDefaultAccounts()
+    {
+        $seeder = new \Database\Seeders\ChartOfAccountSeeder();
+        $seeder->run();
+
+        $this->dispatch('notify', message: 'Bagan akun standar SAK berhasil dimuat.', type: 'success');
+    }
+
     public function save()
     {
         $rules = [

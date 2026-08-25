@@ -33,6 +33,19 @@ class AccountingFeatureTest extends TestCase
         $this->assertDatabaseHas('chart_of_accounts', ['code' => '5-1000', 'name' => 'Beban Listrik, Air & Utility']);
     }
 
+    public function test_seeding_default_accounts_from_livewire()
+    {
+        $owner = User::role('owner')->first();
+        $this->actingAs($owner);
+
+        ChartOfAccount::query()->delete();
+
+        \Livewire::test(\App\Livewire\ChartOfAccountManager::class)
+            ->call('seedDefaultAccounts');
+
+        $this->assertDatabaseHas('chart_of_accounts', ['code' => '1-1000']);
+    }
+
     public function test_recording_expense_creates_expense_record_and_journal_entry()
     {
         $owner = User::role('owner')->first();
