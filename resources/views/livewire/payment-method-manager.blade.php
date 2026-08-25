@@ -275,13 +275,15 @@
                                                 </button>
                                                 @forelse($chartOfAccounts as $acc)
                                                     <button type="button"
-                                                            class="list-group-item list-group-item-action py-2 px-2 border-0 rounded d-flex justify-content-between align-items-center {{ $chart_of_account_id == $acc->id ? 'active' : '' }}"
+                                                            class="list-group-item list-group-item-action py-2 px-2 border-0 rounded d-flex flex-column align-items-start {{ $chart_of_account_id == $acc->id ? 'active' : '' }}"
                                                             wire:click="$set('chart_of_account_id', '{{ $acc->id }}')"
                                                             @click="open = false">
-                                                        <div>
-                                                            <strong class="me-1">{{ $acc->code }}</strong> - {{ $acc->name }}
+                                                        <div class="d-flex w-100 justify-content-between align-items-start gap-2">
+                                                            <span class="lh-sm">
+                                                                <strong class="me-1">{{ $acc->code }}</strong> - {{ $acc->name }}
+                                                            </span>
+                                                            <span class="badge bg-secondary-lt text-wrap text-start flex-shrink-0" style="max-width: 140px;">{{ $acc->category }}</span>
                                                         </div>
-                                                        <small class="badge bg-secondary-lt ms-2">{{ $acc->category }}</small>
                                                     </button>
                                                 @empty
                                                     <div class="p-2 text-muted text-center small">Tidak ada akun yang sesuai.</div>
