@@ -155,6 +155,43 @@
                 </li>
                 @endrole
                 @hasanyrole('owner|developer')
+                <li class="nav-item dropdown {{ request()->routeIs('accounting.*') ? 'active' : '' }}">
+                  <a class="nav-link dropdown-toggle" href="#navbar-accounting" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false" >
+                    <span class="nav-link-icon d-md-none d-lg-inline-block">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calculator" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="0 0 24 24" fill="none"/><rect x="4" y="3" width="16" height="18" rx="2" /><rect x="8" y="7" width="8" height="3" rx="1" /><path d="M8 14h.01" /><path d="M12 14h.01" /><path d="M16 14h.01" /><path d="M8 17h.01" /><path d="M12 17h.01" /><path d="M16 17h.01" /></svg>
+                    </span>
+                    <span class="nav-link-title">
+                      Akuntansi
+                    </span>
+                  </a>
+                  <div class="dropdown-menu">
+                    <div class="dropdown-menu-columns">
+                      <div class="dropdown-menu-column">
+                        <a class="dropdown-item {{ request()->routeIs('accounting.expenses') ? 'active' : '' }}" href="{{ route('accounting.expenses') }}">
+                          Pengeluaran Operasional
+                        </a>
+                        <a class="dropdown-item {{ request()->routeIs('accounting.coa') ? 'active' : '' }}" href="{{ route('accounting.coa') }}">
+                          Bagan Akun (COA)
+                        </a>
+                        <a class="dropdown-item {{ request()->routeIs('accounting.journal') ? 'active' : '' }}" href="{{ route('accounting.journal') }}">
+                          Jurnal Umum
+                        </a>
+                        <a class="dropdown-item {{ request()->routeIs('accounting.ledger') ? 'active' : '' }}" href="{{ route('accounting.ledger') }}">
+                          Buku Besar
+                        </a>
+                        <a class="dropdown-item {{ request()->routeIs('accounting.trial-balance') ? 'active' : '' }}" href="{{ route('accounting.trial-balance') }}">
+                          Neraca Saldo
+                        </a>
+                        <a class="dropdown-item {{ request()->routeIs('accounting.profit-loss') ? 'active' : '' }}" href="{{ route('accounting.profit-loss') }}">
+                          Laporan Laba Rugi
+                        </a>
+                        <a class="dropdown-item {{ request()->routeIs('accounting.cash-flow') ? 'active' : '' }}" href="{{ route('accounting.cash-flow') }}">
+                          Laporan Arus Kas
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </li>
                 <li class="nav-item dropdown {{ request()->routeIs(['locations.*', 'rooms.*', 'users.*', 'facilities.*', 'rules.*', 'payment-methods.*']) ? 'active' : '' }}">
                   <a class="nav-link dropdown-toggle" href="#navbar-master" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false" >
                     <span class="nav-link-icon d-md-none d-lg-inline-block">

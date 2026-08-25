@@ -112,6 +112,9 @@ class CheckOutManager extends Component
 
             // 2. Revert Room Status
             Room::where('id', $reg->room_id)->update(['status' => 'available']);
+
+            // 3. Record journal entry for Check Out deposit deduction & refund
+            \App\Services\AccountingService::recordCheckOutJournal($reg, (float) $deduction, (float) $refund);
         });
 
         $message = "Penghuni {$name} berhasil check out.";
