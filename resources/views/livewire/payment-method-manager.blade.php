@@ -102,6 +102,14 @@
                         <div class="text-secondary small mt-2">Atas Nama:</div>
                         <div class="fw-bold">{{ $pm->account_name }}</div>
                         @endif
+                        <div class="text-secondary small mt-2">Akun Akuntansi:</div>
+                        <div class="fw-bold text-primary">
+                            @if($pm->account)
+                                {{ $pm->account->code }} - {{ $pm->account->name }}
+                            @else
+                                <span class="text-danger small">Belum terhubung</span>
+                            @endif
+                        </div>
                     </div>
                     <div class="mt-3 d-flex gap-2">
                         <button class="btn btn-primary btn-sm flex-fill" wire:click="openModal({{ $pm->id }})">Edit</button>
@@ -129,6 +137,7 @@
                         <th>Logo</th>
                         <th>Nama</th>
                         <th>Kategori</th>
+                        <th>Akun Akuntansi</th>
                         <th>No. Rekening</th>
                         <th>Atas Nama</th>
                         <th>Status</th>
@@ -147,6 +156,13 @@
                         </td>
                         <td><div class="fw-bold">{{ $pm->name }}</div></td>
                         <td><span class="badge bg-blue-lt">{{ $pm->category }}</span></td>
+                        <td>
+                            @if($pm->account)
+                                <span class="badge bg-purple-lt">{{ $pm->account->code }} - {{ $pm->account->name }}</span>
+                            @else
+                                <span class="badge bg-danger-lt">Belum terhubung</span>
+                            @endif
+                        </td>
                         <td>{{ $pm->account_number ?: '-' }}</td>
                         <td>{{ $pm->account_name ?: '-' }}</td>
                         <td>
@@ -217,6 +233,16 @@
                                         @endforeach
                                     </datalist>
                                     @error('category') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label required">Akun Akuntansi (Chart of Accounts)</label>
+                                    <select class="form-select @error('chart_of_account_id') is-invalid @enderror" wire:model="chart_of_account_id">
+                                        <option value="">-- Pilih Akun COA --</option>
+                                        @foreach($chartOfAccounts as $acc)
+                                            <option value="{{ $acc->id }}">{{ $acc->code }} - {{ $acc->name }} ({{ $acc->category }})</option>
+                                        @endforeach
+                                    </select>
+                                    @error('chart_of_account_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
                             </div>
                         </div>

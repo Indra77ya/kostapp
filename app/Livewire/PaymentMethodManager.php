@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\PaymentMethod;
+use App\Models\ChartOfAccount;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
@@ -25,7 +26,7 @@ class PaymentMethodManager extends Component
     public $filterStatus = '';
 
     // Form fields
-    public $name, $category, $account_number, $account_name, $instructions, $logo, $is_active = true;
+    public $name, $category, $chart_of_account_id, $account_number, $account_name, $instructions, $logo, $is_active = true;
     public $oldLogo;
 
     protected function rules()
@@ -33,6 +34,7 @@ class PaymentMethodManager extends Component
         return [
             'name' => 'required|min:3',
             'category' => 'required',
+            'chart_of_account_id' => 'required|exists:chart_of_accounts,id',
             'account_number' => 'nullable',
             'account_name' => 'nullable',
             'instructions' => 'nullable',
@@ -66,6 +68,7 @@ class PaymentMethodManager extends Component
             $paymentMethod = PaymentMethod::findOrFail($id);
             $this->name = $paymentMethod->name;
             $this->category = $paymentMethod->category;
+            $this->chart_of_account_id = $paymentMethod->chart_of_account_id;
             $this->account_number = $paymentMethod->account_number;
             $this->account_name = $paymentMethod->account_name;
             $this->instructions = $paymentMethod->instructions;
@@ -88,6 +91,7 @@ class PaymentMethodManager extends Component
         $this->paymentMethodId = null;
         $this->name = '';
         $this->category = '';
+        $this->chart_of_account_id = null;
         $this->account_number = '';
         $this->account_name = '';
         $this->instructions = '';
@@ -104,6 +108,7 @@ class PaymentMethodManager extends Component
         $data = [
             'name' => $this->name,
             'category' => $this->category,
+            'chart_of_account_id' => $this->chart_of_account_id,
             'account_number' => $this->account_number,
             'account_name' => $this->account_name,
             'instructions' => $this->instructions,
@@ -184,7 +189,7 @@ class PaymentMethodManager extends Component
 
     public function render()
     {
-        $query = PaymentMethod::query();
+        $query = PaymentMethod::with('account');
 
         if ($this->search) {
             $query->where(function($q) {
@@ -208,7 +213,8 @@ class PaymentMethodManager extends Component
 
         return view('livewire.payment-method-manager', [
             'paymentMethods' => $query->orderBy('category')->orderBy('name')->paginate(12),
-            'categories' => $categories
+            'categories' => $categories,
+            'chartOfAccounts' => ChartOfAccount::where('is_active', true)->orderBy('code')->get(),
         ]);
     }
 }

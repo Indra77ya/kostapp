@@ -42,8 +42,10 @@ class CashFlowManager extends Component
 
     public function render()
     {
-        $cashAccountCodes = ['1-1000', '1-1100'];
-        $cashAccounts = ChartOfAccount::whereIn('code', $cashAccountCodes)->pluck('id');
+        $pmAccountIds = \App\Models\PaymentMethod::whereNotNull('chart_of_account_id')->pluck('chart_of_account_id')->toArray();
+        $cashAccounts = ChartOfAccount::where('category', 'Kas & Setara Kas')
+            ->orWhereIn('id', $pmAccountIds)
+            ->pluck('id');
 
         // Initial Cash Balance before dateStart
         $initialBalance = 0;
