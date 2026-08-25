@@ -92,7 +92,9 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <button wire:click="openModal({{ $acc->id }})" class="btn btn-sm btn-outline-primary">Edit</button>
+                                    <div class="btn-list flex-nowrap">
+                                        <button wire:click="openModal({{ $acc->id }})" class="btn btn-white btn-sm">Edit</button>
+                                    </div>
                                 </td>
                             </tr>
                         @empty
@@ -153,7 +155,9 @@
                                                             @endif
                                                         </td>
                                                         <td class="text-end">
-                                                            <button wire:click="openModal({{ $acc->id }})" class="btn btn-sm btn-outline-primary py-0">Edit</button>
+                                                            <div class="btn-list flex-nowrap justify-content-end">
+                                                                <button wire:click="openModal({{ $acc->id }})" class="btn btn-white btn-sm">Edit</button>
+                                                            </div>
                                                         </td>
                                                     </tr>
                                                 @endforeach
