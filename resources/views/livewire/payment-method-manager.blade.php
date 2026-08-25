@@ -240,15 +240,15 @@
                                         <span class="input-icon-addon">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
                                         </span>
-                                        <input type="text" class="form-control" placeholder="Cari nama atau kode akun..." wire:model.live.debounce.200ms="accountSearch">
+                                        <input type="text" class="form-control form-control-sm" placeholder="Filter akun (ketik kode/nama akun)..." wire:model.live.debounce.200ms="accountSearch">
                                     </div>
-                                    <select class="form-select @error('chart_of_account_id') is-invalid @enderror" wire:model="chart_of_account_id" size="5">
+                                    <select class="form-select @error('chart_of_account_id') is-invalid @enderror" wire:model="chart_of_account_id">
                                         <option value="">-- Pilih Akun COA --</option>
                                         @foreach($chartOfAccounts as $acc)
                                             <option value="{{ $acc->id }}">{{ $acc->code }} - {{ $acc->name }} ({{ $acc->category }})</option>
                                         @endforeach
                                     </select>
-                                    @error('chart_of_account_id') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                                    @error('chart_of_account_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
                             </div>
                         </div>
