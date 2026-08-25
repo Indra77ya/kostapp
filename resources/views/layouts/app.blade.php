@@ -70,7 +70,7 @@
           </div>
         </div>
       </header>
-      <header class="navbar-expand-md">
+      <header class="navbar-expand-md d-print-none">
         <div class="collapse navbar-collapse" id="navbar-menu">
           <div class="navbar">
             <div class="container-xl">
