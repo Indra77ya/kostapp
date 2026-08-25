@@ -3,7 +3,7 @@
         <div class="row align-items-center">
             <div class="col">
                 <h2 class="page-title">Neraca Saldo (Trial Balance)</h2>
-                <div class="text-muted mt-1">Ringkasan keseimbangan saldo Debit & Kredit seluruh akun sesuai SAK Indonesia</div>
+                <div class="text-muted mt-1">Ringkasan keseimbangan saldo Debit & Kredit seluruh akun</div>
             </div>
             <div class="col-auto ms-auto d-print-none">
                 <button onclick="window.print()" class="btn btn-outline-secondary">
