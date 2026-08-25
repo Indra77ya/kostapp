@@ -121,21 +121,21 @@
                                         <span class="me-1">📂</span> Kategori: {{ $catName }}
                                     </div>
                                     <div class="table-responsive ms-3">
-                                        <table class="table table-vcenter table-sm mb-0">
+                                        <table class="table table-vcenter table-sm mb-0" style="table-layout: fixed; width: 100%;">
                                             <thead>
                                                 <tr class="text-muted">
-                                                    <th>Kode Akun</th>
-                                                    <th>Nama Akun</th>
-                                                    <th>Saldo Normal</th>
-                                                    <th>Status</th>
-                                                    <th class="w-1">Aksi</th>
+                                                    <th style="width: 15%;">Kode Akun</th>
+                                                    <th style="width: 45%;">Nama Akun</th>
+                                                    <th style="width: 15%;">Saldo Normal</th>
+                                                    <th style="width: 15%;">Status</th>
+                                                    <th style="width: 10%;" class="text-end">Aksi</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 @foreach($accList as $acc)
                                                     <tr>
                                                         <td><code>{{ $acc->code }}</code></td>
-                                                        <td class="fw-medium">{{ $acc->name }}</td>
+                                                        <td class="fw-medium text-truncate" title="{{ $acc->name }}">{{ $acc->name }}</td>
                                                         <td><span class="text-uppercase small font-weight-bold">{{ $acc->normal_balance }}</span></td>
                                                         <td>
                                                             @if($acc->is_active)
@@ -144,7 +144,7 @@
                                                                 <span class="badge bg-secondary-lt">Non-Aktif</span>
                                                             @endif
                                                         </td>
-                                                        <td>
+                                                        <td class="text-end">
                                                             <button wire:click="openModal({{ $acc->id }})" class="btn btn-sm btn-outline-primary py-0">Edit</button>
                                                         </td>
                                                     </tr>
