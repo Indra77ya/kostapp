@@ -27,6 +27,7 @@ class PaymentMethodManager extends Component
 
     // Form fields
     public $name, $category, $chart_of_account_id, $account_number, $account_name, $instructions, $logo, $is_active = true;
+    public $accountSearch = '';
     public $oldLogo;
 
     protected function rules()
@@ -92,6 +93,7 @@ class PaymentMethodManager extends Component
         $this->name = '';
         $this->category = '';
         $this->chart_of_account_id = null;
+        $this->accountSearch = '';
         $this->account_number = '';
         $this->account_name = '';
         $this->instructions = '';
@@ -211,10 +213,19 @@ class PaymentMethodManager extends Component
         $existing = PaymentMethod::distinct()->pluck('category')->filter();
         $categories = $defaults->concat($existing)->unique()->sort();
 
+        $accountsQuery = ChartOfAccount::where('is_active', true);
+        if ($this->accountSearch) {
+            $accountsQuery->where(function($q) {
+                $q->where('code', 'like', '%' . $this->accountSearch . '%')
+                  ->orWhere('name', 'like', '%' . $this->accountSearch . '%')
+                  ->orWhere('category', 'like', '%' . $this->accountSearch . '%');
+            });
+        }
+
         return view('livewire.payment-method-manager', [
             'paymentMethods' => $query->orderBy('category')->orderBy('name')->paginate(12),
             'categories' => $categories,
-            'chartOfAccounts' => ChartOfAccount::where('is_active', true)->orderBy('code')->get(),
+            'chartOfAccounts' => $accountsQuery->orderBy('code')->get(),
         ]);
     }
 }
