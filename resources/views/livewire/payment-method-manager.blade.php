@@ -234,21 +234,62 @@
                                     </datalist>
                                     @error('category') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
-                                <div class="mb-3">
+                                <div class="mb-3" x-data="{ open: false }">
                                     <label class="form-label required">Akun Akuntansi (Chart of Accounts)</label>
-                                    <div class="input-icon mb-2">
-                                        <span class="input-icon-addon">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
-                                        </span>
-                                        <input type="text" class="form-control form-control-sm" placeholder="Filter akun (ketik kode/nama akun)..." wire:model.live.debounce.200ms="accountSearch">
+
+                                    <div class="dropdown w-100" @click.outside="open = false">
+                                        @php
+                                            $selectedAccount = $chartOfAccounts->firstWhere('id', $chart_of_account_id);
+                                        @endphp
+                                        <button type="button"
+                                                class="form-select text-start d-flex align-items-center justify-content-between @error('chart_of_account_id') is-invalid @enderror"
+                                                @click="open = !open; if(open) $nextTick(() => $refs.searchInput.focus())">
+                                            <span class="text-truncate">
+                                                @if($selectedAccount)
+                                                    <strong>{{ $selectedAccount->code }}</strong> - {{ $selectedAccount->name }} ({{ $selectedAccount->category }})
+                                                @else
+                                                    <span class="text-secondary">-- Pilih Akun COA --</span>
+                                                @endif
+                                            </span>
+                                        </button>
+
+                                        <div class="dropdown-menu w-100 p-2 shadow-lg" :class="{ 'show': open }" style="max-height: 300px; overflow-y: auto;">
+                                            <div class="input-icon mb-2">
+                                                <span class="input-icon-addon">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
+                                                </span>
+                                                <input type="text"
+                                                       x-ref="searchInput"
+                                                       class="form-control form-control-sm"
+                                                       placeholder="Filter akun (ketik kode/nama akun)..."
+                                                       wire:model.live.debounce.200ms="accountSearch"
+                                                       @keydown.escape="open = false">
+                                            </div>
+
+                                            <div class="list-group list-group-flush">
+                                                <button type="button"
+                                                        class="list-group-item list-group-item-action py-2 px-2 border-0 rounded {{ empty($chart_of_account_id) ? 'active' : '' }}"
+                                                        wire:click="$set('chart_of_account_id', '')"
+                                                        @click="open = false">
+                                                    <span class="text-secondary">-- Pilih Akun COA --</span>
+                                                </button>
+                                                @forelse($chartOfAccounts as $acc)
+                                                    <button type="button"
+                                                            class="list-group-item list-group-item-action py-2 px-2 border-0 rounded d-flex justify-content-between align-items-center {{ $chart_of_account_id == $acc->id ? 'active' : '' }}"
+                                                            wire:click="$set('chart_of_account_id', '{{ $acc->id }}')"
+                                                            @click="open = false">
+                                                        <div>
+                                                            <strong class="me-1">{{ $acc->code }}</strong> - {{ $acc->name }}
+                                                        </div>
+                                                        <small class="badge bg-secondary-lt ms-2">{{ $acc->category }}</small>
+                                                    </button>
+                                                @empty
+                                                    <div class="p-2 text-muted text-center small">Tidak ada akun yang sesuai.</div>
+                                                @endforelse
+                                            </div>
+                                        </div>
                                     </div>
-                                    <select class="form-select @error('chart_of_account_id') is-invalid @enderror" wire:model="chart_of_account_id">
-                                        <option value="">-- Pilih Akun COA --</option>
-                                        @foreach($chartOfAccounts as $acc)
-                                            <option value="{{ $acc->id }}">{{ $acc->code }} - {{ $acc->name }} ({{ $acc->category }})</option>
-                                        @endforeach
-                                    </select>
-                                    @error('chart_of_account_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                    @error('chart_of_account_id') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                                 </div>
                             </div>
                         </div>
