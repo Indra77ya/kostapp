@@ -63,7 +63,7 @@
         </div>
     </div>
 
-    <div class="card">
+    <div class="card overflow-hidden">
         <div class="card-header bg-light">
             <h3 class="card-title">
                 Neraca Saldo Periode:

@@ -63,7 +63,7 @@
         </div>
     </div>
 
-    <div class="card">
+    <div class="card overflow-hidden">
         <div class="card-header bg-light">
             <h3 class="card-title">
                 Laporan Arus Kas Periode:
@@ -72,9 +72,9 @@
                 </span>
             </h3>
         </div>
-        <div class="card-body">
+        <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-vcenter card-table table-bordered">
+                <table class="table table-vcenter card-table table-bordered mb-0">
                     <tbody>
                         <tr class="table-info font-weight-bold">
                             <td>SALDO KAS AWAL PERIODE</td>

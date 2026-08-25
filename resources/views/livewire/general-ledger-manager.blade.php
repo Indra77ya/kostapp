@@ -36,7 +36,7 @@
     </div>
 
     @if($account)
-        <div class="card">
+        <div class="card overflow-hidden">
             <div class="card-header bg-light">
                 <h3 class="card-title">
                     Buku Besar: <code>{{ $account->code }}</code> - {{ $account->name }}
