@@ -241,7 +241,7 @@
 
                                     <div class="dropdown w-100" @click.outside="open = false">
                                         @php
-                                            $selectedAccount = $chartOfAccounts->firstWhere('id', $chart_of_account_id);
+                                            $selectedAccount = $chart_of_account_id ? \App\Models\ChartOfAccount::find($chart_of_account_id) : null;
                                         @endphp
                                         <button type="button"
                                                 class="form-select text-start d-flex align-items-center justify-content-between @error('chart_of_account_id') is-invalid @enderror"

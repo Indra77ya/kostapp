@@ -140,8 +140,20 @@ class ChartOfAccountManager extends Component
             $query->where('type', $this->filterType);
         }
 
+        $query->withSum('journalEntryItems as total_debit', 'debit')
+              ->withSum('journalEntryItems as total_credit', 'credit');
+
         if ($this->viewType === 'tree') {
             $allAccounts = (clone $query)->orderBy('code', 'asc')->get();
+
+            foreach ($allAccounts as $acc) {
+                $debit = $acc->total_debit ?? 0;
+                $credit = $acc->total_credit ?? 0;
+                $acc->current_balance = $acc->normal_balance === 'debit'
+                    ? ($debit - $credit)
+                    : ($credit - $debit);
+            }
+
             $groupedAccounts = [];
 
             $typeLabels = [
@@ -172,6 +184,14 @@ class ChartOfAccountManager extends Component
         }
 
         $accounts = $query->orderBy('code', 'asc')->paginate(15);
+
+        foreach ($accounts as $acc) {
+            $debit = $acc->total_debit ?? 0;
+            $credit = $acc->total_credit ?? 0;
+            $acc->current_balance = $acc->normal_balance === 'debit'
+                ? ($debit - $credit)
+                : ($credit - $debit);
+        }
 
         return view('livewire.chart-of-account-manager', [
             'accounts' => $accounts,

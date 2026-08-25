@@ -55,6 +55,7 @@
                             <th>Nama Akun</th>
                             <th>Tipe Akun</th>
                             <th>Saldo Normal</th>
+                            <th class="text-end">Saldo Saat Ini</th>
                             <th>Kategori</th>
                             <th>Status</th>
                             <th class="w-1">Aksi</th>
@@ -79,6 +80,9 @@
                                     @endif
                                 </td>
                                 <td><span class="text-uppercase small font-weight-bold">{{ $acc->normal_balance }}</span></td>
+                                <td class="text-end fw-bold {{ $acc->current_balance < 0 ? 'text-danger' : 'text-dark' }}">
+                                    Rp {{ number_format($acc->current_balance ?? 0, 0, ',', '.') }}
+                                </td>
                                 <td>{{ $acc->category ?: '-' }}</td>
                                 <td>
                                     @if($acc->is_active)
@@ -93,7 +97,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center py-4 text-muted">Tidak ada data bagan akun.</td>
+                                <td colspan="8" class="text-center py-4 text-muted">Tidak ada data bagan akun.</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -125,9 +129,10 @@
                                             <thead>
                                                 <tr class="text-muted">
                                                     <th style="width: 15%;">Kode Akun</th>
-                                                    <th style="width: 45%;">Nama Akun</th>
+                                                    <th style="width: 35%;">Nama Akun</th>
                                                     <th style="width: 15%;">Saldo Normal</th>
-                                                    <th style="width: 15%;">Status</th>
+                                                    <th style="width: 15%;" class="text-end">Saldo Saat Ini</th>
+                                                    <th style="width: 10%;">Status</th>
                                                     <th style="width: 10%;" class="text-end">Aksi</th>
                                                 </tr>
                                             </thead>
@@ -137,6 +142,9 @@
                                                         <td><code>{{ $acc->code }}</code></td>
                                                         <td class="fw-medium text-truncate" title="{{ $acc->name }}">{{ $acc->name }}</td>
                                                         <td><span class="text-uppercase small font-weight-bold">{{ $acc->normal_balance }}</span></td>
+                                                        <td class="text-end fw-bold {{ $acc->current_balance < 0 ? 'text-danger' : 'text-dark' }}">
+                                                            Rp {{ number_format($acc->current_balance ?? 0, 0, ',', '.') }}
+                                                        </td>
                                                         <td>
                                                             @if($acc->is_active)
                                                                 <span class="badge bg-success-lt">Aktif</span>
