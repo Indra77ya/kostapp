@@ -396,6 +396,9 @@ class PaymentManager extends Component
             }
 
             $this->syncDeposit($payment);
+
+            // Record journal entry
+            \App\Services\AccountingService::recordPaymentJournal($payment);
         });
 
         $message = "Pembayaran berhasil disimpan.";

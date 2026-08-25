@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             RuleSeeder::class,
             PaymentMethodSeeder::class,
             BookingSeeder::class,
+            ChartOfAccountSeeder::class,
         ]);
     }
 }

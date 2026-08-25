@@ -70,6 +70,9 @@ class PaymentConfirmationManager extends Component
             }
 
             $this->syncDeposit($payment);
+
+            // Record journal entry for approved payment
+            \App\Services\AccountingService::recordPaymentJournal($payment);
         });
 
         // Trigger bill sync to generate next batch for open-ended rentals if needed

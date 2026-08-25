@@ -82,6 +82,17 @@ Route::middleware('auth')->group(function () {
             Route::get('/settings', function () {
                 return view('settings');
             })->name('settings');
+
+            // Akuntansi (restricted to owner & developer)
+            Route::prefix('accounting')->name('accounting.')->group(function () {
+                Route::get('/chart-of-accounts', fn() => view('accounting.chart-of-accounts'))->name('coa');
+                Route::get('/expenses', fn() => view('accounting.expenses'))->name('expenses');
+                Route::get('/journal', fn() => view('accounting.journal'))->name('journal');
+                Route::get('/ledger', fn() => view('accounting.ledger'))->name('ledger');
+                Route::get('/trial-balance', fn() => view('accounting.trial-balance'))->name('trial-balance');
+                Route::get('/profit-loss', fn() => view('accounting.profit-loss'))->name('profit-loss');
+                Route::get('/cash-flow', fn() => view('accounting.cash-flow'))->name('cash-flow');
+            });
         });
     });
 
