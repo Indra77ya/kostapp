@@ -40,11 +40,18 @@
         .table {
           color: #000 !important;
           width: 100% !important;
+          border-collapse: collapse !important;
+        }
+        .table th, .table td {
+          border-color: #dee2e6 !important;
         }
         .table-striped > tbody > tr:nth-of-type(odd) > * {
           background-color: #f9fafb !important;
           -webkit-print-color-adjust: exact;
           print-color-adjust: exact;
+        }
+        .border-end {
+          border-right: 1px solid #dee2e6 !important;
         }
         .bg-success-lt, .bg-danger-lt, .bg-light {
           -webkit-print-color-adjust: exact;

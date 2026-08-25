@@ -81,7 +81,7 @@
                         PENDAPATAN (REVENUE)
                     </div>
                     <div class="table-responsive">
-                        <table class="table table-vcenter table-striped card-table">
+                        <table class="table table-vcenter table-striped card-table mb-0">
                             <thead>
                                 <tr>
                                     <th>Kode & Nama Akun</th>
@@ -105,7 +105,7 @@
                                 @endforelse
                             </tbody>
                             <tfoot>
-                                <tr class="table-active font-weight-bold">
+                                <tr class="table-active font-weight-bold border-top">
                                     <td>TOTAL PENDAPATAN:</td>
                                     <td class="text-end font-mono text-success fs-5">
                                         Rp {{ number_format($totalRevenue, 0, ',', '.') }}
@@ -122,7 +122,7 @@
                         BEBAN & OPERASIONAL (EXPENSES)
                     </div>
                     <div class="table-responsive">
-                        <table class="table table-vcenter table-striped card-table">
+                        <table class="table table-vcenter table-striped card-table mb-0">
                             <thead>
                                 <tr>
                                     <th>Kode & Nama Akun</th>
@@ -146,7 +146,7 @@
                                 @endforelse
                             </tbody>
                             <tfoot>
-                                <tr class="table-active font-weight-bold">
+                                <tr class="table-active font-weight-bold border-top">
                                     <td>TOTAL BEBAN & OPERASIONAL:</td>
                                     <td class="text-end font-mono text-danger fs-5">
                                         Rp {{ number_format($totalExpense, 0, ',', '.') }}
