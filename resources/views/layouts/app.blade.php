@@ -15,6 +15,45 @@
       body {
 	font-feature-settings: "cv03", "cv04", "cv11";
       }
+
+      @media print {
+        body {
+          background-color: #fff !important;
+          color: #000 !important;
+          font-size: 11pt;
+        }
+        .page {
+          background-color: transparent !important;
+        }
+        .card {
+          border: 1px solid #dee2e6 !important;
+          box-shadow: none !important;
+          margin-bottom: 1rem !important;
+          page-break-inside: avoid;
+        }
+        .card-header, .card-footer {
+          background-color: #f8f9fa !important;
+          border-color: #dee2e6 !important;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+        .table {
+          color: #000 !important;
+          width: 100% !important;
+        }
+        .table-striped > tbody > tr:nth-of-type(odd) > * {
+          background-color: #f9fafb !important;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+        .bg-success-lt, .bg-danger-lt, .bg-light {
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+        .d-print-none, .btn, .nav, footer {
+          display: none !important;
+        }
+      }
     </style>
     @livewireStyles
     @stack('styles')
