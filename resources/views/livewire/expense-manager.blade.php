@@ -1,15 +1,13 @@
 <div>
-    <div class="page-header d-print-none mb-3">
-        <div class="row align-items-center">
-            <div class="col">
-                <h2 class="page-title">Pengeluaran Operasional</h2>
-            </div>
-            <div class="col-auto ms-auto d-print-none">
-                <button wire:click="openModal()" class="btn btn-primary d-none d-sm-inline-block">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="0 0 24 24" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
-                    Catat Pengeluaran
-                </button>
-            </div>
+    <div class="row mb-3 align-items-center d-print-none">
+        <div class="col">
+            <h2 class="page-title">Pengeluaran Operasional</h2>
+        </div>
+        <div class="col-auto ms-auto">
+            <button wire:click="openModal()" class="btn btn-primary d-none d-sm-inline-block">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="0 0 24 24" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                Catat Pengeluaran
+            </button>
         </div>
     </div>
 
