@@ -234,6 +234,8 @@
                                     </datalist>
                                     @error('category') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
+                            </div>
+                            <div class="col-12">
                                 <div class="mb-3" x-data="{ open: false }">
                                     <label class="form-label required">Akun Akuntansi (Chart of Accounts)</label>
 
@@ -244,7 +246,7 @@
                                         <button type="button"
                                                 class="form-select text-start d-flex align-items-center justify-content-between @error('chart_of_account_id') is-invalid @enderror"
                                                 @click="open = !open; if(open) $nextTick(() => $refs.searchInput.focus())">
-                                            <span class="text-truncate">
+                                            <span class="lh-sm">
                                                 @if($selectedAccount)
                                                     <strong>{{ $selectedAccount->code }}</strong> - {{ $selectedAccount->name }} ({{ $selectedAccount->category }})
                                                 @else
