@@ -66,14 +66,14 @@
     <div class="card">
         <div class="card-header bg-light">
             <h3 class="card-title">
-                Laporan Laba Rugi Format Skontro:
+                Laporan Laba Rugi:
                 <span class="text-primary font-weight-bold">
                     {{ \Carbon\Carbon::parse($dateStart)->format('d/m/Y') }} s/d {{ \Carbon\Carbon::parse($dateEnd)->format('d/m/Y') }}
                 </span>
             </h3>
         </div>
         <div class="card-body p-0">
-            {{-- Skontro Layout (2 Column T-Account View) --}}
+            {{-- 2 Column T-Account View --}}
             <div class="row g-0">
                 {{-- Sisi Kiri: Pendapatan --}}
                 <div class="col-md-6 border-end">
