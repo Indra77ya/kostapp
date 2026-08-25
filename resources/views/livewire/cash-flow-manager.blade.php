@@ -3,7 +3,6 @@
         <div class="row align-items-center">
             <div class="col">
                 <h2 class="page-title">Laporan Arus Kas (Cash Flow)</h2>
-                <div class="text-muted mt-1">Penerimaan Kas (Inflow) dan Pengeluaran Kas (Outflow) Periode Berjalan</div>
             </div>
             <div class="col-auto ms-auto d-print-none">
                 <button onclick="window.print()" class="btn btn-outline-secondary">

@@ -3,7 +3,6 @@
         <div class="row align-items-center">
             <div class="col">
                 <h2 class="page-title">Pengeluaran Operasional</h2>
-                <div class="text-muted mt-1">Pencatatan dan dokumentasi seluruh biaya operasional kos</div>
             </div>
             <div class="col-auto ms-auto d-print-none">
                 <button wire:click="openModal()" class="btn btn-primary d-none d-sm-inline-block">

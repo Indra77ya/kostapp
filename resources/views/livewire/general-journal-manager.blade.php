@@ -3,7 +3,6 @@
         <div class="row align-items-center">
             <div class="col">
                 <h2 class="page-title">Jurnal Umum (General Journal)</h2>
-                <div class="text-muted mt-1">Catatan transaksi pencatatan berpasangan (Double-Entry Bookkeeping)</div>
             </div>
             <div class="col-auto ms-auto d-print-none">
                 <button wire:click="openModal()" class="btn btn-primary d-none d-sm-inline-block">

@@ -3,7 +3,6 @@
         <div class="row align-items-center">
             <div class="col">
                 <h2 class="page-title">Bagan Akun (Chart of Accounts)</h2>
-                <div class="text-muted mt-1">Daftar kode dan nama akun akuntansi standar</div>
             </div>
             <div class="col-auto ms-auto d-print-none btn-list">
                 <button wire:click="seedDefaultAccounts()" wire:confirm="Muat ulang bagan akun standar?" class="btn btn-outline-secondary d-none d-sm-inline-block">

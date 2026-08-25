@@ -3,7 +3,6 @@
         <div class="row align-items-center">
             <div class="col">
                 <h2 class="page-title">Buku Besar (General Ledger)</h2>
-                <div class="text-muted mt-1">Rincian histori mutasi transaksi per akun</div>
             </div>
             <div class="col-auto ms-auto d-print-none">
                 <button onclick="window.print()" class="btn btn-outline-secondary">

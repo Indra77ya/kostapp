@@ -3,7 +3,6 @@
         <div class="row align-items-center">
             <div class="col">
                 <h2 class="page-title">Laporan Laba Rugi (Profit & Loss Statement)</h2>
-                <div class="text-muted mt-1">Laporan Keuangan Format Skontro</div>
             </div>
             <div class="col-auto ms-auto d-print-none">
                 <button onclick="window.print()" class="btn btn-outline-secondary">
