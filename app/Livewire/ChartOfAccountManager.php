@@ -14,8 +14,16 @@ class ChartOfAccountManager extends Component
 
     public $search = '';
     public $filterType = '';
+    public $viewType = 'table'; // 'table' or 'tree'
     public $isModalOpen = false;
     public $accountId;
+
+    public function setView($type)
+    {
+        if (in_array($type, ['table', 'tree'])) {
+            $this->viewType = $type;
+        }
+    }
 
     public $code;
     public $name;
@@ -132,10 +140,42 @@ class ChartOfAccountManager extends Component
             $query->where('type', $this->filterType);
         }
 
+        if ($this->viewType === 'tree') {
+            $allAccounts = (clone $query)->orderBy('code', 'asc')->get();
+            $groupedAccounts = [];
+
+            $typeLabels = [
+                'asset' => 'Aset',
+                'liability' => 'Liabilitas',
+                'equity' => 'Ekuitas',
+                'revenue' => 'Pendapatan',
+                'expense' => 'Beban',
+            ];
+
+            foreach ($allAccounts as $acc) {
+                $typeName = $typeLabels[$acc->type] ?? ucfirst($acc->type);
+                $catName = $acc->category ?: 'Lain-lain';
+
+                if (!isset($groupedAccounts[$typeName])) {
+                    $groupedAccounts[$typeName] = [];
+                }
+                if (!isset($groupedAccounts[$typeName][$catName])) {
+                    $groupedAccounts[$typeName][$catName] = [];
+                }
+                $groupedAccounts[$typeName][$catName][] = $acc;
+            }
+
+            return view('livewire.chart-of-account-manager', [
+                'accounts' => $query->orderBy('code', 'asc')->paginate(15),
+                'groupedAccounts' => $groupedAccounts,
+            ]);
+        }
+
         $accounts = $query->orderBy('code', 'asc')->paginate(15);
 
         return view('livewire.chart-of-account-manager', [
             'accounts' => $accounts,
+            'groupedAccounts' => [],
         ]);
     }
 }

@@ -4,6 +4,16 @@
             <h2 class="page-title">Bagan Akun (Chart of Accounts)</h2>
         </div>
         <div class="col-auto ms-auto btn-list">
+            <div class="btn-group me-2">
+                <button type="button" class="btn {{ $viewType === 'tree' ? 'btn-primary' : 'btn-outline-primary' }}" wire:click="setView('tree')">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-git-fork" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 18m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M7 6m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M17 6m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M7 8v2a2 2 0 0 0 2 2h6a2 2 0 0 0 2 -2v-2" /><path d="M12 12v4" /></svg>
+                    Tree
+                </button>
+                <button type="button" class="btn {{ $viewType === 'table' ? 'btn-primary' : 'btn-outline-primary' }}" wire:click="setView('table')">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-list" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 6l11 0" /><path d="M9 12l11 0" /><path d="M9 18l11 0" /><path d="M5 6l0 .01" /><path d="M5 12l0 .01" /><path d="M5 18l0 .01" /></svg>
+                    Table
+                </button>
+            </div>
             <button wire:click="seedDefaultAccounts()" wire:confirm="Muat ulang bagan akun standar?" class="btn btn-outline-secondary d-none d-sm-inline-block">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="0 0 24 24" fill="none"/><path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" /><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" /></svg>
                 Muat Akun Standar
@@ -35,63 +45,125 @@
         </div>
     </div>
 
-    <div class="card">
-        <div class="table-responsive">
-            <table class="table table-vcenter card-table table-striped">
-                <thead>
-                    <tr>
-                        <th>Kode Akun</th>
-                        <th>Nama Akun</th>
-                        <th>Tipe Akun</th>
-                        <th>Saldo Normal</th>
-                        <th>Kategori</th>
-                        <th>Status</th>
-                        <th class="w-1">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($accounts as $acc)
+    @if($viewType === 'table')
+        <div class="card">
+            <div class="table-responsive">
+                <table class="table table-vcenter card-table table-striped">
+                    <thead>
                         <tr>
-                            <td class="font-weight-bold"><code>{{ $acc->code }}</code></td>
-                            <td>{{ $acc->name }}</td>
-                            <td>
-                                @if($acc->type === 'asset')
-                                    <span class="badge bg-primary-lt">Aset</span>
-                                @elseif($acc->type === 'liability')
-                                    <span class="badge bg-warning-lt">Liabilitas</span>
-                                @elseif($acc->type === 'equity')
-                                    <span class="badge bg-info-lt">Ekuitas</span>
-                                @elseif($acc->type === 'revenue')
-                                    <span class="badge bg-success-lt">Pendapatan</span>
-                                @else
-                                    <span class="badge bg-danger-lt">Beban</span>
-                                @endif
-                            </td>
-                            <td><span class="text-uppercase small font-weight-bold">{{ $acc->normal_balance }}</span></td>
-                            <td>{{ $acc->category ?: '-' }}</td>
-                            <td>
-                                @if($acc->is_active)
-                                    <span class="badge bg-success-lt">Aktif</span>
-                                @else
-                                    <span class="badge bg-secondary-lt">Non-Aktif</span>
-                                @endif
-                            </td>
-                            <td>
-                                <button wire:click="openModal({{ $acc->id }})" class="btn btn-sm btn-outline-primary">Edit</button>
-                            </td>
+                            <th>Kode Akun</th>
+                            <th>Nama Akun</th>
+                            <th>Tipe Akun</th>
+                            <th>Saldo Normal</th>
+                            <th>Kategori</th>
+                            <th>Status</th>
+                            <th class="w-1">Aksi</th>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="7" class="text-center py-4 text-muted">Tidak ada data bagan akun.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @forelse($accounts as $acc)
+                            <tr>
+                                <td class="font-weight-bold"><code>{{ $acc->code }}</code></td>
+                                <td>{{ $acc->name }}</td>
+                                <td>
+                                    @if($acc->type === 'asset')
+                                        <span class="badge bg-primary-lt">Aset</span>
+                                    @elseif($acc->type === 'liability')
+                                        <span class="badge bg-warning-lt">Liabilitas</span>
+                                    @elseif($acc->type === 'equity')
+                                        <span class="badge bg-info-lt">Ekuitas</span>
+                                    @elseif($acc->type === 'revenue')
+                                        <span class="badge bg-success-lt">Pendapatan</span>
+                                    @else
+                                        <span class="badge bg-danger-lt">Beban</span>
+                                    @endif
+                                </td>
+                                <td><span class="text-uppercase small font-weight-bold">{{ $acc->normal_balance }}</span></td>
+                                <td>{{ $acc->category ?: '-' }}</td>
+                                <td>
+                                    @if($acc->is_active)
+                                        <span class="badge bg-success-lt">Aktif</span>
+                                    @else
+                                        <span class="badge bg-secondary-lt">Non-Aktif</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <button wire:click="openModal({{ $acc->id }})" class="btn btn-sm btn-outline-primary">Edit</button>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="text-center py-4 text-muted">Tidak ada data bagan akun.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer d-flex align-items-center">
+                {{ $accounts->links(data: ['scrollTo' => false]) }}
+            </div>
         </div>
-        <div class="card-footer d-flex align-items-center">
-            {{ $accounts->links(data: ['scrollTo' => false]) }}
+    @else
+        {{-- Tree View --}}
+        <div class="accordion" id="coaAccordion">
+            @forelse($groupedAccounts as $typeName => $categories)
+                <div class="accordion-item mb-3 border rounded">
+                    <h2 class="accordion-header" id="heading-{{ Str::slug($typeName) }}">
+                        <button class="accordion-button bg-light font-weight-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ Str::slug($typeName) }}" aria-expanded="true">
+                            <span class="me-2">📁</span> {{ $typeName }}
+                        </button>
+                    </h2>
+                    <div id="collapse-{{ Str::slug($typeName) }}" class="accordion-collapse collapse show" aria-labelledby="heading-{{ Str::slug($typeName) }}">
+                        <div class="accordion-body p-0">
+                            @foreach($categories as $catName => $accList)
+                                <div class="p-3 border-bottom bg-white">
+                                    <div class="fw-bold mb-2 text-secondary small text-uppercase">
+                                        <span class="me-1">📂</span> Kategori: {{ $catName }}
+                                    </div>
+                                    <div class="table-responsive ms-3">
+                                        <table class="table table-vcenter table-sm mb-0">
+                                            <thead>
+                                                <tr class="text-muted">
+                                                    <th>Kode Akun</th>
+                                                    <th>Nama Akun</th>
+                                                    <th>Saldo Normal</th>
+                                                    <th>Status</th>
+                                                    <th class="w-1">Aksi</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($accList as $acc)
+                                                    <tr>
+                                                        <td><code>{{ $acc->code }}</code></td>
+                                                        <td class="fw-medium">{{ $acc->name }}</td>
+                                                        <td><span class="text-uppercase small font-weight-bold">{{ $acc->normal_balance }}</span></td>
+                                                        <td>
+                                                            @if($acc->is_active)
+                                                                <span class="badge bg-success-lt">Aktif</span>
+                                                            @else
+                                                                <span class="badge bg-secondary-lt">Non-Aktif</span>
+                                                            @endif
+                                                        </td>
+                                                        <td>
+                                                            <button wire:click="openModal({{ $acc->id }})" class="btn btn-sm btn-outline-primary py-0">Edit</button>
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            @empty
+                <div class="card p-4 text-center text-muted">
+                    Tidak ada data bagan akun untuk ditampilkan dalam bentuk pohon.
+                </div>
+            @endforelse
         </div>
-    </div>
+    @endif
 
     {{-- Modal --}}
     @if($isModalOpen)
