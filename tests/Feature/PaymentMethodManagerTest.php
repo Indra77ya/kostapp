@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use App\Models\PaymentMethod;
+use App\Models\ChartOfAccount;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -24,6 +25,8 @@ class PaymentMethodManagerTest extends TestCase
         Role::firstOrCreate(['name' => 'owner']);
         Role::firstOrCreate(['name' => 'developer']);
         Role::firstOrCreate(['name' => 'admin']);
+
+        $this->seed(\Database\Seeders\ChartOfAccountSeeder::class);
     }
 
     public function test_payment_method_manager_is_accessible_by_owner()
@@ -54,10 +57,13 @@ class PaymentMethodManagerTest extends TestCase
 
         $file = UploadedFile::fake()->image('bca.png');
 
+        $account = ChartOfAccount::first();
+
         Livewire::actingAs($owner)
             ->test(PaymentMethodManager::class)
             ->set('name', 'Transfer BCA')
             ->set('category', 'Bank')
+            ->set('chart_of_account_id', $account->id)
             ->set('account_number', '1234567890')
             ->set('account_name', 'John Doe')
             ->set('logo', $file)
@@ -65,6 +71,7 @@ class PaymentMethodManagerTest extends TestCase
             ->assertHasNoErrors();
 
         $pm = PaymentMethod::first();
+        $this->assertEquals($account->id, $pm->chart_of_account_id);
         $this->assertEquals('Transfer BCA', $pm->name);
         $this->assertNotNull($pm->logo);
         Storage::disk('public')->assertExists($pm->logo);
@@ -79,9 +86,12 @@ class PaymentMethodManagerTest extends TestCase
         $oldFile = UploadedFile::fake()->image('old.png');
         $oldPath = $oldFile->store('payment_methods', 'public');
 
+        $account = ChartOfAccount::first();
+
         $pm = PaymentMethod::create([
             'name' => 'Lama',
             'category' => 'Bank',
+            'chart_of_account_id' => $account->id,
             'logo' => $oldPath
         ]);
 

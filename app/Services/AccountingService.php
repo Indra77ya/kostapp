@@ -86,11 +86,16 @@ class AccountingService
             return $existing;
         }
 
-        $cashAccount = self::getAccountByCode('1-1000');
+        $pm = $payment->paymentMethod;
+        $cashAccountId = ($pm && $pm->chart_of_account_id) ? $pm->chart_of_account_id : optional(self::getAccountByCode('1-1000'))->id;
         $depositLiabilityAccount = self::getAccountByCode('2-1000');
         $rentalRevenueAccount = self::getAccountByCode('4-1000');
 
-        if (!$cashAccount || !$depositLiabilityAccount || !$rentalRevenueAccount) {
+        if (!$cashAccountId || !$depositLiabilityAccount || !$rentalRevenueAccount) {
+            return null;
+        }
+        $cashAccount = ChartOfAccount::find($cashAccountId);
+        if (!$cashAccount) {
             return null;
         }
 
@@ -225,8 +230,10 @@ class AccountingService
             return $existing;
         }
 
-        $cashAccount = self::getAccountByCode('1-1000');
-        if (!$cashAccount) {
+        $pm = $expense->paymentMethod;
+        $cashAccountId = ($pm && $pm->chart_of_account_id) ? $pm->chart_of_account_id : optional(self::getAccountByCode('1-1000'))->id;
+
+        if (!$cashAccountId) {
             return null;
         }
 
@@ -238,7 +245,7 @@ class AccountingService
                 'memo' => $expense->title,
             ],
             [
-                'chart_of_account_id' => $cashAccount->id,
+                'chart_of_account_id' => $cashAccountId,
                 'debit' => 0,
                 'credit' => $expense->amount,
                 'memo' => 'Pengeluaran Kas: ' . $expense->title,

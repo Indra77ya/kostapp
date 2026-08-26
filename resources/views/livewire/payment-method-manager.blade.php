@@ -102,6 +102,14 @@
                         <div class="text-secondary small mt-2">Atas Nama:</div>
                         <div class="fw-bold">{{ $pm->account_name }}</div>
                         @endif
+                        <div class="text-secondary small mt-2">Akun Akuntansi:</div>
+                        <div class="fw-bold text-primary">
+                            @if($pm->account)
+                                {{ $pm->account->code }} - {{ $pm->account->name }}
+                            @else
+                                <span class="text-danger small">Belum terhubung</span>
+                            @endif
+                        </div>
                     </div>
                     <div class="mt-3 d-flex gap-2">
                         <button class="btn btn-primary btn-sm flex-fill" wire:click="openModal({{ $pm->id }})">Edit</button>
@@ -129,6 +137,7 @@
                         <th>Logo</th>
                         <th>Nama</th>
                         <th>Kategori</th>
+                        <th>Akun Akuntansi</th>
                         <th>No. Rekening</th>
                         <th>Atas Nama</th>
                         <th>Status</th>
@@ -147,6 +156,13 @@
                         </td>
                         <td><div class="fw-bold">{{ $pm->name }}</div></td>
                         <td><span class="badge bg-blue-lt">{{ $pm->category }}</span></td>
+                        <td>
+                            @if($pm->account)
+                                <span class="badge bg-purple-lt">{{ $pm->account->code }} - {{ $pm->account->name }}</span>
+                            @else
+                                <span class="badge bg-danger-lt">Belum terhubung</span>
+                            @endif
+                        </td>
                         <td>{{ $pm->account_number ?: '-' }}</td>
                         <td>{{ $pm->account_name ?: '-' }}</td>
                         <td>
@@ -217,6 +233,67 @@
                                         @endforeach
                                     </datalist>
                                     @error('category') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="mb-3" x-data="{ open: false }">
+                                    <label class="form-label required">Akun Akuntansi (Chart of Accounts)</label>
+
+                                    <div class="dropdown w-100" @click.outside="open = false">
+                                        @php
+                                            $selectedAccount = $chart_of_account_id ? \App\Models\ChartOfAccount::find($chart_of_account_id) : null;
+                                        @endphp
+                                        <button type="button"
+                                                class="form-select text-start d-flex align-items-center justify-content-between @error('chart_of_account_id') is-invalid @enderror"
+                                                @click="open = !open; if(open) $nextTick(() => $refs.searchInput.focus())">
+                                            <span class="lh-sm">
+                                                @if($selectedAccount)
+                                                    <strong>{{ $selectedAccount->code }}</strong> - {{ $selectedAccount->name }} ({{ $selectedAccount->category }})
+                                                @else
+                                                    <span class="text-secondary">-- Pilih Akun COA --</span>
+                                                @endif
+                                            </span>
+                                        </button>
+
+                                        <div class="dropdown-menu w-100 p-2 shadow-lg" :class="{ 'show': open }" style="max-height: 300px; overflow-y: auto;">
+                                            <div class="input-icon mb-2">
+                                                <span class="input-icon-addon">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
+                                                </span>
+                                                <input type="text"
+                                                       x-ref="searchInput"
+                                                       class="form-control form-control-sm"
+                                                       placeholder="Filter akun (ketik kode/nama akun)..."
+                                                       wire:model.live.debounce.200ms="accountSearch"
+                                                       @keydown.escape="open = false">
+                                            </div>
+
+                                            <div class="list-group list-group-flush">
+                                                <button type="button"
+                                                        class="list-group-item list-group-item-action py-2 px-2 border-0 rounded {{ empty($chart_of_account_id) ? 'active' : '' }}"
+                                                        wire:click="$set('chart_of_account_id', '')"
+                                                        @click="open = false">
+                                                    <span class="text-secondary">-- Pilih Akun COA --</span>
+                                                </button>
+                                                @forelse($chartOfAccounts as $acc)
+                                                    <button type="button"
+                                                            class="list-group-item list-group-item-action py-2 px-2 border-0 rounded d-flex flex-column align-items-start {{ $chart_of_account_id == $acc->id ? 'active' : '' }}"
+                                                            wire:click="$set('chart_of_account_id', '{{ $acc->id }}')"
+                                                            @click="open = false">
+                                                        <div class="d-flex w-100 justify-content-between align-items-start gap-2">
+                                                            <span class="lh-sm">
+                                                                <strong class="me-1">{{ $acc->code }}</strong> - {{ $acc->name }}
+                                                            </span>
+                                                            <span class="badge bg-secondary-lt text-wrap text-start flex-shrink-0" style="max-width: 140px;">{{ $acc->category }}</span>
+                                                        </div>
+                                                    </button>
+                                                @empty
+                                                    <div class="p-2 text-muted text-center small">Tidak ada akun yang sesuai.</div>
+                                                @endforelse
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @error('chart_of_account_id') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                                 </div>
                             </div>
                         </div>

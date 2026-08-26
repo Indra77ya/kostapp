@@ -7,6 +7,7 @@ use App\Models\Location;
 use App\Models\Room;
 use App\Models\Rule;
 use App\Models\PaymentMethod;
+use App\Models\ChartOfAccount;
 use App\Livewire\LocationManager;
 use App\Livewire\RoomManager;
 use App\Livewire\RuleManager;
@@ -24,6 +25,7 @@ class MasterDataNotificationBellTest extends TestCase
     {
         parent::setUp();
         $this->seed(\Database\Seeders\RoleSeeder::class);
+        $this->seed(\Database\Seeders\ChartOfAccountSeeder::class);
         $user = User::factory()->create();
         $user->assignRole('owner');
         $this->actingAs($user);
@@ -94,9 +96,12 @@ class MasterDataNotificationBellTest extends TestCase
 
     public function test_payment_method_manager_hides_notifications_from_bell()
     {
+        $account = ChartOfAccount::first();
+
         Livewire::test(PaymentMethodManager::class)
             ->set('name', 'Bank BCA')
             ->set('category', 'Bank')
+            ->set('chart_of_account_id', $account->id)
             ->call('savePaymentMethod')
             ->assertDispatched('notify', hideInBell: true);
 

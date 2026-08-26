@@ -72,9 +72,9 @@
                                 @endif
                             </td>
                             <td>
-                                <div class="btn-group">
-                                    <button wire:click="openModal({{ $exp->id }})" class="btn btn-sm btn-outline-primary">Edit</button>
-                                    <button wire:click="delete({{ $exp->id }})" wire:confirm="Yakin ingin menghapus pengeluaran ini?" class="btn btn-sm btn-outline-danger">Hapus</button>
+                                <div class="btn-list flex-nowrap">
+                                    <button wire:click="openModal({{ $exp->id }})" class="btn btn-white btn-sm">Edit</button>
+                                    <button wire:click="delete({{ $exp->id }})" wire:confirm="Yakin ingin menghapus pengeluaran ini?" class="btn btn-white btn-sm text-danger">Hapus</button>
                                 </div>
                             </td>
                         </tr>

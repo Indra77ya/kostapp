@@ -12,12 +12,18 @@ class PaymentMethod extends Model
     protected $fillable = [
         'name',
         'category',
+        'chart_of_account_id',
         'account_number',
         'account_name',
         'instructions',
         'logo',
         'is_active',
     ];
+
+    public function account()
+    {
+        return $this->belongsTo(ChartOfAccount::class, 'chart_of_account_id');
+    }
 
     protected $casts = [
         'is_active' => 'boolean',
