@@ -66,7 +66,7 @@
                             <th class="text-end">Saldo Saat Ini</th>
                             <th>Kategori</th>
                             <th>Status</th>
-                            <th class="w-1">Aksi</th>
+                            <th class="text-end" style="min-width: 150px;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -116,8 +116,8 @@
                                         <span class="badge bg-secondary-lt">Non-Aktif</span>
                                     @endif
                                 </td>
-                                <td>
-                                    <div class="btn-list flex-nowrap">
+                                <td class="text-end">
+                                    <div class="btn-list flex-nowrap justify-content-end">
                                         <button wire:click="openModal({{ $acc->id }})" class="btn btn-white btn-sm">Edit</button>
                                         @if($acc->is_active)
                                             <button wire:click="toggleStatus({{ $acc->id }})" wire:confirm="Apakah Anda yakin ingin menonaktifkan akun {{ $acc->name }} ({{ $acc->code }})?" class="btn btn-white btn-sm text-danger">Non-Aktifkan</button>

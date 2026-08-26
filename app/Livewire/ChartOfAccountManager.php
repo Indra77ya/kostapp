@@ -39,11 +39,46 @@ class ChartOfAccountManager extends Component
     public function getAvailableSubTypesProperty()
     {
         return match ($this->type) {
-            'asset' => ['Aset Lancar', 'Aset Tetap', 'Aset Lainnya'],
-            'liability' => ['Liabilitas Jangka Pendek', 'Liabilitas Jangka Panjang'],
-            'equity' => ['Ekuitas Pemilik', 'Laba Ditahan'],
-            'revenue' => ['Pendapatan Usaha / Utama', 'Pendapatan Lain-lain'],
-            'expense' => ['Beban Operasional', 'Beban Pemeliharaan & Perbaikan', 'Beban Administrasi & Umum', 'Beban Non-Operasional'],
+            'asset' => [
+                'Kas & Bank',
+                'Piutang Usaha',
+                'Perlengkapan & Persediaan',
+                'Biaya Dibayar Di Muka',
+                'Aset Tetap',
+                'Akumulasi Penyusutan',
+                'Aset Lainnya',
+            ],
+            'liability' => [
+                'Liabilitas Jangka Pendek',
+                'Utang Usaha',
+                'Utang Pajak & Retribusi',
+                'Beban Yang Masih Harus Dibayar',
+                'Liabilitas Jangka Panjang',
+            ],
+            'equity' => [
+                'Ekuitas Pemilik',
+                'Modal Disetor',
+                'Prive / Pengambilan Pemilik',
+                'Laba Ditahan',
+                'Laba Tahun Berjalan',
+            ],
+            'revenue' => [
+                'Pendapatan Utama / Sewa',
+                'Pendapatan Layanan / Service',
+                'Pendapatan Denda & Administrasi',
+                'Pendapatan Non-Operasional / Lain-lain',
+            ],
+            'expense' => [
+                'Beban Operasional',
+                'Beban Utilitas',
+                'Beban Pemeliharaan & Perbaikan',
+                'Beban Kebersihan & Keamanan',
+                'Beban Gaji & Honor',
+                'Beban Pemasaran & Promosi',
+                'Beban Administrasi & Umum',
+                'Beban Penyusutan',
+                'Beban Non-Operasional',
+            ],
             default => [],
         };
     }
