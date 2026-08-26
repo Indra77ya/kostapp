@@ -4,6 +4,19 @@
             <h2 class="page-title">Bagan Akun (Chart of Accounts)</h2>
         </div>
         <div class="col-auto ms-auto btn-list">
+            @if($viewType === 'tree')
+                <div class="btn-group me-2">
+                    <button type="button" class="btn btn-outline-secondary" onclick="expandAllCoaTree()">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrows-maximize" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M16 4h4v4" /><path d="M14 10l6 -6" /><path d="M8 20h-4v-4" /><path d="M4 20l6 -6" /><path d="M16 20h4v-4" /><path d="M14 14l6 6" /><path d="M8 4h-4v4" /><path d="M4 4l6 6" /></svg>
+                        Perluas Semua
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="collapseAllCoaTree()">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrows-minimize" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 9h4v-4" /><path d="M3 3l6 6" /><path d="M5 15h4v4" /><path d="M3 21l6 -6" /><path d="M19 9h-4v-4" /><path d="M15 9l6 -6" /><path d="M19 15h-4v4" /><path d="M15 15l6 6" /></svg>
+                        Ciutkan Semua
+                    </button>
+                </div>
+            @endif
+
             <div class="btn-group me-2">
                 <button type="button" class="btn {{ $viewType === 'tree' ? 'btn-primary' : 'btn-outline-primary' }}" wire:click="setView('tree')">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-git-fork" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 18m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M7 6m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M17 6m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M7 8v2a2 2 0 0 0 2 2h6a2 2 0 0 0 2 -2v-2" /><path d="M12 12v4" /></svg>
@@ -329,4 +342,21 @@
             </div>
         </div>
     @endif
+    <script>
+        function expandAllCoaTree() {
+            const accordionItems = document.querySelectorAll('#coaAccordion .accordion-collapse');
+            accordionItems.forEach(item => {
+                const bsCollapse = bootstrap.Collapse.getOrCreateInstance(item, { toggle: false });
+                bsCollapse.show();
+            });
+        }
+
+        function collapseAllCoaTree() {
+            const accordionItems = document.querySelectorAll('#coaAccordion .accordion-collapse');
+            accordionItems.forEach(item => {
+                const bsCollapse = bootstrap.Collapse.getOrCreateInstance(item, { toggle: false });
+                bsCollapse.hide();
+            });
+        }
+    </script>
 </div>
