@@ -293,7 +293,21 @@
 
                             <div class="mb-3">
                                 <label class="form-label">Kategori</label>
-                                <input type="text" wire:model="category" class="form-control" placeholder="Beban Operasional">
+                                <select wire:model.live="category" class="form-select @error('category') is-invalid @enderror">
+                                    <option value="">-- Tanpa Kategori / Pilih Kategori --</option>
+                                    @foreach($this->existingCategories as $existingCat)
+                                        <option value="{{ $existingCat }}">{{ $existingCat }}</option>
+                                    @endforeach
+                                    <option value="__new__">+ Tambah Kategori Baru...</option>
+                                </select>
+                                @error('category') <div class="invalid-feedback">{{ $message }}</div> @enderror
+
+                                @if($category === '__new__')
+                                    <div class="mt-2">
+                                        <input type="text" wire:model="custom_category" class="form-control @error('custom_category') is-invalid @enderror" placeholder="Ketik nama kategori baru...">
+                                        @error('custom_category') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                    </div>
+                                @endif
                             </div>
 
                             <div class="mb-3">

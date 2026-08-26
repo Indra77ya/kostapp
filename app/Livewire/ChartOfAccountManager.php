@@ -33,8 +33,21 @@ class ChartOfAccountManager extends Component
     public $parent_id = null;
     public $normal_balance = 'debit';
     public $category;
+    public $custom_category = '';
     public $description;
     public $is_active = true;
+
+    public function getExistingCategoriesProperty()
+    {
+        return ChartOfAccount::where('type', $this->type)
+            ->whereNotNull('category')
+            ->where('category', '!=', '')
+            ->distinct()
+            ->pluck('category')
+            ->sort()
+            ->values()
+            ->all();
+    }
 
     public function getAvailableSubTypesProperty()
     {
@@ -102,6 +115,10 @@ class ChartOfAccountManager extends Component
                 $this->parent_id = null;
             }
         }
+
+        if ($this->category !== '__new__' && !in_array($this->category, $this->existingCategories)) {
+            $this->category = '';
+        }
     }
 
     public function openModal($id = null)
@@ -119,10 +136,13 @@ class ChartOfAccountManager extends Component
             $this->parent_id = $account->parent_id;
             $this->normal_balance = $account->normal_balance;
             $this->category = $account->category;
+            $this->custom_category = '';
             $this->description = $account->description;
             $this->is_active = $account->is_active;
         } else {
             $this->sub_type = $this->availableSubTypes[0] ?? null;
+            $this->category = '';
+            $this->custom_category = '';
         }
 
         $this->isModalOpen = true;
@@ -144,6 +164,7 @@ class ChartOfAccountManager extends Component
         $this->parent_id = null;
         $this->normal_balance = 'debit';
         $this->category = '';
+        $this->custom_category = '';
         $this->description = '';
         $this->is_active = true;
     }
@@ -174,6 +195,17 @@ class ChartOfAccountManager extends Component
             return;
         }
 
+        if ($this->category === '__new__') {
+            $this->validate([
+                'custom_category' => 'required|string|max:255',
+            ], [], [
+                'custom_category' => 'Kategori Baru',
+            ]);
+            $finalCategory = trim($this->custom_category);
+        } else {
+            $finalCategory = $this->category;
+        }
+
         $this->validate($rules);
 
         $data = [
@@ -183,7 +215,7 @@ class ChartOfAccountManager extends Component
             'sub_type' => $this->sub_type ?: null,
             'parent_id' => $this->parent_id ?: null,
             'normal_balance' => $this->normal_balance,
-            'category' => $this->category,
+            'category' => $finalCategory ?: null,
             'description' => $this->description,
             'is_active' => $this->is_active,
         ];
