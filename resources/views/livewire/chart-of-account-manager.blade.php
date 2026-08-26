@@ -344,18 +344,32 @@
     @endif
     <script>
         function expandAllCoaTree() {
-            const accordionItems = document.querySelectorAll('#coaAccordion .accordion-collapse');
-            accordionItems.forEach(item => {
-                const bsCollapse = bootstrap.Collapse.getOrCreateInstance(item, { toggle: false });
-                bsCollapse.show();
+            const items = document.querySelectorAll('#coaAccordion .accordion-item');
+            items.forEach(item => {
+                const collapseEl = item.querySelector('.accordion-collapse');
+                const buttonEl = item.querySelector('.accordion-button');
+                if (collapseEl) {
+                    collapseEl.classList.add('show');
+                }
+                if (buttonEl) {
+                    buttonEl.classList.remove('collapsed');
+                    buttonEl.setAttribute('aria-expanded', 'true');
+                }
             });
         }
 
         function collapseAllCoaTree() {
-            const accordionItems = document.querySelectorAll('#coaAccordion .accordion-collapse');
-            accordionItems.forEach(item => {
-                const bsCollapse = bootstrap.Collapse.getOrCreateInstance(item, { toggle: false });
-                bsCollapse.hide();
+            const items = document.querySelectorAll('#coaAccordion .accordion-item');
+            items.forEach(item => {
+                const collapseEl = item.querySelector('.accordion-collapse');
+                const buttonEl = item.querySelector('.accordion-button');
+                if (collapseEl) {
+                    collapseEl.classList.remove('show');
+                }
+                if (buttonEl) {
+                    buttonEl.classList.add('collapsed');
+                    buttonEl.setAttribute('aria-expanded', 'false');
+                }
             });
         }
     </script>
