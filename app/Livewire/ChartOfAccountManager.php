@@ -28,10 +28,24 @@ class ChartOfAccountManager extends Component
     public $code;
     public $name;
     public $type = 'expense';
+    public $sub_type = 'Beban Operasional';
+    public $parent_id = null;
     public $normal_balance = 'debit';
     public $category;
     public $description;
     public $is_active = true;
+
+    public function getAvailableSubTypesProperty()
+    {
+        return match ($this->type) {
+            'asset' => ['Aset Lancar', 'Aset Tetap', 'Aset Lainnya'],
+            'liability' => ['Liabilitas Jangka Pendek', 'Liabilitas Jangka Panjang'],
+            'equity' => ['Ekuitas Pemilik', 'Laba Ditahan'],
+            'revenue' => ['Pendapatan Usaha / Utama', 'Pendapatan Lain-lain'],
+            'expense' => ['Beban Operasional', 'Beban Pemeliharaan & Perbaikan', 'Beban Administrasi & Umum', 'Beban Non-Operasional'],
+            default => [],
+        };
+    }
 
     public function updatedType($value)
     {
@@ -39,6 +53,18 @@ class ChartOfAccountManager extends Component
             $this->normal_balance = 'debit';
         } else {
             $this->normal_balance = 'credit';
+        }
+
+        $subTypes = $this->availableSubTypes;
+        if (!in_array($this->sub_type, $subTypes)) {
+            $this->sub_type = $subTypes[0] ?? null;
+        }
+
+        if ($this->parent_id) {
+            $parent = ChartOfAccount::find($this->parent_id);
+            if ($parent && $parent->type !== $value) {
+                $this->parent_id = null;
+            }
         }
     }
 
@@ -53,10 +79,14 @@ class ChartOfAccountManager extends Component
             $this->code = $account->code;
             $this->name = $account->name;
             $this->type = $account->type;
+            $this->sub_type = $account->sub_type;
+            $this->parent_id = $account->parent_id;
             $this->normal_balance = $account->normal_balance;
             $this->category = $account->category;
             $this->description = $account->description;
             $this->is_active = $account->is_active;
+        } else {
+            $this->sub_type = $this->availableSubTypes[0] ?? null;
         }
 
         $this->isModalOpen = true;
@@ -74,6 +104,8 @@ class ChartOfAccountManager extends Component
         $this->code = '';
         $this->name = '';
         $this->type = 'expense';
+        $this->sub_type = 'Beban Operasional';
+        $this->parent_id = null;
         $this->normal_balance = 'debit';
         $this->category = '';
         $this->description = '';
@@ -94,10 +126,17 @@ class ChartOfAccountManager extends Component
             'code' => 'required|string|unique:chart_of_accounts,code' . ($this->accountId ? ',' . $this->accountId : ''),
             'name' => 'required|string|max:255',
             'type' => 'required|in:asset,liability,equity,revenue,expense',
+            'sub_type' => 'nullable|string|max:255',
+            'parent_id' => 'nullable|exists:chart_of_accounts,id',
             'normal_balance' => 'required|in:debit,credit',
             'category' => 'nullable|string',
             'description' => 'nullable|string',
         ];
+
+        if ($this->accountId && $this->parent_id == $this->accountId) {
+            $this->addError('parent_id', 'Akun tidak bisa menjadi induk bagi dirinya sendiri.');
+            return;
+        }
 
         $this->validate($rules);
 
@@ -105,6 +144,8 @@ class ChartOfAccountManager extends Component
             'code' => $this->code,
             'name' => $this->name,
             'type' => $this->type,
+            'sub_type' => $this->sub_type ?: null,
+            'parent_id' => $this->parent_id ?: null,
             'normal_balance' => $this->normal_balance,
             'category' => $this->category,
             'description' => $this->description,
@@ -126,12 +167,13 @@ class ChartOfAccountManager extends Component
 
     public function render()
     {
-        $query = ChartOfAccount::query();
+        $query = ChartOfAccount::query()->with(['parent']);
 
         if ($this->search) {
             $query->where(function($q) {
                 $q->where('code', 'like', '%' . $this->search . '%')
                   ->orWhere('name', 'like', '%' . $this->search . '%')
+                  ->orWhere('sub_type', 'like', '%' . $this->search . '%')
                   ->orWhere('category', 'like', '%' . $this->search . '%');
             });
         }
@@ -142,6 +184,14 @@ class ChartOfAccountManager extends Component
 
         $query->withSum('journalEntryItems as total_debit', 'debit')
               ->withSum('journalEntryItems as total_credit', 'credit');
+
+        // Fetch candidate parent accounts for modal dropdown (matching selected type, excluding self)
+        $parentAccounts = ChartOfAccount::where('type', $this->type)
+            ->when($this->accountId, function($q) {
+                $q->where('id', '!=', $this->accountId);
+            })
+            ->orderBy('code', 'asc')
+            ->get();
 
         if ($this->viewType === 'tree') {
             $allAccounts = (clone $query)->orderBy('code', 'asc')->get();
@@ -166,20 +216,21 @@ class ChartOfAccountManager extends Component
 
             foreach ($allAccounts as $acc) {
                 $typeName = $typeLabels[$acc->type] ?? ucfirst($acc->type);
-                $catName = $acc->category ?: 'Lain-lain';
+                $subTypeName = $acc->sub_type ?: ($acc->category ?: 'Lain-lain');
 
                 if (!isset($groupedAccounts[$typeName])) {
                     $groupedAccounts[$typeName] = [];
                 }
-                if (!isset($groupedAccounts[$typeName][$catName])) {
-                    $groupedAccounts[$typeName][$catName] = [];
+                if (!isset($groupedAccounts[$typeName][$subTypeName])) {
+                    $groupedAccounts[$typeName][$subTypeName] = [];
                 }
-                $groupedAccounts[$typeName][$catName][] = $acc;
+                $groupedAccounts[$typeName][$subTypeName][] = $acc;
             }
 
             return view('livewire.chart-of-account-manager', [
                 'accounts' => $query->orderBy('code', 'asc')->paginate(15),
                 'groupedAccounts' => $groupedAccounts,
+                'parentAccounts' => $parentAccounts,
             ]);
         }
 
@@ -196,6 +247,7 @@ class ChartOfAccountManager extends Component
         return view('livewire.chart-of-account-manager', [
             'accounts' => $accounts,
             'groupedAccounts' => [],
+            'parentAccounts' => $parentAccounts,
         ]);
     }
 }
