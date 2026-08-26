@@ -13,6 +13,8 @@ class ChartOfAccount extends Model
         'code',
         'name',
         'type',
+        'sub_type',
+        'parent_id',
         'normal_balance',
         'category',
         'description',
@@ -22,6 +24,16 @@ class ChartOfAccount extends Model
     protected $casts = [
         'is_active' => 'boolean',
     ];
+
+    public function parent()
+    {
+        return $this->belongsTo(ChartOfAccount::class, 'parent_id');
+    }
+
+    public function children()
+    {
+        return $this->hasMany(ChartOfAccount::class, 'parent_id');
+    }
 
     public function journalEntryItems()
     {

@@ -29,7 +29,7 @@
         <div class="card-body">
             <div class="row g-2">
                 <div class="col-md-6">
-                    <input type="text" wire:model.live.debounce.300ms="search" class="form-control" placeholder="Cari Kode, Nama Akun, atau Kategori...">
+                    <input type="text" wire:model.live.debounce.300ms="search" class="form-control" placeholder="Cari Kode, Nama Akun, Sub Tipe, atau Kategori...">
                 </div>
                 <div class="col-md-4">
                     <select wire:model.live="filterType" class="form-select">
@@ -54,6 +54,7 @@
                             <th>Kode Akun</th>
                             <th>Nama Akun</th>
                             <th>Tipe Akun</th>
+                            <th>Sub Tipe Akun</th>
                             <th>Saldo Normal</th>
                             <th class="text-end">Saldo Saat Ini</th>
                             <th>Kategori</th>
@@ -65,7 +66,17 @@
                         @forelse($accounts as $acc)
                             <tr>
                                 <td class="font-weight-bold"><code>{{ $acc->code }}</code></td>
-                                <td>{{ $acc->name }}</td>
+                                <td>
+                                    <div class="{{ $acc->parent_id ? 'ps-3' : '' }}">
+                                        @if($acc->parent_id)
+                                            <span class="text-muted me-1">↳</span>
+                                        @endif
+                                        <span class="fw-semibold">{{ $acc->name }}</span>
+                                        @if($acc->parent)
+                                            <div class="small text-muted"><span class="text-primary me-1">Induk:</span>{{ $acc->parent->code }} - {{ $acc->parent->name }}</div>
+                                        @endif
+                                    </div>
+                                </td>
                                 <td>
                                     @if($acc->type === 'asset')
                                         <span class="badge bg-primary-lt">Aset</span>
@@ -77,6 +88,13 @@
                                         <span class="badge bg-success-lt">Pendapatan</span>
                                     @else
                                         <span class="badge bg-danger-lt">Beban</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($acc->sub_type)
+                                        <span class="badge bg-blue-lt">{{ $acc->sub_type }}</span>
+                                    @else
+                                        <span class="text-muted">-</span>
                                     @endif
                                 </td>
                                 <td><span class="text-uppercase small font-weight-bold">{{ $acc->normal_balance }}</span></td>
@@ -99,7 +117,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="text-center py-4 text-muted">Tidak ada data bagan akun.</td>
+                                <td colspan="9" class="text-center py-4 text-muted">Tidak ada data bagan akun.</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -112,7 +130,7 @@
     @else
         {{-- Tree View --}}
         <div class="accordion" id="coaAccordion">
-            @forelse($groupedAccounts as $typeName => $categories)
+            @forelse($groupedAccounts as $typeName => $subTypes)
                 <div class="accordion-item mb-3 border rounded">
                     <h2 class="accordion-header" id="heading-{{ Str::slug($typeName) }}">
                         <button class="accordion-button bg-light font-weight-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ Str::slug($typeName) }}" aria-expanded="true">
@@ -121,10 +139,10 @@
                     </h2>
                     <div id="collapse-{{ Str::slug($typeName) }}" class="accordion-collapse collapse show" aria-labelledby="heading-{{ Str::slug($typeName) }}">
                         <div class="accordion-body p-0">
-                            @foreach($categories as $catName => $accList)
+                            @foreach($subTypes as $subTypeName => $accList)
                                 <div class="p-3 border-bottom bg-white">
-                                    <div class="fw-bold mb-2 text-secondary small text-uppercase">
-                                        <span class="me-1">📂</span> Kategori: {{ $catName }}
+                                    <div class="fw-bold mb-2 text-primary small text-uppercase">
+                                        <span class="me-1">📂</span> Sub Tipe: {{ $subTypeName }}
                                     </div>
                                     <div class="table-responsive ms-3">
                                         <table class="table table-vcenter table-sm mb-0" style="table-layout: fixed; width: 100%;">
@@ -142,7 +160,17 @@
                                                 @foreach($accList as $acc)
                                                     <tr>
                                                         <td><code>{{ $acc->code }}</code></td>
-                                                        <td class="fw-medium text-truncate" title="{{ $acc->name }}">{{ $acc->name }}</td>
+                                                        <td class="fw-medium text-truncate" title="{{ $acc->name }}">
+                                                            <div class="{{ $acc->parent_id ? 'ps-3' : '' }}">
+                                                                @if($acc->parent_id)
+                                                                    <span class="text-muted me-1">↳</span>
+                                                                @endif
+                                                                <span>{{ $acc->name }}</span>
+                                                                @if($acc->parent)
+                                                                    <span class="badge bg-secondary-lt ms-1" style="font-size: 0.7rem;">Induk: {{ $acc->parent->code }}</span>
+                                                                @endif
+                                                            </div>
+                                                        </td>
                                                         <td><span class="text-uppercase small font-weight-bold">{{ $acc->normal_balance }}</span></td>
                                                         <td class="text-end fw-bold {{ $acc->current_balance < 0 ? 'text-danger' : 'text-dark' }}">
                                                             Rp {{ number_format($acc->current_balance ?? 0, 0, ',', '.') }}
@@ -220,6 +248,29 @@
                                         <option value="credit">Kredit</option>
                                     </select>
                                     @error('normal_balance') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                            </div>
+
+                            <div class="row g-2">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Sub Tipe Akun</label>
+                                    <select wire:model="sub_type" class="form-select @error('sub_type') is-invalid @enderror">
+                                        <option value="">-- Pilih Sub Tipe --</option>
+                                        @foreach($this->availableSubTypes as $st)
+                                            <option value="{{ $st }}">{{ $st }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('sub_type') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Akun Induk (Parent Account)</label>
+                                    <select wire:model="parent_id" class="form-select @error('parent_id') is-invalid @enderror">
+                                        <option value="">-- Tanpa Induk (Akun Utama) --</option>
+                                        @foreach($parentAccounts as $parentAcc)
+                                            <option value="{{ $parentAcc->id }}">{{ $parentAcc->code }} - {{ $parentAcc->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('parent_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
                             </div>
 

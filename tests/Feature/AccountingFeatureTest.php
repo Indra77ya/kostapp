@@ -161,4 +161,43 @@ class AccountingFeatureTest extends TestCase
             ->assertStatus(200)
             ->assertSee('Laporan Laba Rugi');
     }
+
+    public function test_create_account_with_sub_type_and_parent_account()
+    {
+        $owner = User::role('owner')->first();
+        $this->actingAs($owner);
+
+        $parentAcc = ChartOfAccount::where('code', '1-1000')->first();
+
+        \Livewire::test(\App\Livewire\ChartOfAccountManager::class)
+            ->call('openModal')
+            ->set('code', '1-1001')
+            ->set('name', 'Bank BCA Operasional')
+            ->set('type', 'asset')
+            ->set('sub_type', 'Aset Lancar')
+            ->set('parent_id', $parentAcc->id)
+            ->set('normal_balance', 'debit')
+            ->set('category', 'Kas & Setara Kas')
+            ->call('save');
+
+        $this->assertDatabaseHas('chart_of_accounts', [
+            'code' => '1-1001',
+            'name' => 'Bank BCA Operasional',
+            'sub_type' => 'Aset Lancar',
+            'parent_id' => $parentAcc->id,
+        ]);
+    }
+
+    public function test_chart_of_account_manager_renders_sub_types_and_tree_view()
+    {
+        $owner = User::role('owner')->first();
+        $this->actingAs($owner);
+
+        \Livewire::test(\App\Livewire\ChartOfAccountManager::class)
+            ->assertStatus(200)
+            ->assertSee('Sub Tipe Akun')
+            ->call('setView', 'tree')
+            ->assertStatus(200)
+            ->assertSee('Sub Tipe:');
+    }
 }
