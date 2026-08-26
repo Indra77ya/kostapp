@@ -14,6 +14,7 @@ class ChartOfAccountManager extends Component
 
     public $search = '';
     public $filterType = '';
+    public $filterStatus = 'active';
     public $viewType = 'table'; // 'table' or 'tree'
     public $isModalOpen = false;
     public $accountId;
@@ -164,6 +165,45 @@ class ChartOfAccountManager extends Component
 
     public function updatingSearch() { $this->resetPage(); }
     public function updatingFilterType() { $this->resetPage(); }
+    public function updatingFilterStatus() { $this->resetPage(); }
+
+    public function toggleStatus($id)
+    {
+        $account = ChartOfAccount::findOrFail($id);
+
+        if ($account->is_active) {
+            // Check dependencies before deactivating
+            if ($account->journalEntryItems()->exists()) {
+                $this->dispatch('notify', message: 'Akun tidak dapat dinonaktifkan karena telah memiliki riwayat jurnal transaksi.', type: 'error');
+                return;
+            }
+
+            if ($account->expenses()->exists()) {
+                $this->dispatch('notify', message: 'Akun tidak dapat dinonaktifkan karena terhubung dengan data pengeluaran operasional.', type: 'error');
+                return;
+            }
+
+            if (\App\Models\PaymentMethod::where('chart_of_account_id', $account->id)->exists()) {
+                $this->dispatch('notify', message: 'Akun tidak dapat dinonaktifkan karena terhubung dengan metode pembayaran.', type: 'error');
+                return;
+            }
+
+            if (\App\Models\AccountMapping::where('chart_of_account_id', $account->id)->exists()) {
+                $this->dispatch('notify', message: 'Akun tidak dapat dinonaktifkan karena terhubung dengan pemetaan akun sistem.', type: 'error');
+                return;
+            }
+
+            if ($account->children()->where('is_active', true)->exists()) {
+                $this->dispatch('notify', message: 'Akun tidak dapat dinonaktifkan karena memiliki sub-akun/akun anak yang masih aktif.', type: 'error');
+                return;
+            }
+        }
+
+        $account->update(['is_active' => !$account->is_active]);
+
+        $statusText = $account->is_active ? 'diaktifkan' : 'dinonaktifkan';
+        $this->dispatch('notify', message: "Akun {$account->name} ({$account->code}) berhasil {$statusText}.", type: 'success');
+    }
 
     public function render()
     {
@@ -180,6 +220,12 @@ class ChartOfAccountManager extends Component
 
         if ($this->filterType) {
             $query->where('type', $this->filterType);
+        }
+
+        if ($this->filterStatus === 'active') {
+            $query->where('is_active', true);
+        } elseif ($this->filterStatus === 'inactive') {
+            $query->where('is_active', false);
         }
 
         $query->withSum('journalEntryItems as total_debit', 'debit')

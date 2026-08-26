@@ -28,7 +28,7 @@
     <div class="card mb-3">
         <div class="card-body">
             <div class="row g-2">
-                <div class="col-md-6">
+                <div class="col-md-5">
                     <input type="text" wire:model.live.debounce.300ms="search" class="form-control" placeholder="Cari Kode, Nama Akun, Sub Tipe, atau Kategori...">
                 </div>
                 <div class="col-md-4">
@@ -39,6 +39,13 @@
                         <option value="equity">Ekuitas (Equity)</option>
                         <option value="revenue">Pendapatan (Revenue)</option>
                         <option value="expense">Beban (Expense)</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select wire:model.live="filterStatus" class="form-select">
+                        <option value="active">Aktif</option>
+                        <option value="inactive">Non-Aktif</option>
+                        <option value="">Semua Status</option>
                     </select>
                 </div>
             </div>
@@ -112,6 +119,11 @@
                                 <td>
                                     <div class="btn-list flex-nowrap">
                                         <button wire:click="openModal({{ $acc->id }})" class="btn btn-white btn-sm">Edit</button>
+                                        @if($acc->is_active)
+                                            <button wire:click="toggleStatus({{ $acc->id }})" wire:confirm="Apakah Anda yakin ingin menonaktifkan akun {{ $acc->name }} ({{ $acc->code }})?" class="btn btn-white btn-sm text-danger">Non-Aktifkan</button>
+                                        @else
+                                            <button wire:click="toggleStatus({{ $acc->id }})" wire:confirm="Apakah Anda yakin ingin mengaktifkan akun {{ $acc->name }} ({{ $acc->code }})?" class="btn btn-white btn-sm text-success">Aktifkan</button>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
@@ -185,6 +197,11 @@
                                                         <td class="text-end">
                                                             <div class="btn-list flex-nowrap justify-content-end">
                                                                 <button wire:click="openModal({{ $acc->id }})" class="btn btn-white btn-sm">Edit</button>
+                                                                @if($acc->is_active)
+                                                                    <button wire:click="toggleStatus({{ $acc->id }})" wire:confirm="Apakah Anda yakin ingin menonaktifkan akun {{ $acc->name }} ({{ $acc->code }})?" class="btn btn-white btn-sm text-danger">Non-Aktifkan</button>
+                                                                @else
+                                                                    <button wire:click="toggleStatus({{ $acc->id }})" wire:confirm="Apakah Anda yakin ingin mengaktifkan akun {{ $acc->name }} ({{ $acc->code }})?" class="btn btn-white btn-sm text-success">Aktifkan</button>
+                                                                @endif
                                                             </div>
                                                         </td>
                                                     </tr>
