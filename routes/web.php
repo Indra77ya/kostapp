@@ -86,6 +86,7 @@ Route::middleware('auth')->group(function () {
             // Akuntansi (restricted to owner & developer)
             Route::prefix('accounting')->name('accounting.')->group(function () {
                 Route::get('/chart-of-accounts', fn() => view('accounting.chart-of-accounts'))->name('coa');
+                Route::get('/account-mapping', fn() => view('accounting.account-mapping'))->name('account-mapping');
                 Route::get('/expenses', fn() => view('accounting.expenses'))->name('expenses');
                 Route::get('/journal', fn() => view('accounting.journal'))->name('journal');
                 Route::get('/ledger', fn() => view('accounting.ledger'))->name('ledger');

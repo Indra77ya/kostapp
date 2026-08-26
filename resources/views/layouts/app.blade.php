@@ -219,6 +219,9 @@
                         <a class="dropdown-item {{ request()->routeIs('accounting.coa') ? 'active' : '' }}" href="{{ route('accounting.coa') }}">
                           Bagan Akun (COA)
                         </a>
+                        <a class="dropdown-item {{ request()->routeIs('accounting.account-mapping') ? 'active' : '' }}" href="{{ route('accounting.account-mapping') }}">
+                          Pemetaan Akun
+                        </a>
                         <a class="dropdown-item {{ request()->routeIs('accounting.journal') ? 'active' : '' }}" href="{{ route('accounting.journal') }}">
                           Jurnal Umum
                         </a>

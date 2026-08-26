@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\AccountMapping;
 use App\Models\ChartOfAccount;
 use App\Models\Expense;
 use App\Models\JournalEntry;
@@ -19,6 +20,20 @@ class AccountingService
     public static function getAccountByCode(string $code): ?ChartOfAccount
     {
         return ChartOfAccount::where('code', $code)->first();
+    }
+
+    /**
+     * Helper to get account ID by mapping key with fallback to standard code.
+     */
+    public static function getAccountIdByMapping(string $mappingKey, string $defaultCode): ?int
+    {
+        $id = AccountMapping::getAccountId($mappingKey);
+        if ($id) {
+            return $id;
+        }
+
+        $account = self::getAccountByCode($defaultCode);
+        return $account?->id;
     }
 
     /**
@@ -87,13 +102,17 @@ class AccountingService
         }
 
         $pm = $payment->paymentMethod;
-        $cashAccountId = ($pm && $pm->chart_of_account_id) ? $pm->chart_of_account_id : optional(self::getAccountByCode('1-1000'))->id;
-        $depositLiabilityAccount = self::getAccountByCode('2-1000');
-        $rentalRevenueAccount = self::getAccountByCode('4-1000');
+        $cashAccountId = ($pm && $pm->chart_of_account_id)
+            ? $pm->chart_of_account_id
+            : self::getAccountIdByMapping('default_cash', '1-1000');
 
-        if (!$cashAccountId || !$depositLiabilityAccount || !$rentalRevenueAccount) {
+        $depositLiabilityAccountId = self::getAccountIdByMapping('deposit_liability', '2-1000');
+        $rentalRevenueAccountId = self::getAccountIdByMapping('rental_revenue', '4-1000');
+
+        if (!$cashAccountId || !$depositLiabilityAccountId || !$rentalRevenueAccountId) {
             return null;
         }
+
         $cashAccount = ChartOfAccount::find($cashAccountId);
         if (!$cashAccount) {
             return null;
@@ -112,13 +131,13 @@ class AccountingService
             // Debit: Deposit Liability (Reducing deposit liability)
             // Credit: Rental Revenue
             $items[] = [
-                'chart_of_account_id' => $depositLiabilityAccount->id,
+                'chart_of_account_id' => $depositLiabilityAccountId,
                 'debit' => $amount,
                 'credit' => 0,
                 'memo' => 'Penggunaan Saldo Deposit untuk Tagihan',
             ];
             $items[] = [
-                'chart_of_account_id' => $rentalRevenueAccount->id,
+                'chart_of_account_id' => $rentalRevenueAccountId,
                 'debit' => 0,
                 'credit' => $amount,
                 'memo' => 'Pendapatan Sewa dari Deposit',
@@ -145,7 +164,7 @@ class AccountingService
                 'memo' => 'Penerimaan Kas Setoran Deposit',
             ];
             $items[] = [
-                'chart_of_account_id' => $depositLiabilityAccount->id,
+                'chart_of_account_id' => $depositLiabilityAccountId,
                 'debit' => 0,
                 'credit' => $amount,
                 'memo' => 'Titipan Deposit Tenant',
@@ -191,7 +210,7 @@ class AccountingService
 
         if ($revenueAmount > 0) {
             $items[] = [
-                'chart_of_account_id' => $rentalRevenueAccount->id,
+                'chart_of_account_id' => $rentalRevenueAccountId,
                 'debit' => 0,
                 'credit' => $revenueAmount,
                 'memo' => 'Pendapatan Sewa Kamar',
@@ -200,7 +219,7 @@ class AccountingService
 
         if ($excessAmount > 0) {
             $items[] = [
-                'chart_of_account_id' => $depositLiabilityAccount->id,
+                'chart_of_account_id' => $depositLiabilityAccountId,
                 'debit' => 0,
                 'credit' => $excessAmount,
                 'memo' => 'Kelebihan Bayar masuk ke Deposit',
@@ -231,7 +250,9 @@ class AccountingService
         }
 
         $pm = $expense->paymentMethod;
-        $cashAccountId = ($pm && $pm->chart_of_account_id) ? $pm->chart_of_account_id : optional(self::getAccountByCode('1-1000'))->id;
+        $cashAccountId = ($pm && $pm->chart_of_account_id)
+            ? $pm->chart_of_account_id
+            : self::getAccountIdByMapping('default_cash', '1-1000');
 
         if (!$cashAccountId) {
             return null;
@@ -271,11 +292,11 @@ class AccountingService
             return null;
         }
 
-        $depositLiabilityAccount = self::getAccountByCode('2-1000');
-        $claimRevenueAccount = self::getAccountByCode('4-3000');
-        $cashAccount = self::getAccountByCode('1-1000');
+        $depositLiabilityAccountId = self::getAccountIdByMapping('deposit_liability', '2-1000');
+        $claimRevenueAccountId = self::getAccountIdByMapping('damage_claim_revenue', '4-3000');
+        $cashAccountId = self::getAccountIdByMapping('default_cash', '1-1000');
 
-        if (!$depositLiabilityAccount) {
+        if (!$depositLiabilityAccountId) {
             return null;
         }
 
@@ -284,16 +305,16 @@ class AccountingService
 
         // Debit: Utang Deposit Tenant (reduce total liability)
         $items[] = [
-            'chart_of_account_id' => $depositLiabilityAccount->id,
+            'chart_of_account_id' => $depositLiabilityAccountId,
             'debit' => $totalDepositCleared,
             'credit' => 0,
             'memo' => 'Penyelesaian Deposit Check Out ' . optional($registration->user)->name,
         ];
 
         // Credit: Claim revenue for deduction
-        if ($deductionAmount > 0 && $claimRevenueAccount) {
+        if ($deductionAmount > 0 && $claimRevenueAccountId) {
             $items[] = [
-                'chart_of_account_id' => $claimRevenueAccount->id,
+                'chart_of_account_id' => $claimRevenueAccountId,
                 'debit' => 0,
                 'credit' => $deductionAmount,
                 'memo' => 'Pendapatan Potongan Kerusakan Deposit',
@@ -301,9 +322,9 @@ class AccountingService
         }
 
         // Credit: Cash for refund
-        if ($refundAmount > 0 && $cashAccount) {
+        if ($refundAmount > 0 && $cashAccountId) {
             $items[] = [
-                'chart_of_account_id' => $cashAccount->id,
+                'chart_of_account_id' => $cashAccountId,
                 'debit' => 0,
                 'credit' => $refundAmount,
                 'memo' => 'Pengembalian Deposit (Refund) ke Tenant',
