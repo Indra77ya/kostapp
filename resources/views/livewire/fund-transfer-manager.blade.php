@@ -105,7 +105,7 @@
     <!-- Create Transfer Modal -->
     @if($isModalOpen)
         <div class="modal modal-blur fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-            <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Tambah Transfer Dana</h5>
