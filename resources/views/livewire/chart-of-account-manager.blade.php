@@ -4,6 +4,19 @@
             <h2 class="page-title">Bagan Akun (Chart of Accounts)</h2>
         </div>
         <div class="col-auto ms-auto btn-list">
+            @if($viewType === 'tree')
+                <div class="btn-group me-2">
+                    <button type="button" class="btn btn-outline-secondary" onclick="expandAllCoaTree()">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrows-maximize" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M16 4h4v4" /><path d="M14 10l6 -6" /><path d="M8 20h-4v-4" /><path d="M4 20l6 -6" /><path d="M16 20h4v-4" /><path d="M14 14l6 6" /><path d="M8 4h-4v4" /><path d="M4 4l6 6" /></svg>
+                        Perluas Semua
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="collapseAllCoaTree()">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrows-minimize" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 9h4v-4" /><path d="M3 3l6 6" /><path d="M5 15h4v4" /><path d="M3 21l6 -6" /><path d="M19 9h-4v-4" /><path d="M15 9l6 -6" /><path d="M19 15h-4v4" /><path d="M15 15l6 6" /></svg>
+                        Ciutkan Semua
+                    </button>
+                </div>
+            @endif
+
             <div class="btn-group me-2">
                 <button type="button" class="btn {{ $viewType === 'tree' ? 'btn-primary' : 'btn-outline-primary' }}" wire:click="setView('tree')">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-git-fork" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 18m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M7 6m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M17 6m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M7 8v2a2 2 0 0 0 2 2h6a2 2 0 0 0 2 -2v-2" /><path d="M12 12v4" /></svg>
@@ -28,7 +41,7 @@
     <div class="card mb-3">
         <div class="card-body">
             <div class="row g-2">
-                <div class="col-md-6">
+                <div class="col-md-5">
                     <input type="text" wire:model.live.debounce.300ms="search" class="form-control" placeholder="Cari Kode, Nama Akun, Sub Tipe, atau Kategori...">
                 </div>
                 <div class="col-md-4">
@@ -39,6 +52,13 @@
                         <option value="equity">Ekuitas (Equity)</option>
                         <option value="revenue">Pendapatan (Revenue)</option>
                         <option value="expense">Beban (Expense)</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select wire:model.live="filterStatus" class="form-select">
+                        <option value="active">Aktif</option>
+                        <option value="inactive">Non-Aktif</option>
+                        <option value="">Semua Status</option>
                     </select>
                 </div>
             </div>
@@ -59,7 +79,7 @@
                             <th class="text-end">Saldo Saat Ini</th>
                             <th>Kategori</th>
                             <th>Status</th>
-                            <th class="w-1">Aksi</th>
+                            <th class="text-end" style="min-width: 150px;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -109,9 +129,14 @@
                                         <span class="badge bg-secondary-lt">Non-Aktif</span>
                                     @endif
                                 </td>
-                                <td>
-                                    <div class="btn-list flex-nowrap">
+                                <td class="text-end">
+                                    <div class="btn-list flex-nowrap justify-content-end">
                                         <button wire:click="openModal({{ $acc->id }})" class="btn btn-white btn-sm">Edit</button>
+                                        @if($acc->is_active)
+                                            <button wire:click="toggleStatus({{ $acc->id }})" wire:confirm="Apakah Anda yakin ingin menonaktifkan akun {{ $acc->name }} ({{ $acc->code }})?" class="btn btn-white btn-sm text-danger">Non-Aktifkan</button>
+                                        @else
+                                            <button wire:click="toggleStatus({{ $acc->id }})" wire:confirm="Apakah Anda yakin ingin mengaktifkan akun {{ $acc->name }} ({{ $acc->code }})?" class="btn btn-white btn-sm text-success">Aktifkan</button>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
@@ -185,6 +210,11 @@
                                                         <td class="text-end">
                                                             <div class="btn-list flex-nowrap justify-content-end">
                                                                 <button wire:click="openModal({{ $acc->id }})" class="btn btn-white btn-sm">Edit</button>
+                                                                @if($acc->is_active)
+                                                                    <button wire:click="toggleStatus({{ $acc->id }})" wire:confirm="Apakah Anda yakin ingin menonaktifkan akun {{ $acc->name }} ({{ $acc->code }})?" class="btn btn-white btn-sm text-danger">Non-Aktifkan</button>
+                                                                @else
+                                                                    <button wire:click="toggleStatus({{ $acc->id }})" wire:confirm="Apakah Anda yakin ingin mengaktifkan akun {{ $acc->name }} ({{ $acc->code }})?" class="btn btn-white btn-sm text-success">Aktifkan</button>
+                                                                @endif
                                                             </div>
                                                         </td>
                                                     </tr>
@@ -276,7 +306,21 @@
 
                             <div class="mb-3">
                                 <label class="form-label">Kategori</label>
-                                <input type="text" wire:model="category" class="form-control" placeholder="Beban Operasional">
+                                <select wire:model.live="category" class="form-select @error('category') is-invalid @enderror">
+                                    <option value="">-- Tanpa Kategori / Pilih Kategori --</option>
+                                    @foreach($this->existingCategories as $existingCat)
+                                        <option value="{{ $existingCat }}">{{ $existingCat }}</option>
+                                    @endforeach
+                                    <option value="__new__">+ Tambah Kategori Baru...</option>
+                                </select>
+                                @error('category') <div class="invalid-feedback">{{ $message }}</div> @enderror
+
+                                @if($category === '__new__')
+                                    <div class="mt-2">
+                                        <input type="text" wire:model="custom_category" class="form-control @error('custom_category') is-invalid @enderror" placeholder="Ketik nama kategori baru...">
+                                        @error('custom_category') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                    </div>
+                                @endif
                             </div>
 
                             <div class="mb-3">
@@ -298,4 +342,35 @@
             </div>
         </div>
     @endif
+    <script>
+        function expandAllCoaTree() {
+            const items = document.querySelectorAll('#coaAccordion .accordion-item');
+            items.forEach(item => {
+                const collapseEl = item.querySelector('.accordion-collapse');
+                const buttonEl = item.querySelector('.accordion-button');
+                if (collapseEl) {
+                    collapseEl.classList.add('show');
+                }
+                if (buttonEl) {
+                    buttonEl.classList.remove('collapsed');
+                    buttonEl.setAttribute('aria-expanded', 'true');
+                }
+            });
+        }
+
+        function collapseAllCoaTree() {
+            const items = document.querySelectorAll('#coaAccordion .accordion-item');
+            items.forEach(item => {
+                const collapseEl = item.querySelector('.accordion-collapse');
+                const buttonEl = item.querySelector('.accordion-button');
+                if (collapseEl) {
+                    collapseEl.classList.remove('show');
+                }
+                if (buttonEl) {
+                    buttonEl.classList.add('collapsed');
+                    buttonEl.setAttribute('aria-expanded', 'false');
+                }
+            });
+        }
+    </script>
 </div>

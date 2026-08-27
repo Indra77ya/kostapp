@@ -14,6 +14,7 @@ class ChartOfAccountManager extends Component
 
     public $search = '';
     public $filterType = '';
+    public $filterStatus = 'active';
     public $viewType = 'table'; // 'table' or 'tree'
     public $isModalOpen = false;
     public $accountId;
@@ -32,17 +33,65 @@ class ChartOfAccountManager extends Component
     public $parent_id = null;
     public $normal_balance = 'debit';
     public $category;
+    public $custom_category = '';
     public $description;
     public $is_active = true;
+
+    public function getExistingCategoriesProperty()
+    {
+        return ChartOfAccount::where('type', $this->type)
+            ->whereNotNull('category')
+            ->where('category', '!=', '')
+            ->distinct()
+            ->pluck('category')
+            ->sort()
+            ->values()
+            ->all();
+    }
 
     public function getAvailableSubTypesProperty()
     {
         return match ($this->type) {
-            'asset' => ['Aset Lancar', 'Aset Tetap', 'Aset Lainnya'],
-            'liability' => ['Liabilitas Jangka Pendek', 'Liabilitas Jangka Panjang'],
-            'equity' => ['Ekuitas Pemilik', 'Laba Ditahan'],
-            'revenue' => ['Pendapatan Usaha / Utama', 'Pendapatan Lain-lain'],
-            'expense' => ['Beban Operasional', 'Beban Pemeliharaan & Perbaikan', 'Beban Administrasi & Umum', 'Beban Non-Operasional'],
+            'asset' => [
+                'Kas & Bank',
+                'Piutang Usaha',
+                'Perlengkapan & Persediaan',
+                'Biaya Dibayar Di Muka',
+                'Aset Tetap',
+                'Akumulasi Penyusutan',
+                'Aset Lainnya',
+            ],
+            'liability' => [
+                'Liabilitas Jangka Pendek',
+                'Utang Usaha',
+                'Utang Pajak & Retribusi',
+                'Beban Yang Masih Harus Dibayar',
+                'Liabilitas Jangka Panjang',
+            ],
+            'equity' => [
+                'Ekuitas Pemilik',
+                'Modal Disetor',
+                'Prive / Pengambilan Pemilik',
+                'Laba Ditahan',
+                'Laba Tahun Berjalan',
+            ],
+            'revenue' => [
+                'Pendapatan Utama / Sewa',
+                'Pendapatan Layanan / Service',
+                'Pendapatan Denda & Administrasi',
+                'Pendapatan Non-Operasional / Lain-lain',
+            ],
+            'expense' => [
+                'Beban Operasional',
+                'Beban Utilitas',
+                'Beban Pemeliharaan & Perbaikan',
+                'Beban Kebersihan & Keamanan',
+                'Beban Gaji & Honor',
+                'Beban Pemasaran & Promosi',
+                'Beban Administrasi & Umum',
+                'Beban Penyusutan',
+                'Beban Non-Operasional',
+            ],
             default => [],
         };
     }
@@ -66,6 +115,10 @@ class ChartOfAccountManager extends Component
                 $this->parent_id = null;
             }
         }
+
+        if ($this->category !== '__new__' && !in_array($this->category, $this->existingCategories)) {
+            $this->category = '';
+        }
     }
 
     public function openModal($id = null)
@@ -83,10 +136,13 @@ class ChartOfAccountManager extends Component
             $this->parent_id = $account->parent_id;
             $this->normal_balance = $account->normal_balance;
             $this->category = $account->category;
+            $this->custom_category = '';
             $this->description = $account->description;
             $this->is_active = $account->is_active;
         } else {
             $this->sub_type = $this->availableSubTypes[0] ?? null;
+            $this->category = '';
+            $this->custom_category = '';
         }
 
         $this->isModalOpen = true;
@@ -108,6 +164,7 @@ class ChartOfAccountManager extends Component
         $this->parent_id = null;
         $this->normal_balance = 'debit';
         $this->category = '';
+        $this->custom_category = '';
         $this->description = '';
         $this->is_active = true;
     }
@@ -138,6 +195,17 @@ class ChartOfAccountManager extends Component
             return;
         }
 
+        if ($this->category === '__new__') {
+            $this->validate([
+                'custom_category' => 'required|string|max:255',
+            ], [], [
+                'custom_category' => 'Kategori Baru',
+            ]);
+            $finalCategory = trim($this->custom_category);
+        } else {
+            $finalCategory = $this->category;
+        }
+
         $this->validate($rules);
 
         $data = [
@@ -147,7 +215,7 @@ class ChartOfAccountManager extends Component
             'sub_type' => $this->sub_type ?: null,
             'parent_id' => $this->parent_id ?: null,
             'normal_balance' => $this->normal_balance,
-            'category' => $this->category,
+            'category' => $finalCategory ?: null,
             'description' => $this->description,
             'is_active' => $this->is_active,
         ];
@@ -164,6 +232,45 @@ class ChartOfAccountManager extends Component
 
     public function updatingSearch() { $this->resetPage(); }
     public function updatingFilterType() { $this->resetPage(); }
+    public function updatingFilterStatus() { $this->resetPage(); }
+
+    public function toggleStatus($id)
+    {
+        $account = ChartOfAccount::findOrFail($id);
+
+        if ($account->is_active) {
+            // Check dependencies before deactivating
+            if ($account->journalEntryItems()->exists()) {
+                $this->dispatch('notify', message: 'Akun tidak dapat dinonaktifkan karena telah memiliki riwayat jurnal transaksi.', type: 'error');
+                return;
+            }
+
+            if ($account->expenses()->exists()) {
+                $this->dispatch('notify', message: 'Akun tidak dapat dinonaktifkan karena terhubung dengan data pengeluaran operasional.', type: 'error');
+                return;
+            }
+
+            if (\App\Models\PaymentMethod::where('chart_of_account_id', $account->id)->exists()) {
+                $this->dispatch('notify', message: 'Akun tidak dapat dinonaktifkan karena terhubung dengan metode pembayaran.', type: 'error');
+                return;
+            }
+
+            if (\App\Models\AccountMapping::where('chart_of_account_id', $account->id)->exists()) {
+                $this->dispatch('notify', message: 'Akun tidak dapat dinonaktifkan karena terhubung dengan pemetaan akun sistem.', type: 'error');
+                return;
+            }
+
+            if ($account->children()->where('is_active', true)->exists()) {
+                $this->dispatch('notify', message: 'Akun tidak dapat dinonaktifkan karena memiliki sub-akun/akun anak yang masih aktif.', type: 'error');
+                return;
+            }
+        }
+
+        $account->update(['is_active' => !$account->is_active]);
+
+        $statusText = $account->is_active ? 'diaktifkan' : 'dinonaktifkan';
+        $this->dispatch('notify', message: "Akun {$account->name} ({$account->code}) berhasil {$statusText}.", type: 'success');
+    }
 
     public function render()
     {
@@ -180,6 +287,12 @@ class ChartOfAccountManager extends Component
 
         if ($this->filterType) {
             $query->where('type', $this->filterType);
+        }
+
+        if ($this->filterStatus === 'active') {
+            $query->where('is_active', true);
+        } elseif ($this->filterStatus === 'inactive') {
+            $query->where('is_active', false);
         }
 
         $query->withSum('journalEntryItems as total_debit', 'debit')

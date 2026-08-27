@@ -200,4 +200,102 @@ class AccountingFeatureTest extends TestCase
             ->assertStatus(200)
             ->assertSee('Sub Tipe:');
     }
+
+    public function test_chart_of_account_status_filtering()
+    {
+        $owner = User::role('owner')->first();
+        $this->actingAs($owner);
+
+        $activeAcc = ChartOfAccount::create([
+            'code' => '5-9991',
+            'name' => 'Beban Test Aktif',
+            'type' => 'expense',
+            'sub_type' => 'Beban Operasional',
+            'normal_balance' => 'debit',
+            'is_active' => true,
+        ]);
+
+        $inactiveAcc = ChartOfAccount::create([
+            'code' => '5-9992',
+            'name' => 'Beban Test Non-Aktif',
+            'type' => 'expense',
+            'sub_type' => 'Beban Operasional',
+            'normal_balance' => 'debit',
+            'is_active' => false,
+        ]);
+
+        // Filter by search term 'Beban Test' to ensure both records are retrieved on page 1
+        \Livewire::test(\App\Livewire\ChartOfAccountManager::class)
+            ->set('search', 'Beban Test')
+            ->assertSee('Beban Test Aktif')
+            ->assertDontSee('Beban Test Non-Aktif')
+            ->set('filterStatus', 'inactive')
+            ->assertDontSee('Beban Test Aktif')
+            ->assertSee('Beban Test Non-Aktif')
+            ->set('filterStatus', '')
+            ->assertSee('Beban Test Aktif')
+            ->assertSee('Beban Test Non-Aktif');
+    }
+
+    public function test_toggle_chart_of_account_status()
+    {
+        $owner = User::role('owner')->first();
+        $this->actingAs($owner);
+
+        $acc = ChartOfAccount::create([
+            'code' => '5-9993',
+            'name' => 'Beban Lain Tanpa Relasi',
+            'type' => 'expense',
+            'sub_type' => 'Beban Operasional',
+            'normal_balance' => 'debit',
+            'is_active' => true,
+        ]);
+
+        \Livewire::test(\App\Livewire\ChartOfAccountManager::class)
+            ->call('toggleStatus', $acc->id)
+            ->assertDispatched('notify');
+
+        $this->assertDatabaseHas('chart_of_accounts', [
+            'id' => $acc->id,
+            'is_active' => false,
+        ]);
+
+        \Livewire::test(\App\Livewire\ChartOfAccountManager::class)
+            ->set('filterStatus', 'inactive')
+            ->call('toggleStatus', $acc->id)
+            ->assertDispatched('notify');
+
+        $this->assertDatabaseHas('chart_of_accounts', [
+            'id' => $acc->id,
+            'is_active' => true,
+        ]);
+    }
+
+    public function test_cannot_deactivate_chart_of_account_with_dependencies()
+    {
+        $owner = User::role('owner')->first();
+        $this->actingAs($owner);
+
+        $expenseAcc = ChartOfAccount::where('code', '5-1000')->first();
+        $pm = PaymentMethod::first();
+
+        // Create an expense with this account
+        Expense::create([
+            'expense_number' => 'EXP-TEST-0099',
+            'expense_date' => now()->toDateString(),
+            'chart_of_account_id' => $expenseAcc->id,
+            'payment_method_id' => $pm->id,
+            'amount' => 50000,
+            'title' => 'Test Expense Dependency',
+            'created_by' => $owner->id,
+        ]);
+
+        \Livewire::test(\App\Livewire\ChartOfAccountManager::class)
+            ->call('toggleStatus', $expenseAcc->id)
+            ->assertDispatched('notify', function ($name, $data) {
+                return $data['type'] === 'error' && str_contains($data['message'], 'tidak dapat dinonaktifkan');
+            });
+
+        $this->assertTrue($expenseAcc->fresh()->is_active);
+    }
 }
