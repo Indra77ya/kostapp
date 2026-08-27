@@ -216,6 +216,9 @@
                         <a class="dropdown-item {{ request()->routeIs('accounting.expenses') ? 'active' : '' }}" href="{{ route('accounting.expenses') }}">
                           Pengeluaran Operasional
                         </a>
+                        <a class="dropdown-item {{ request()->routeIs('accounting.transfers') ? 'active' : '' }}" href="{{ route('accounting.transfers') }}">
+                          Transfer Dana
+                        </a>
                         <a class="dropdown-item {{ request()->routeIs('accounting.coa') ? 'active' : '' }}" href="{{ route('accounting.coa') }}">
                           Bagan Akun (COA)
                         </a>

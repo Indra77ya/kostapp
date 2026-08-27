@@ -88,6 +88,7 @@ Route::middleware('auth')->group(function () {
                 Route::get('/chart-of-accounts', fn() => view('accounting.chart-of-accounts'))->name('coa');
                 Route::get('/account-mapping', fn() => view('accounting.account-mapping'))->name('account-mapping');
                 Route::get('/expenses', fn() => view('accounting.expenses'))->name('expenses');
+                Route::get('/transfers', fn() => view('accounting.transfers'))->name('transfers');
                 Route::get('/journal', fn() => view('accounting.journal'))->name('journal');
                 Route::get('/ledger', fn() => view('accounting.ledger'))->name('ledger');
                 Route::get('/trial-balance', fn() => view('accounting.trial-balance'))->name('trial-balance');

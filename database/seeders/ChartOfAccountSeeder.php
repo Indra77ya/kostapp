@@ -385,6 +385,15 @@ class ChartOfAccountSeeder extends Seeder
                 'category' => 'Beban Administrasi',
                 'description' => 'Kertas, Kuitansi, Foto KTP Tenant, Materai',
             ],
+            [
+                'code' => '5-6100',
+                'name' => 'Beban Administrasi Bank',
+                'type' => 'expense',
+                'sub_type' => 'Beban Administrasi & Umum',
+                'normal_balance' => 'debit',
+                'category' => 'Beban Administrasi',
+                'description' => 'Biaya Admin Bank / Transfer Antar Bank / Layanan Perbankan',
+            ],
 
             // Penyusutan & Lain-Lain
             [

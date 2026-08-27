@@ -86,7 +86,7 @@
     {{-- Modal Jurnal Manual --}}
     @if($isModalOpen)
         <div class="modal modal-blur fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
-            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Input Jurnal Manual (Double-Entry)</h5>

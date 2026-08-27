@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\AccountMapping;
 use App\Models\ChartOfAccount;
 use App\Models\Expense;
+use App\Models\FundTransfer;
 use App\Models\JournalEntry;
 use App\Models\JournalEntryItem;
 use App\Models\Payment;
@@ -337,6 +338,72 @@ class AccountingService
             'reference_type' => Registration::class,
             'reference_id' => $registration->id,
             'created_by' => Auth::id(),
+            'items' => $items,
+        ]);
+    }
+
+    /**
+     * Record journal entry for fund transfer between accounts.
+     */
+    public static function recordTransferJournal(FundTransfer $transfer): ?JournalEntry
+    {
+        $existing = JournalEntry::where('reference_type', FundTransfer::class)
+            ->where('reference_id', $transfer->id)
+            ->first();
+
+        if ($existing) {
+            return $existing;
+        }
+
+        $amount = (float) $transfer->amount;
+        $adminFee = (float) $transfer->admin_fee;
+
+        if ($amount <= 0) {
+            return null;
+        }
+
+        $items = [];
+
+        // 1. Debit: Destination Account (Receiving funds)
+        $items[] = [
+            'chart_of_account_id' => $transfer->to_account_id,
+            'debit' => $amount,
+            'credit' => 0,
+            'memo' => "Transfer Masuk ({$transfer->transfer_number})",
+        ];
+
+        // 2. Debit: Admin Fee Account (if admin_fee > 0)
+        if ($adminFee > 0) {
+            $adminFeeAccountId = $transfer->admin_fee_account_id
+                ?? self::getAccountIdByMapping('bank_admin_fee', '5-6100');
+
+            if ($adminFeeAccountId) {
+                $items[] = [
+                    'chart_of_account_id' => $adminFeeAccountId,
+                    'debit' => $adminFee,
+                    'credit' => 0,
+                    'memo' => "Biaya Admin Transfer ({$transfer->transfer_number})",
+                ];
+            }
+        }
+
+        // 3. Credit: Source Account (Transfer amount + admin fee)
+        $totalOutgoing = $amount + $adminFee;
+        $items[] = [
+            'chart_of_account_id' => $transfer->from_account_id,
+            'debit' => 0,
+            'credit' => $totalOutgoing,
+            'memo' => "Transfer Keluar ({$transfer->transfer_number})",
+        ];
+
+        $description = "Transfer Dana " . $transfer->transfer_number . ($transfer->notes ? ": {$transfer->notes}" : "");
+
+        return self::createJournalEntry([
+            'entry_date' => $transfer->transfer_date ? $transfer->transfer_date->toDateString() : now()->toDateString(),
+            'description' => $description,
+            'reference_type' => FundTransfer::class,
+            'reference_id' => $transfer->id,
+            'created_by' => $transfer->created_by ?? Auth::id(),
             'items' => $items,
         ]);
     }

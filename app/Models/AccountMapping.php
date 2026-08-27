@@ -51,6 +51,11 @@ class AccountMapping extends Model
                 'description' => 'Akun kas/bank penerima pembayaran jika metode pembayaran belum dihubungkan ke akun COA',
                 'default_code' => '1-1000',
             ],
+            'bank_admin_fee' => [
+                'name' => 'Beban Administrasi Bank',
+                'description' => 'Akun beban untuk pencatatan biaya admin saat melakukan transfer dana antar kas/bank',
+                'default_code' => '5-6100',
+            ],
         ];
     }
 
