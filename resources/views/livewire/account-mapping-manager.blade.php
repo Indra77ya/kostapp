@@ -5,9 +5,6 @@
             <h2 class="page-title">
                 <i class="ti ti-map-search me-2 text-primary"></i> Pemetaan Akun (Account Mapping)
             </h2>
-            <div class="text-muted mt-1">
-                Atur relasi akun Bagan Akun (COA) untuk setiap transaksi otomatis sistem
-            </div>
         </div>
         <div class="col-auto ms-auto d-print-none">
             <button wire:click="resetToDefaults" wire:confirm="Apakah Anda yakin ingin mengembalikan seluruh pemetaan akun ke standar awal?" class="btn btn-outline-secondary btn-sm">
