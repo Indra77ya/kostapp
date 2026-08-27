@@ -54,7 +54,7 @@ class AccountMapping extends Model
             'bank_admin_fee' => [
                 'name' => 'Beban Administrasi Bank',
                 'description' => 'Akun beban untuk pencatatan biaya admin saat melakukan transfer dana antar kas/bank',
-                'default_code' => '5-7000',
+                'default_code' => '5-6100',
             ],
         ];
     }

@@ -54,7 +54,7 @@ class FundTransferTest extends TestCase
         ]);
 
         $this->adminFeeAccount = ChartOfAccount::create([
-            'code' => '5-7000',
+            'code' => '5-6100',
             'name' => 'Beban Administrasi Bank',
             'type' => 'expense',
             'sub_type' => 'Beban Administrasi & Umum',

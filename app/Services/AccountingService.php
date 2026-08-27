@@ -375,7 +375,7 @@ class AccountingService
         // 2. Debit: Admin Fee Account (if admin_fee > 0)
         if ($adminFee > 0) {
             $adminFeeAccountId = $transfer->admin_fee_account_id
-                ?? self::getAccountIdByMapping('bank_admin_fee', '5-7000');
+                ?? self::getAccountIdByMapping('bank_admin_fee', '5-6100');
 
             if ($adminFeeAccountId) {
                 $items[] = [

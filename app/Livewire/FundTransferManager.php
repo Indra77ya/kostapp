@@ -41,7 +41,7 @@ class FundTransferManager extends Component
     {
         $defaultAdminFeeId = AccountMapping::getAccountId('bank_admin_fee');
         if (!$defaultAdminFeeId) {
-            $defaultCoa = ChartOfAccount::where('code', '5-7000')->first();
+            $defaultCoa = ChartOfAccount::where('code', '5-6100')->first();
             $defaultAdminFeeId = $defaultCoa?->id;
         }
         $this->admin_fee_account_id = $defaultAdminFeeId;
