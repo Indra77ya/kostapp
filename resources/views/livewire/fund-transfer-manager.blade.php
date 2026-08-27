@@ -2,7 +2,6 @@
     <div class="row mb-3 align-items-center">
         <div class="col">
             <h2 class="page-title">Transfer Dana (Kas & Bank)</h2>
-            <div class="text-secondary mt-1">Pencatatan pemindahan dana antar akun kas/bank dan pemostingan jurnal otomatis</div>
         </div>
         <div class="col-auto ms-auto d-print-none">
             <button class="btn btn-primary" wire:click="openModal">
