@@ -101,15 +101,17 @@
                         </td>
                         <td>{{ $reg->stay_start_date->format('d M Y') }}</td>
                         <td>
-                            @if($reg->total_debt > 0)
-                                <div class="badge bg-warning-lt mb-1">Tunggakan: Rp {{ number_format($reg->total_debt, 0, ',', '.') }}</div>
-                            @endif
-                            @if($reg->deposit_balance > 0)
-                                <div class="badge bg-primary-lt">Deposit: Rp {{ number_format($reg->deposit_balance, 0, ',', '.') }}</div>
-                            @endif
-                            @if($reg->total_debt <= 0 && $reg->deposit_balance <= 0)
-                                <span class="badge bg-success-lt">Lunas</span>
-                            @endif
+                            <div class="d-flex flex-wrap gap-1 align-items-center">
+                                @if($reg->total_debt > 0)
+                                    <span class="badge bg-warning-lt">Tunggakan: Rp {{ number_format($reg->total_debt, 0, ',', '.') }}</span>
+                                @endif
+                                @if($reg->deposit_balance > 0)
+                                    <span class="badge bg-primary-lt">Deposit: Rp {{ number_format($reg->deposit_balance, 0, ',', '.') }}</span>
+                                @endif
+                                @if($reg->total_debt <= 0 && $reg->deposit_balance <= 0)
+                                    <span class="badge bg-success-lt">Lunas</span>
+                                @endif
+                            </div>
                         </td>
                         <td>
                             <button class="btn btn-danger btn-sm" wire:click="openModal({{ $reg->id }})">
