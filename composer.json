@@ -11,7 +11,7 @@
         "laravel/reverb": "^1.0",
         "laravel/tinker": "^2.9",
         "livewire/livewire": "^3.5",
-        "phpoffice/phpspreadsheet": "^5.9",
+        "phpoffice/phpspreadsheet": "^3.0",
         "spatie/laravel-permission": "^6.9"
     },
     "require-dev": {
@@ -79,9 +79,15 @@
         "optimize-autoloader": true,
         "preferred-install": "dist",
         "sort-packages": true,
+        "platform": {
+            "php": "8.2.0"
+        },
         "allow-plugins": {
             "pestphp/pest-plugin": true,
             "php-http/discovery": true
+        },
+        "audit": {
+            "block-insecure": false
         }
     },
     "minimum-stability": "stable",
