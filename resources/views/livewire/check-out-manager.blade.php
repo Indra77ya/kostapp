@@ -133,7 +133,7 @@
 
     <!-- Modal Check Out -->
     <div class="modal modal-blur fade {{ $isModalOpen ? 'show d-block' : '' }}" tabindex="-1" role="dialog" aria-hidden="true" style="{{ $isModalOpen ? 'background: rgba(0,0,0,0.5)' : '' }}">
-        <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Konfirmasi Check Out</h5>
@@ -155,7 +155,7 @@
                                             @endif
                                         </div>
                                         <div class="col">
-                                            <div class="fw-bold">{{ $registration_data->user->name }}</div>
+                                            <div class="fw-bold fs-3">{{ $registration_data->user->name }}</div>
                                             <div class="text-secondary small">{{ $registration_data->location->name }} - Kamar {{ $registration_data->room->room_number }}</div>
                                         </div>
                                     </div>
@@ -171,30 +171,30 @@
                         @if($registration_data->deposit_balance > 0)
                         <div class="card bg-primary-lt border-0 mb-3">
                             <div class="card-body p-3">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="fw-bold text-primary">Saldo Deposit Penghuni:</span>
-                                    <span class="fs-3 fw-bold text-primary">Rp {{ number_format($registration_data->deposit_balance, 0, ',', '.') }}</span>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="fw-bold text-primary">Saldo Deposit Penghuni</span>
+                                    <span class="fs-2 fw-bold text-primary">Rp {{ number_format($registration_data->deposit_balance, 0, ',', '.') }}</span>
                                 </div>
-                                <div class="row g-2">
+                                <div class="row g-3">
                                     <div class="col-md-6">
-                                        <label class="form-label small mb-1">Pengembalian (Refund) Deposit</label>
-                                        <div class="input-group input-group-sm">
+                                        <label class="form-label fw-bold text-secondary mb-1">Pengembalian (Refund) Deposit</label>
+                                        <div class="input-group">
                                             <span class="input-group-text">Rp</span>
                                             <input type="number" class="form-control @error('deposit_refund') is-invalid @enderror" wire:model="deposit_refund" min="0" step="1000">
                                         </div>
                                         @error('deposit_refund') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                                     </div>
                                     <div class="col-md-6">
-                                        <label class="form-label small mb-1">Potongan Deposit (Kerusakan/Denda)</label>
-                                        <div class="input-group input-group-sm">
+                                        <label class="form-label fw-bold text-secondary mb-1">Potongan Deposit (Kerusakan/Denda)</label>
+                                        <div class="input-group">
                                             <span class="input-group-text">Rp</span>
                                             <input type="number" class="form-control @error('deposit_deduction') is-invalid @enderror" wire:model="deposit_deduction" min="0" step="1000">
                                         </div>
                                         @error('deposit_deduction') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                                     </div>
-                                    <div class="col-12 mt-2">
-                                        <label class="form-label small mb-1">Alasan Potongan (Jika ada)</label>
-                                        <input type="text" class="form-control form-control-sm" wire:model="deduction_notes" placeholder="Misal: Kerusakan kran air, denda keterlambatan...">
+                                    <div class="col-12">
+                                        <label class="form-label fw-bold text-secondary mb-1">Alasan Potongan (Jika ada)</label>
+                                        <input type="text" class="form-control" wire:model="deduction_notes" placeholder="Misal: Kerusakan kran air, denda keterlambatan...">
                                     </div>
                                 </div>
                             </div>
