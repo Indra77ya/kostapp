@@ -101,15 +101,17 @@
                         </td>
                         <td>{{ $reg->stay_start_date->format('d M Y') }}</td>
                         <td>
-                            @if($reg->total_debt > 0)
-                                <div class="badge bg-warning-lt mb-1">Tunggakan: Rp {{ number_format($reg->total_debt, 0, ',', '.') }}</div>
-                            @endif
-                            @if($reg->deposit_balance > 0)
-                                <div class="badge bg-primary-lt">Deposit: Rp {{ number_format($reg->deposit_balance, 0, ',', '.') }}</div>
-                            @endif
-                            @if($reg->total_debt <= 0 && $reg->deposit_balance <= 0)
-                                <span class="badge bg-success-lt">Lunas</span>
-                            @endif
+                            <div class="d-flex flex-wrap gap-1 align-items-center">
+                                @if($reg->total_debt > 0)
+                                    <span class="badge bg-warning-lt">Tunggakan: Rp {{ number_format($reg->total_debt, 0, ',', '.') }}</span>
+                                @endif
+                                @if($reg->deposit_balance > 0)
+                                    <span class="badge bg-primary-lt">Deposit: Rp {{ number_format($reg->deposit_balance, 0, ',', '.') }}</span>
+                                @endif
+                                @if($reg->total_debt <= 0 && $reg->deposit_balance <= 0)
+                                    <span class="badge bg-success-lt">Lunas</span>
+                                @endif
+                            </div>
                         </td>
                         <td>
                             <button class="btn btn-danger btn-sm" wire:click="openModal({{ $reg->id }})">
@@ -133,7 +135,7 @@
 
     <!-- Modal Check Out -->
     <div class="modal modal-blur fade {{ $isModalOpen ? 'show d-block' : '' }}" tabindex="-1" role="dialog" aria-hidden="true" style="{{ $isModalOpen ? 'background: rgba(0,0,0,0.5)' : '' }}">
-        <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Konfirmasi Check Out</h5>
@@ -155,7 +157,7 @@
                                             @endif
                                         </div>
                                         <div class="col">
-                                            <div class="fw-bold">{{ $registration_data->user->name }}</div>
+                                            <div class="fw-bold fs-3">{{ $registration_data->user->name }}</div>
                                             <div class="text-secondary small">{{ $registration_data->location->name }} - Kamar {{ $registration_data->room->room_number }}</div>
                                         </div>
                                     </div>
@@ -167,6 +169,40 @@
                             <input type="date" class="form-control @error('check_out_date') is-invalid @enderror" wire:model="check_out_date">
                             @error('check_out_date') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
+
+                        @if($registration_data->deposit_balance > 0)
+                        <div class="card bg-primary-lt border-0 mb-3">
+                            <div class="card-body p-3">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="fw-bold text-primary">Saldo Deposit Penghuni</span>
+                                    <span class="fs-2 fw-bold text-primary">Rp {{ number_format($registration_data->deposit_balance, 0, ',', '.') }}</span>
+                                </div>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold text-secondary mb-1">Pengembalian (Refund) Deposit</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">Rp</span>
+                                            <input type="number" class="form-control @error('deposit_refund') is-invalid @enderror" wire:model="deposit_refund" min="0" step="1000">
+                                        </div>
+                                        @error('deposit_refund') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold text-secondary mb-1">Potongan Deposit (Kerusakan/Denda)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">Rp</span>
+                                            <input type="number" class="form-control @error('deposit_deduction') is-invalid @enderror" wire:model="deposit_deduction" min="0" step="1000">
+                                        </div>
+                                        @error('deposit_deduction') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label fw-bold text-secondary mb-1">Alasan Potongan (Jika ada)</label>
+                                        <input type="text" class="form-control" wire:model="deduction_notes" placeholder="Misal: Kerusakan kran air, denda keterlambatan...">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+
                         <div class="mb-3">
                             <label class="form-label">Catatan Check Out</label>
                             <textarea class="form-control @error('check_out_notes') is-invalid @enderror" rows="3" wire:model="check_out_notes" placeholder="Misal: Kunci sudah dikembalikan, Listrik sudah lunas..."></textarea>
