@@ -7,6 +7,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use App\Events\DatabaseUpdated;
 use App\Events\NotificationSent;
+use App\Helpers\BroadcastHelper;
 
 class FacilityManager extends Component
 {
@@ -74,13 +75,13 @@ class FacilityManager extends Component
             $message = "Fasilitas {$facility->name} telah diperbarui.";
             $type = 'info';
             $this->dispatch('notify', message: $message, type: $type, hideInBell: true);
-            broadcast(new NotificationSent($message, $type, hideInBell: true))->toOthers();
+            BroadcastHelper::safeBroadcast(new NotificationSent($message, $type, hideInBell: true), toOthers: true);
         } else {
             $facility = Facility::create($data);
             $message = "Fasilitas baru {$facility->name} telah ditambahkan.";
             $type = 'success';
             $this->dispatch('notify', message: $message, type: $type, hideInBell: true);
-            broadcast(new NotificationSent($message, $type, hideInBell: true))->toOthers();
+            BroadcastHelper::safeBroadcast(new NotificationSent($message, $type, hideInBell: true), toOthers: true);
         }
 
         DatabaseUpdated::dispatch();
@@ -96,7 +97,7 @@ class FacilityManager extends Component
         $message = "Fasilitas {$facilityName} telah dihapus.";
         $type = 'warning';
         $this->dispatch('notify', message: $message, type: $type, hideInBell: true);
-        broadcast(new NotificationSent($message, $type, hideInBell: true))->toOthers();
+        BroadcastHelper::safeBroadcast(new NotificationSent($message, $type, hideInBell: true), toOthers: true);
         DatabaseUpdated::dispatch();
     }
 

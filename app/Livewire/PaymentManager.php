@@ -15,6 +15,7 @@ use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\DB;
 use App\Events\DatabaseUpdated;
 use App\Events\NotificationSent;
+use App\Helpers\BroadcastHelper;
 use Carbon\Carbon;
 
 class PaymentManager extends Component
@@ -404,7 +405,7 @@ class PaymentManager extends Component
         $message = "Pembayaran berhasil disimpan.";
         $type = 'success';
         $this->dispatch('notify', message: $message, type: $type);
-        broadcast(new NotificationSent($message, $type))->toOthers();
+        BroadcastHelper::safeBroadcast(new NotificationSent($message, $type), toOthers: true);
 
         $registration = Registration::find($this->registration_id);
         DatabaseUpdated::dispatch($registration ? $registration->user_id : null);
@@ -442,7 +443,7 @@ class PaymentManager extends Component
         $message = "Tagihan berhasil disimpan.";
         $type = 'success';
         $this->dispatch('notify', message: $message, type: $type);
-        broadcast(new NotificationSent($message, $type))->toOthers();
+        BroadcastHelper::safeBroadcast(new NotificationSent($message, $type), toOthers: true);
 
         $registration = Registration::find($this->selectedRegistrationId);
         DatabaseUpdated::dispatch($registration ? $registration->user_id : null);
@@ -460,7 +461,7 @@ class PaymentManager extends Component
         $message = "Tagihan berhasil dihapus.";
         $type = 'success';
         $this->dispatch('notify', message: $message, type: $type);
-        broadcast(new NotificationSent($message, $type))->toOthers();
+        BroadcastHelper::safeBroadcast(new NotificationSent($message, $type), toOthers: true);
     }
 
     private function syncDeposit($payment)
@@ -553,7 +554,7 @@ class PaymentManager extends Component
         $message = "Pembayaran berhasil dihapus.";
         $type = 'success';
         $this->dispatch('notify', message: $message, type: $type);
-        broadcast(new NotificationSent($message, $type))->toOthers();
+        BroadcastHelper::safeBroadcast(new NotificationSent($message, $type), toOthers: true);
     }
 
     public function updatingSearch() { $this->resetPage(); }

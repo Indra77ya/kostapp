@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use App\Events\DatabaseUpdated;
 use App\Events\NotificationSent;
+use App\Helpers\BroadcastHelper;
 use App\Models\Bill;
 use Carbon\Carbon;
 
@@ -484,7 +485,7 @@ class RegistrationManager extends Component
         $isNew = !$this->registrationId;
 
         $this->dispatch('notify', message: $message, type: $type);
-        broadcast(new NotificationSent($message, $type))->toOthers();
+        BroadcastHelper::safeBroadcast(new NotificationSent($message, $type), toOthers: true);
         DatabaseUpdated::dispatch($registration->user_id);
         $this->closeModal();
 
@@ -531,7 +532,7 @@ class RegistrationManager extends Component
         $message = "Check in dan data penghuni {$name} berhasil dihapus.";
         $type = 'success';
         $this->dispatch('notify', message: $message, type: $type);
-        broadcast(new NotificationSent($message, $type))->toOthers();
+        BroadcastHelper::safeBroadcast(new NotificationSent($message, $type), toOthers: true);
     }
 
     public function updatingSearch() { $this->resetPage(); }

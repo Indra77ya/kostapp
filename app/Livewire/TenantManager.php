@@ -8,6 +8,7 @@ use Livewire\WithPagination;
 use Illuminate\Support\Facades\Hash;
 use App\Events\DatabaseUpdated;
 use App\Events\NotificationSent;
+use App\Helpers\BroadcastHelper;
 
 class TenantManager extends Component
 {
@@ -105,7 +106,7 @@ class TenantManager extends Component
             $message = "Data registrasi untuk {$tenant->name} tidak ditemukan.";
             $type = 'warning';
             $this->dispatch('notify', message: $message, type: $type);
-            broadcast(new NotificationSent($message, $type))->toOthers();
+            BroadcastHelper::safeBroadcast(new NotificationSent($message, $type), toOthers: true);
         }
     }
 
@@ -150,7 +151,7 @@ class TenantManager extends Component
         $message = "Data penghuni {$tenant->name} berhasil diperbarui.";
         $type = 'success';
         $this->dispatch('notify', message: $message, type: $type);
-        broadcast(new NotificationSent($message, $type))->toOthers();
+        BroadcastHelper::safeBroadcast(new NotificationSent($message, $type), toOthers: true);
 
         DatabaseUpdated::dispatch();
         $this->closeModal();
@@ -166,7 +167,7 @@ class TenantManager extends Component
             $message = "Gagal menghapus! Penghuni {$tenant->name} masih memiliki registrasi aktif.";
             $type = 'error';
             $this->dispatch('notify', message: $message, type: $type);
-            broadcast(new NotificationSent($message, $type))->toOthers();
+            BroadcastHelper::safeBroadcast(new NotificationSent($message, $type), toOthers: true);
             return;
         }
 
@@ -177,7 +178,7 @@ class TenantManager extends Component
         $message = "Penghuni {$name} berhasil dihapus.";
         $type = 'success';
         $this->dispatch('notify', message: $message, type: $type);
-        broadcast(new NotificationSent($message, $type))->toOthers();
+        BroadcastHelper::safeBroadcast(new NotificationSent($message, $type), toOthers: true);
     }
 
     public function updatingSearch()

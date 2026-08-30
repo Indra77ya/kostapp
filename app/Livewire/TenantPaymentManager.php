@@ -14,6 +14,7 @@ use Livewire\WithFileUploads;
 use Carbon\Carbon;
 use App\Events\DatabaseUpdated;
 use App\Events\NotificationSent;
+use App\Helpers\BroadcastHelper;
 
 class TenantPaymentManager extends Component
 {
@@ -264,7 +265,7 @@ class TenantPaymentManager extends Component
         Payment::create($data);
 
         $this->dispatch('notify', message: 'Pembayaran berhasil dikirim. Menunggu konfirmasi admin.', type: 'success');
-        broadcast(new NotificationSent('Pembayaran baru dikirim oleh penghuni.', 'info'))->toOthers();
+        BroadcastHelper::safeBroadcast(new NotificationSent('Pembayaran baru dikirim oleh penghuni.', 'info'), toOthers: true);
         DatabaseUpdated::dispatch(Auth::id());
 
         $this->closeModal();

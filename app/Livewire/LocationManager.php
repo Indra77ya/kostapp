@@ -9,6 +9,7 @@ use Livewire\WithPagination;
 use Illuminate\Support\Facades\Storage;
 use App\Events\DatabaseUpdated;
 use App\Events\NotificationSent;
+use App\Helpers\BroadcastHelper;
 
 class LocationManager extends Component
 {
@@ -113,7 +114,7 @@ class LocationManager extends Component
         }
 
         $this->dispatch('notify', message: $message, type: $type, hideInBell: true);
-        broadcast(new NotificationSent($message, $type, hideInBell: true))->toOthers();
+        BroadcastHelper::safeBroadcast(new NotificationSent($message, $type, hideInBell: true), toOthers: true);
 
         DatabaseUpdated::dispatch();
         $this->closeModal();
@@ -127,7 +128,7 @@ class LocationManager extends Component
             $message = "Gagal menghapus! Lokasi {$location->name} masih memiliki {$location->rooms_count} kamar terdaftar.";
             $type = 'error';
             $this->dispatch('notify', message: $message, type: $type);
-            broadcast(new NotificationSent($message, $type))->toOthers();
+            BroadcastHelper::safeBroadcast(new NotificationSent($message, $type), toOthers: true);
             return;
         }
 
@@ -141,7 +142,7 @@ class LocationManager extends Component
         $message = "Lokasi {$locationName} telah dihapus.";
         $type = 'warning';
         $this->dispatch('notify', message: $message, type: $type, hideInBell: true);
-        broadcast(new NotificationSent($message, $type, hideInBell: true))->toOthers();
+        BroadcastHelper::safeBroadcast(new NotificationSent($message, $type, hideInBell: true), toOthers: true);
         DatabaseUpdated::dispatch();
     }
 

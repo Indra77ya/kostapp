@@ -10,6 +10,7 @@ use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Events\NotificationSent;
+use App\Helpers\BroadcastHelper;
 
 class PaymentMethodManager extends Component
 {
@@ -140,7 +141,7 @@ class PaymentMethodManager extends Component
         }
 
         $this->dispatch('notify', message: $message, type: $type, hideInBell: true);
-        broadcast(new NotificationSent($message, $type, hideInBell: true))->toOthers();
+        BroadcastHelper::safeBroadcast(new NotificationSent($message, $type, hideInBell: true), toOthers: true);
 
         $this->closeModal();
     }
@@ -158,7 +159,7 @@ class PaymentMethodManager extends Component
         $message = "Metode pembayaran {$name} telah dihapus.";
         $type = 'warning';
         $this->dispatch('notify', message: $message, type: $type, hideInBell: true);
-        broadcast(new NotificationSent($message, $type, hideInBell: true))->toOthers();
+        BroadcastHelper::safeBroadcast(new NotificationSent($message, $type, hideInBell: true), toOthers: true);
     }
 
     public function toggleStatus($id)
