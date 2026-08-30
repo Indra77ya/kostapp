@@ -29,6 +29,10 @@ class RoomManager extends Component
     public $filterRentalType = '';
     public $sortOrder = 'room_number_asc';
 
+    // Import
+    public $isImportModalOpen = false;
+    public $importFile;
+
     // Form fields
     public $location_id, $room_number, $price_monthly, $price_daily, $price_weekly, $price_yearly, $status, $description, $image, $facilities = [], $room_type, $floor;
     public $newImage;
@@ -224,6 +228,53 @@ class RoomManager extends Component
             if ($this->roomId) {
                 $this->gallery = RoomImage::where('room_id', $this->roomId)->get()->toArray();
             }
+        }
+    }
+
+    public function openImportModal()
+    {
+        $this->reset(['importFile']);
+        $this->resetValidation();
+        $this->isImportModalOpen = true;
+    }
+
+    public function closeImportModal()
+    {
+        $this->isImportModalOpen = false;
+        $this->reset(['importFile']);
+    }
+
+    public function downloadTemplate($format = 'xlsx')
+    {
+        return app(\App\Services\MasterDataImportExportService::class)->downloadTemplate('rooms', $format);
+    }
+
+    public function exportData($format = 'xlsx')
+    {
+        return app(\App\Services\MasterDataImportExportService::class)->export('rooms', $format);
+    }
+
+    public function importData()
+    {
+        $this->validate([
+            'importFile' => 'required|file|mimes:xlsx,xls,csv,txt|max:10240',
+        ], [
+            'importFile.required' => 'Pilih file terlebih dahulu.',
+            'importFile.mimes' => 'Format file harus berupa Excel (.xlsx, .xls) atau CSV (.csv).',
+            'importFile.max' => 'Ukuran file maksimal 10 MB.',
+        ]);
+
+        try {
+            $path = $this->importFile->getRealPath();
+            $result = app(\App\Services\MasterDataImportExportService::class)->import('rooms', $path);
+
+            $msg = "Impor data kamar berhasil! ({$result['created']} ditambahkan, {$result['updated']} diperbarui).";
+            $this->dispatch('notify', message: $msg, type: 'success', hideInBell: true);
+            broadcast(new NotificationSent($msg, 'success', hideInBell: true))->toOthers();
+            DatabaseUpdated::dispatch();
+            $this->closeImportModal();
+        } catch (\Exception $e) {
+            $this->dispatch('notify', message: "Gagal impor: " . $e->getMessage(), type: 'error');
         }
     }
 
