@@ -7,10 +7,12 @@ use App\Models\Rule;
 use App\Models\Location;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Livewire\WithFileUploads;
+use App\Events\DatabaseUpdated;
 
 class RuleManager extends Component
 {
-    use WithPagination;
+    use WithPagination, WithFileUploads;
 
     protected $paginationTheme = 'bootstrap';
     public $viewType = 'grid'; // 'grid' or 'table'
@@ -24,6 +26,10 @@ class RuleManager extends Component
     public $filterCategory = '';
     public $filterLocation = '';
     public $filterStatus = '';
+
+    // Import
+    public $isImportModalOpen = false;
+    public $importFile;
 
     // Form fields
     public $title, $description, $category, $location_id, $is_active = true;
@@ -140,6 +146,53 @@ class RuleManager extends Component
         $rule = Rule::find($id);
         if ($rule) {
             $rule->update(['is_active' => !$rule->is_active]);
+        }
+    }
+
+    public function openImportModal()
+    {
+        $this->reset(['importFile']);
+        $this->resetValidation();
+        $this->isImportModalOpen = true;
+    }
+
+    public function closeImportModal()
+    {
+        $this->isImportModalOpen = false;
+        $this->reset(['importFile']);
+    }
+
+    public function downloadTemplate($format = 'xlsx')
+    {
+        return app(\App\Services\MasterDataImportExportService::class)->downloadTemplate('rules', $format);
+    }
+
+    public function exportData($format = 'xlsx')
+    {
+        return app(\App\Services\MasterDataImportExportService::class)->export('rules', $format);
+    }
+
+    public function importData()
+    {
+        $this->validate([
+            'importFile' => 'required|file|mimes:xlsx,xls,csv,txt|max:10240',
+        ], [
+            'importFile.required' => 'Pilih file terlebih dahulu.',
+            'importFile.mimes' => 'Format file harus berupa Excel (.xlsx, .xls) atau CSV (.csv).',
+            'importFile.max' => 'Ukuran file maksimal 10 MB.',
+        ]);
+
+        try {
+            $path = $this->importFile->getRealPath();
+            $result = app(\App\Services\MasterDataImportExportService::class)->import('rules', $path);
+
+            $msg = "Impor data peraturan berhasil! ({$result['created']} ditambahkan, {$result['updated']} diperbarui).";
+            $this->dispatch('notify', message: $msg, type: 'success', hideInBell: true);
+            broadcast(new NotificationSent($msg, 'success', hideInBell: true))->toOthers();
+            DatabaseUpdated::dispatch();
+            $this->closeImportModal();
+        } catch (\Exception $e) {
+            $this->dispatch('notify', message: "Gagal impor: " . $e->getMessage(), type: 'error');
         }
     }
 

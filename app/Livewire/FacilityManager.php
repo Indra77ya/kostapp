@@ -5,16 +5,21 @@ namespace App\Livewire;
 use App\Models\Facility;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Livewire\WithFileUploads;
 use App\Events\DatabaseUpdated;
 use App\Events\NotificationSent;
 
 class FacilityManager extends Component
 {
-    use WithPagination;
+    use WithPagination, WithFileUploads;
 
     protected $paginationTheme = 'bootstrap';
     public $isModalOpen = false;
     public $facilityId;
+
+    // Import
+    public $isImportModalOpen = false;
+    public $importFile;
 
     // Search & Filter
     public $search = '';
@@ -98,6 +103,53 @@ class FacilityManager extends Component
         $this->dispatch('notify', message: $message, type: $type, hideInBell: true);
         broadcast(new NotificationSent($message, $type, hideInBell: true))->toOthers();
         DatabaseUpdated::dispatch();
+    }
+
+    public function openImportModal()
+    {
+        $this->reset(['importFile']);
+        $this->resetValidation();
+        $this->isImportModalOpen = true;
+    }
+
+    public function closeImportModal()
+    {
+        $this->isImportModalOpen = false;
+        $this->reset(['importFile']);
+    }
+
+    public function downloadTemplate($format = 'xlsx')
+    {
+        return app(\App\Services\MasterDataImportExportService::class)->downloadTemplate('facilities', $format);
+    }
+
+    public function exportData($format = 'xlsx')
+    {
+        return app(\App\Services\MasterDataImportExportService::class)->export('facilities', $format);
+    }
+
+    public function importData()
+    {
+        $this->validate([
+            'importFile' => 'required|file|mimes:xlsx,xls,csv,txt|max:10240',
+        ], [
+            'importFile.required' => 'Pilih file terlebih dahulu.',
+            'importFile.mimes' => 'Format file harus berupa Excel (.xlsx, .xls) atau CSV (.csv).',
+            'importFile.max' => 'Ukuran file maksimal 10 MB.',
+        ]);
+
+        try {
+            $path = $this->importFile->getRealPath();
+            $result = app(\App\Services\MasterDataImportExportService::class)->import('facilities', $path);
+
+            $msg = "Impor data fasilitas berhasil! ({$result['created']} ditambahkan, {$result['updated']} diperbarui).";
+            $this->dispatch('notify', message: $msg, type: 'success', hideInBell: true);
+            broadcast(new NotificationSent($msg, 'success', hideInBell: true))->toOthers();
+            DatabaseUpdated::dispatch();
+            $this->closeImportModal();
+        } catch (\Exception $e) {
+            $this->dispatch('notify', message: "Gagal impor: " . $e->getMessage(), type: 'error');
+        }
     }
 
     public function updatingSearch()

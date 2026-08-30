@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\User;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Livewire\WithFileUploads;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use App\Events\DatabaseUpdated;
@@ -12,7 +13,7 @@ use App\Events\NotificationSent;
 
 class UserManager extends Component
 {
-    use WithPagination;
+    use WithPagination, WithFileUploads;
 
     protected $paginationTheme = 'bootstrap';
     public $viewType = 'table'; // 'grid' or 'table'
@@ -22,6 +23,10 @@ class UserManager extends Component
     // Search and Filters
     public $search = '';
     public $filterRole = '';
+
+    // Import
+    public $isImportModalOpen = false;
+    public $importFile;
 
     // Form fields
     public $name, $email, $role, $password;
@@ -175,6 +180,53 @@ class UserManager extends Component
         $type = 'success';
         $this->dispatch('notify', message: $message, type: $type);
         broadcast(new NotificationSent($message, $type))->toOthers();
+    }
+
+    public function openImportModal()
+    {
+        $this->reset(['importFile']);
+        $this->resetValidation();
+        $this->isImportModalOpen = true;
+    }
+
+    public function closeImportModal()
+    {
+        $this->isImportModalOpen = false;
+        $this->reset(['importFile']);
+    }
+
+    public function downloadTemplate($format = 'xlsx')
+    {
+        return app(\App\Services\MasterDataImportExportService::class)->downloadTemplate('users', $format);
+    }
+
+    public function exportData($format = 'xlsx')
+    {
+        return app(\App\Services\MasterDataImportExportService::class)->export('users', $format);
+    }
+
+    public function importData()
+    {
+        $this->validate([
+            'importFile' => 'required|file|mimes:xlsx,xls,csv,txt|max:10240',
+        ], [
+            'importFile.required' => 'Pilih file terlebih dahulu.',
+            'importFile.mimes' => 'Format file harus berupa Excel (.xlsx, .xls) atau CSV (.csv).',
+            'importFile.max' => 'Ukuran file maksimal 10 MB.',
+        ]);
+
+        try {
+            $path = $this->importFile->getRealPath();
+            $result = app(\App\Services\MasterDataImportExportService::class)->import('users', $path);
+
+            $msg = "Impor data pengguna berhasil! ({$result['created']} ditambahkan, {$result['updated']} diperbarui).";
+            $this->dispatch('notify', message: $msg, type: 'success');
+            broadcast(new NotificationSent($msg, 'success'))->toOthers();
+            DatabaseUpdated::dispatch();
+            $this->closeImportModal();
+        } catch (\Exception $e) {
+            $this->dispatch('notify', message: "Gagal impor: " . $e->getMessage(), type: 'error');
+        }
     }
 
     public function updatingSearch()

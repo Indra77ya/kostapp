@@ -25,6 +25,10 @@ class PaymentMethodManager extends Component
     public $filterCategory = '';
     public $filterStatus = '';
 
+    // Import
+    public $isImportModalOpen = false;
+    public $importFile;
+
     // Form fields
     public $name, $category, $chart_of_account_id, $account_number, $account_name, $instructions, $logo, $is_active = true;
     public $accountSearch = '';
@@ -166,6 +170,53 @@ class PaymentMethodManager extends Component
         $this->authorize('access-master-data');
         $paymentMethod = PaymentMethod::findOrFail($id);
         $paymentMethod->update(['is_active' => !$paymentMethod->is_active]);
+    }
+
+    public function openImportModal()
+    {
+        $this->reset(['importFile']);
+        $this->resetValidation();
+        $this->isImportModalOpen = true;
+    }
+
+    public function closeImportModal()
+    {
+        $this->isImportModalOpen = false;
+        $this->reset(['importFile']);
+    }
+
+    public function downloadTemplate($format = 'xlsx')
+    {
+        return app(\App\Services\MasterDataImportExportService::class)->downloadTemplate('payment-methods', $format);
+    }
+
+    public function exportData($format = 'xlsx')
+    {
+        return app(\App\Services\MasterDataImportExportService::class)->export('payment-methods', $format);
+    }
+
+    public function importData()
+    {
+        $this->authorize('access-master-data');
+        $this->validate([
+            'importFile' => 'required|file|mimes:xlsx,xls,csv,txt|max:10240',
+        ], [
+            'importFile.required' => 'Pilih file terlebih dahulu.',
+            'importFile.mimes' => 'Format file harus berupa Excel (.xlsx, .xls) atau CSV (.csv).',
+            'importFile.max' => 'Ukuran file maksimal 10 MB.',
+        ]);
+
+        try {
+            $path = $this->importFile->getRealPath();
+            $result = app(\App\Services\MasterDataImportExportService::class)->import('payment-methods', $path);
+
+            $msg = "Impor data metode pembayaran berhasil! ({$result['created']} ditambahkan, {$result['updated']} diperbarui).";
+            $this->dispatch('notify', message: $msg, type: 'success', hideInBell: true);
+            broadcast(new NotificationSent($msg, 'success', hideInBell: true))->toOthers();
+            $this->closeImportModal();
+        } catch (\Exception $e) {
+            $this->dispatch('notify', message: "Gagal impor: " . $e->getMessage(), type: 'error');
+        }
     }
 
     public function updatingSearch()
