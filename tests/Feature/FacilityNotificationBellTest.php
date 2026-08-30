@@ -44,6 +44,11 @@ class FacilityNotificationBellTest extends TestCase
 
     public function test_notification_bell_ignores_notifications_with_hide_in_bell_flag()
     {
+        $this->seed(\Database\Seeders\RoleSeeder::class);
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+        $this->actingAs($user);
+
         Livewire::test(NotificationBell::class)
             // Test with direct dispatch data structure (Livewire style)
             ->dispatch('notify', message: 'Test Message', type: 'info', hideInBell: true)
@@ -58,7 +63,8 @@ class FacilityNotificationBellTest extends TestCase
             ->assertSet('unreadCount', 0)
 
             // Verify normal notification still works
-            ->dispatch('notify', message: 'Normal Message', type: 'info', hideInBell: false)
-            ->assertSet('unreadCount', 1);
+            ->dispatch('notify', message: 'Normal Message', type: 'info', hideInBell: false);
+
+        $this->assertEquals(1, \App\Models\AppNotification::where('user_id', auth()->id())->where('is_read', false)->count());
     }
 }

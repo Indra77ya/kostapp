@@ -264,7 +264,7 @@ class TenantPaymentManager extends Component
         Payment::create($data);
 
         $this->dispatch('notify', message: 'Pembayaran berhasil dikirim. Menunggu konfirmasi admin.', type: 'success');
-        broadcast(new NotificationSent('Pembayaran baru dikirim oleh penghuni.', 'info'))->toOthers();
+        broadcast(new NotificationSent('Pembayaran baru dikirim oleh penghuni.', 'info', null, false, route('payments.confirmation')))->toOthers();
         DatabaseUpdated::dispatch(Auth::id());
 
         $this->closeModal();

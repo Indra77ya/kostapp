@@ -5,7 +5,7 @@
             <span class="badge bg-red"></span>
         @endif
     </a>
-    <div class="dropdown-menu dropdown-menu-arrow dropdown-menu-end dropdown-menu-card">
+    <div class="dropdown-menu dropdown-menu-arrow dropdown-menu-end dropdown-menu-card" style="width: 380px; max-width: 90vw;">
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">Notifikasi Terbaru</h3>
@@ -13,15 +13,31 @@
                     <a href="#" wire:click.prevent="clearNotifications">Hapus Semua</a>
                 </div>
             </div>
-            <div class="list-group list-group-flush list-group-hoverable">
-                @forelse($notifications as $index => $notification)
-                    <div class="list-group-item" wire:key="notification-{{ $index }}-{{ $notification['timestamp'] }}">
-                        <div class="row align-items-center">
-                            <div class="col-auto"><span class="status-dot status-dot-animated bg-{{ $notification['type'] }} d-block"></span></div>
-                            <div class="col text-truncate">
-                                <div class="text-body d-block">{{ $notification['message'] }}</div>
-                                <div class="d-block text-secondary text-truncate mt-n1 timeago" data-timestamp="{{ $notification['timestamp'] }}">
-                                    Just now
+            <div class="list-group list-group-flush list-group-hoverable" style="max-height: 400px; overflow-y: auto;">
+                @forelse($notifications as $notification)
+                    <div class="list-group-item {{ !$notification->is_read ? 'bg-light-subtle font-weight-bold' : '' }}"
+                         wire:key="notification-{{ $notification->id }}"
+                         @if($notification->url || !$notification->is_read)
+                             wire:click="markAsRead({{ $notification->id }})"
+                             style="cursor: pointer;"
+                         @endif>
+                        <div class="row align-items-start">
+                            <div class="col-auto pt-1">
+                                <span class="status-dot {{ !$notification->is_read ? 'status-dot-animated' : '' }} bg-{{ $notification->type }} d-block"></span>
+                            </div>
+                            <div class="col">
+                                <div class="text-body d-block text-wrap text-break {{ !$notification->is_read ? 'fw-bold' : '' }}">
+                                    {{ $notification->message }}
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between text-secondary mt-1" style="font-size: 0.75rem;">
+                                    <span class="timeago" data-timestamp="{{ $notification->created_at->toIso8601String() }}">
+                                        {{ $notification->created_at->diffForHumans() }}
+                                    </span>
+                                    @if($notification->url)
+                                        <span class="text-primary text-decoration-underline ms-2">
+                                            Lihat detail &rarr;
+                                        </span>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -47,7 +63,7 @@
                 const diffInSeconds = Math.floor((now - date) / 1000);
 
                 let text = '';
-                if (diffInSeconds < 1) {
+                if (diffInSeconds < 5) {
                     text = 'Just now';
                 } else if (diffInSeconds < 60) {
                     text = `${diffInSeconds} second${diffInSeconds > 1 ? 's' : ''} ago`;
@@ -69,8 +85,8 @@
         // Initial call
         updateTimeago();
 
-        // Update every second
-        const interval = setInterval(updateTimeago, 1000);
+        // Update every 5 seconds
+        const interval = setInterval(updateTimeago, 5000);
 
         // Cleanup on component destroy
         $wire.on('livewire:navigating', () => {
