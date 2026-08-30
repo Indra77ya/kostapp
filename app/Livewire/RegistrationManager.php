@@ -341,7 +341,7 @@ class RegistrationManager extends Component
             'registration_date' => 'required|date',
             'stay_start_date' => 'required|date',
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email' . ($this->registrationId ? ',' . Registration::find($this->registrationId)->user_id : ''),
+            'email' => 'required|email',
             'identity_number' => 'required|string',
             'gender' => 'required',
             'birth_date' => 'required|date',
@@ -363,30 +363,76 @@ class RegistrationManager extends Component
 
         $this->validate($rules);
 
+        // Custom validation for email logic:
+        $existingUser = User::where('email', $this->email)->first();
+        if ($existingUser) {
+            $isEditingSameUser = false;
+            if ($this->registrationId) {
+                $registration = Registration::find($this->registrationId);
+                if ($registration && $registration->user_id === $existingUser->id) {
+                    $isEditingSameUser = true;
+                }
+            }
+
+            if (!$isEditingSameUser) {
+                if (!$existingUser->hasRole('tenant')) {
+                    $this->addError('email', 'Email sudah digunakan oleh akun pengelola.');
+                    return;
+                }
+
+                $hasActiveReg = Registration::where('user_id', $existingUser->id)->where('status', 'active')->exists();
+                if ($hasActiveReg) {
+                    $this->addError('email', 'Penghuni dengan email ini masih memiliki status sewa aktif.');
+                    return;
+                }
+            }
+        }
+
         $regId = null;
         DB::transaction(function () use (&$regId) {
             // 1. Handle User
             if ($this->registrationId) {
                 $registration = Registration::find($this->registrationId);
-                $user = $registration->user;
-                $userData = [
-                    'name' => $this->name,
-                    'email' => $this->email,
-                    'phone_number' => $this->phone_number,
-                    'address' => $this->address,
-                ];
-                $user->update($userData);
+                $existingUserWithEmail = User::where('email', $this->email)->first();
+
+                if ($existingUserWithEmail && $existingUserWithEmail->id !== $registration->user_id) {
+                    $user = $existingUserWithEmail;
+                    $user->update([
+                        'name' => $this->name,
+                        'phone_number' => $this->phone_number,
+                        'address' => $this->address,
+                    ]);
+                } else {
+                    $user = $registration->user;
+                    $userData = [
+                        'name' => $this->name,
+                        'email' => $this->email,
+                        'phone_number' => $this->phone_number,
+                        'address' => $this->address,
+                    ];
+                    $user->update($userData);
+                }
             } else {
-                $password = '12345678';
-                $user = User::create([
-                    'name' => $this->name,
-                    'email' => $this->email,
-                    'password' => Hash::make($password),
-                    'password_plain' => $password,
-                    'phone_number' => $this->phone_number,
-                    'address' => $this->address,
-                ]);
-                $user->assignRole('tenant');
+                $existingUser = User::where('email', $this->email)->first();
+                if ($existingUser) {
+                    $user = $existingUser;
+                    $user->update([
+                        'name' => $this->name,
+                        'phone_number' => $this->phone_number,
+                        'address' => $this->address,
+                    ]);
+                } else {
+                    $password = '12345678';
+                    $user = User::create([
+                        'name' => $this->name,
+                        'email' => $this->email,
+                        'password' => Hash::make($password),
+                        'password_plain' => $password,
+                        'phone_number' => $this->phone_number,
+                        'address' => $this->address,
+                    ]);
+                    $user->assignRole('tenant');
+                }
             }
 
             // Handle Room Status Transition

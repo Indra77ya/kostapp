@@ -20,6 +20,24 @@ class AuthController extends Controller
         ]);
 
         if (Auth::attempt($credentials)) {
+            $user = Auth::user();
+
+            if ($user->hasRole('tenant')) {
+                $hasActiveReg = \App\Models\Registration::where('user_id', $user->id)
+                    ->where('status', 'active')
+                    ->exists();
+
+                if (!$hasActiveReg) {
+                    Auth::logout();
+                    $request->session()->invalidate();
+                    $request->session()->regenerateToken();
+
+                    return back()->withErrors([
+                        'email' => 'Akun Anda sudah tidak aktif karena status sewa sudah check-out. Silakan hubungi pengelola jika ingin melakukan sewa kembali.',
+                    ])->onlyInput('email');
+                }
+            }
+
             $request->session()->regenerate();
 
             return redirect()->intended('dashboard');
