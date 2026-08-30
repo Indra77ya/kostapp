@@ -5,7 +5,7 @@
             <span class="badge bg-red"></span>
         @endif
     </a>
-    <div class="dropdown-menu dropdown-menu-arrow dropdown-menu-end dropdown-menu-card">
+    <div class="dropdown-menu dropdown-menu-arrow dropdown-menu-end dropdown-menu-card" style="width: 380px; max-width: 90vw;">
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">Notifikasi Terbaru</h3>
@@ -21,12 +21,12 @@
                              wire:click="markAsRead({{ $notification->id }})"
                              style="cursor: pointer;"
                          @endif>
-                        <div class="row align-items-center">
-                            <div class="col-auto">
+                        <div class="row align-items-start">
+                            <div class="col-auto pt-1">
                                 <span class="status-dot {{ !$notification->is_read ? 'status-dot-animated' : '' }} bg-{{ $notification->type }} d-block"></span>
                             </div>
-                            <div class="col text-truncate">
-                                <div class="text-body d-block {{ !$notification->is_read ? 'fw-bold' : '' }}">
+                            <div class="col">
+                                <div class="text-body d-block text-wrap text-break {{ !$notification->is_read ? 'fw-bold' : '' }}">
                                     {{ $notification->message }}
                                 </div>
                                 <div class="d-flex align-items-center justify-content-between text-secondary mt-1" style="font-size: 0.75rem;">
