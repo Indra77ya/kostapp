@@ -233,7 +233,7 @@ class MasterDataImportExportService
         $seenNames = [];
 
         foreach ($dataRows as $lineIndex => $row) {
-            $excelRow = $lineIndex + 1;
+            $excelRow = $lineIndex;
             $id = trim($row['A'] ?? '');
             $name = trim($row['B'] ?? '');
             $address = trim($row['C'] ?? '');
