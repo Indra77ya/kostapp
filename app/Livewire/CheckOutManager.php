@@ -126,7 +126,7 @@ class CheckOutManager extends Component
         $message = "Penghuni {$name} berhasil check out.";
         $type = 'success';
         $this->dispatch('notify', message: $message, type: $type);
-        broadcast(new NotificationSent($message, $type))->toOthers();
+        broadcast(new NotificationSent($message, $type, null, false, route('check-outs.index')))->toOthers();
         DatabaseUpdated::dispatch();
         $this->closeModal();
     }

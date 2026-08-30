@@ -17,13 +17,24 @@ class NotificationSent implements ShouldBroadcastNow
     public $type;
     public $userId;
     public $hideInBell;
+    public $url;
 
-    public function __construct($message, $type = 'info', $userId = null, $hideInBell = false)
+    public function __construct($message, $type = 'info', $userId = null, $hideInBell = false, $url = null)
     {
         $this->message = $message;
         $this->type = $type;
         $this->userId = $userId;
         $this->hideInBell = $hideInBell;
+        $this->url = $url;
+
+        if (!$hideInBell) {
+            \App\Models\AppNotification::createForUser(
+                userId: $this->userId,
+                message: $this->message,
+                type: $this->type,
+                url: $this->url
+            );
+        }
     }
 
     public function broadcastOn(): array

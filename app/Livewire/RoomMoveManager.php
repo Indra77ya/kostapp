@@ -249,7 +249,7 @@ class RoomMoveManager extends Component
         $message = "Perpindahan kamar berhasil diproses.";
         $type = 'success';
         $this->dispatch('notify', message: $message, type: $type);
-        broadcast(new NotificationSent($message, $type))->toOthers();
+        broadcast(new NotificationSent($message, $type, null, false, route('room-moves.index')))->toOthers();
         DatabaseUpdated::dispatch($registration->user_id);
         $this->closeModal();
     }

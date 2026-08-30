@@ -404,7 +404,7 @@ class PaymentManager extends Component
         $message = "Pembayaran berhasil disimpan.";
         $type = 'success';
         $this->dispatch('notify', message: $message, type: $type);
-        broadcast(new NotificationSent($message, $type))->toOthers();
+        broadcast(new NotificationSent($message, $type, null, false, route('payments.index')))->toOthers();
 
         $registration = Registration::find($this->registration_id);
         DatabaseUpdated::dispatch($registration ? $registration->user_id : null);
@@ -553,7 +553,7 @@ class PaymentManager extends Component
         $message = "Pembayaran berhasil dihapus.";
         $type = 'success';
         $this->dispatch('notify', message: $message, type: $type);
-        broadcast(new NotificationSent($message, $type))->toOthers();
+        broadcast(new NotificationSent($message, $type, null, false, route('payments.index')))->toOthers();
     }
 
     public function updatingSearch() { $this->resetPage(); }

@@ -530,7 +530,7 @@ class RegistrationManager extends Component
         $isNew = !$this->registrationId;
 
         $this->dispatch('notify', message: $message, type: $type);
-        broadcast(new NotificationSent($message, $type))->toOthers();
+        broadcast(new NotificationSent($message, $type, null, false, route('registrations.index')))->toOthers();
         DatabaseUpdated::dispatch($registration->user_id);
         $this->closeModal();
 
@@ -577,7 +577,7 @@ class RegistrationManager extends Component
         $message = "Check in dan data penghuni {$name} berhasil dihapus.";
         $type = 'success';
         $this->dispatch('notify', message: $message, type: $type);
-        broadcast(new NotificationSent($message, $type))->toOthers();
+        broadcast(new NotificationSent($message, $type, null, false, route('registrations.index')))->toOthers();
     }
 
     public function updatingSearch() { $this->resetPage(); }

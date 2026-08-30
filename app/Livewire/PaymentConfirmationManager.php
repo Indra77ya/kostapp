@@ -85,7 +85,7 @@ class PaymentConfirmationManager extends Component
 
         // Notify the tenant privately
         $tenantId = $payment->registration->user_id;
-        broadcast(new NotificationSent($message, 'success', $tenantId));
+        broadcast(new NotificationSent($message, 'success', $tenantId, false, route('tenant.payments')));
 
         DatabaseUpdated::dispatch($tenantId);
     }
@@ -102,7 +102,7 @@ class PaymentConfirmationManager extends Component
             $this->dispatch('notify', message: 'Pembayaran ditolak dan dihapus.', type: 'info');
 
             // Notify the tenant privately
-            broadcast(new NotificationSent("Pembayaran untuk {$billDescription} ditolak.", 'warning', $tenantId));
+            broadcast(new NotificationSent("Pembayaran untuk {$billDescription} ditolak.", 'warning', $tenantId, false, route('tenant.payments')));
 
             DatabaseUpdated::dispatch($tenantId);
         }

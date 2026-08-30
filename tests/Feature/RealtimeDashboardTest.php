@@ -39,13 +39,15 @@ class RealtimeDashboardTest extends TestCase
     public function test_notification_bell_component_can_be_cleared()
     {
         $user = User::factory()->create();
+        $user->assignRole('admin');
+
+        \App\Models\AppNotification::createForUser($user->id, 'Test notification', 'info');
 
         Livewire::actingAs($user)
             ->test(\App\Livewire\NotificationBell::class)
-            ->set('notifications', [['message' => 'Test', 'timestamp' => now()->toIso8601String(), 'type' => 'info']])
-            ->set('unreadCount', 1)
             ->call('clearNotifications')
-            ->assertSet('notifications', [])
-            ->assertSet('unreadCount', 0);
+            ->assertSee('Tidak ada notifikasi');
+
+        $this->assertEquals(0, \App\Models\AppNotification::where('user_id', $user->id)->count());
     }
 }

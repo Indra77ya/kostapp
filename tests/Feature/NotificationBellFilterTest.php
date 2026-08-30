@@ -13,30 +13,23 @@ class NotificationBellFilterTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->seed(\Database\Seeders\RoleSeeder::class);
+        $user = User::factory()->create();
+        $user->assignRole('owner');
+        $this->actingAs($user);
+    }
+
     public function test_notification_bell_filters_out_success_and_error_types()
     {
-        Livewire::test(NotificationBell::class)
-            ->dispatch('echo:notifications,NotificationSent', [
-                'message' => 'Success Message',
-                'type' => 'success'
-            ])
-            ->assertSet('unreadCount', 0)
-            ->dispatch('echo:notifications,NotificationSent', [
-                'message' => 'Error Message',
-                'type' => 'error'
-            ])
-            ->assertSet('unreadCount', 0)
-            ->dispatch('echo:notifications,NotificationSent', [
-                'message' => 'Info Message',
-                'type' => 'info'
-            ])
-            ->assertSet('unreadCount', 1)
-            ->dispatch('echo:notifications,NotificationSent', [
-                'message' => 'Warning Message',
-                'type' => 'warning'
-            ])
-            ->assertSet('unreadCount', 2)
-            ->assertCount('notifications', 2);
+        NotificationSent::dispatch('Success Message', 'success');
+        NotificationSent::dispatch('Error Message', 'error');
+        NotificationSent::dispatch('Info Message', 'info');
+        NotificationSent::dispatch('Warning Message', 'warning');
+
+        $this->assertEquals(2, \App\Models\AppNotification::where('user_id', auth()->id())->where('is_read', false)->count());
     }
 
     public function test_notification_bell_listens_to_local_notify_event_and_filters()
@@ -47,8 +40,8 @@ class NotificationBellFilterTest extends TestCase
             ->assertSet('unreadCount', 0)
             // Info should be recorded
             ->dispatch('notify', message: 'Info Message', type: 'info')
-            ->assertSet('unreadCount', 1)
-            ->assertCount('notifications', 1)
             ->assertSee('Info Message');
+
+        $this->assertEquals(1, \App\Models\AppNotification::where('user_id', auth()->id())->where('is_read', false)->count());
     }
 }
