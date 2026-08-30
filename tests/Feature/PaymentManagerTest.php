@@ -168,4 +168,44 @@ class PaymentManagerTest extends TestCase
             'amount' => 50000
         ]);
     }
+
+    public function test_bill_with_pending_payment_shows_confirmation_text_and_is_disabled()
+    {
+        $owner = User::factory()->create();
+        $owner->assignRole('owner');
+
+        $location = Location::create(['name' => 'Test Location', 'address' => 'Test Address']);
+        $room = Room::create(['room_number' => '101', 'location_id' => $location->id, 'type' => 'Standard', 'price_monthly' => 1000000, 'status' => 'occupied']);
+        $tenant = User::factory()->create();
+        $tenant->assignRole('tenant');
+        $registration = Registration::create(['user_id' => $tenant->id, 'room_id' => $room->id, 'location_id' => $location->id, 'registration_number' => 'REG-123', 'registration_date' => now(), 'stay_start_date' => now(), 'room_price' => 1000000, 'total_price' => 1000000, 'identity_type' => 'KTP', 'identity_number' => '12345', 'gender' => 'Laki-laki', 'birth_date' => '1990-01-01', 'status' => 'active']);
+
+        $bill = Bill::create([
+            'registration_id' => $registration->id,
+            'bill_number' => 'BILL-M-PENDING-001',
+            'description' => 'Pending Bill',
+            'amount' => 500000,
+            'due_date' => now(),
+            'status' => 'Belum Lunas'
+        ]);
+
+        $paymentMethod = PaymentMethod::create(['name' => 'Transfer Bank', 'category' => 'Bank', 'is_active' => true]);
+
+        Payment::create([
+            'registration_id' => $registration->id,
+            'bill_id' => $bill->id,
+            'payment_method_id' => $paymentMethod->id,
+            'payment_number' => 'PAY-PENDING-001',
+            'payment_date' => now(),
+            'amount' => 500000,
+            'status' => 'Menunggu Konfirmasi',
+        ]);
+
+        Livewire::actingAs($owner)
+            ->test(PaymentManager::class)
+            ->call('selectRegistration', $registration->id)
+            ->call('openModal')
+            ->assertSeeHtml('disabled')
+            ->assertSeeHtml('BILL-M-PENDING-001 - Pending Bill (Sisa: Rp 500.000) - (Menunggu Konfirmasi)');
+    }
 }

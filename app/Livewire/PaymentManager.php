@@ -577,17 +577,23 @@ class PaymentManager extends Component
 
     private function renderView()
     {
-        if ($this->viewMode === 'history') {
-            $registration = Registration::with('user', 'room', 'location')->find($this->selectedRegistrationId);
+        $targetRegistrationId = $this->selectedRegistrationId ?? $this->registration_id;
 
-            $billsQuery = Bill::where('registration_id', $this->selectedRegistrationId);
+        if ($this->viewMode === 'history' || $targetRegistrationId) {
+            $registration = Registration::with('user', 'room', 'location')->find($targetRegistrationId);
+
+            $billsQuery = Bill::where('registration_id', $targetRegistrationId);
             if ($this->historySearch) {
                 $billsQuery->where(function($q) {
                     $q->where('bill_number', 'like', '%' . $this->historySearch . '%')
                       ->orWhere('description', 'like', '%' . $this->historySearch . '%');
                 });
             }
-            $selectableBillsQuery = Bill::where('registration_id', $this->selectedRegistrationId);
+            $selectableBillsQuery = Bill::where('registration_id', $targetRegistrationId)
+                ->withCount(['payments as pending_payments_count' => function($q) {
+                    $q->where('status', 'Menunggu Konfirmasi');
+                }]);
+
             if ($this->historySearch) {
                 $selectableBillsQuery->where(function($q) {
                     $q->where('bill_number', 'like', '%' . $this->historySearch . '%')
@@ -614,13 +620,15 @@ class PaymentManager extends Component
             $payments = $paymentsQuery->orderBy('created_at', 'asc')
             ->paginate(12, ['*'], 'paymentsPage');
 
-            return view('livewire.payment-manager', [
-                'registration' => $registration,
-                'bills' => $bills,
-                'selectableBills' => $selectableBills,
-                'payments' => $payments,
-                'paymentMethods' => PaymentMethod::where('is_active', true)->get(),
-            ]);
+            if ($this->viewMode === 'history') {
+                return view('livewire.payment-manager', [
+                    'registration' => $registration,
+                    'bills' => $bills,
+                    'selectableBills' => $selectableBills,
+                    'payments' => $payments,
+                    'paymentMethods' => PaymentMethod::where('is_active', true)->get(),
+                ]);
+            }
         }
 
         $query = Registration::query()
@@ -681,6 +689,7 @@ class PaymentManager extends Component
 
         return view('livewire.payment-manager', [
             'registrations' => $registrations,
+            'selectableBills' => $selectableBills ?? collect(),
             'locations' => Location::all(),
             'paymentMethods' => PaymentMethod::where('is_active', true)->get(),
         ]);
