@@ -349,9 +349,11 @@
                                 <select class="form-select @error('bill_id') is-invalid @enderror" wire:model.live="bill_id">
                                     <option value="umum">Pembayaran Umum</option>
                                     <option value="deposit">Setor Deposit</option>
-                                    @if($viewMode === 'history' && isset($selectableBills))
+                                    @if(isset($selectableBills))
                                         @foreach($selectableBills as $b)
-                                            <option value="{{ $b->id }}">{{ $b->bill_number }} - {{ $b->description }} (Sisa: Rp {{ number_format($b->remaining_amount, 0, ',', '.') }})</option>
+                                            <option value="{{ $b->id }}" {{ $b->pending_payments_count > 0 ? 'disabled' : '' }}>
+                                                {{ $b->bill_number }} - {{ $b->description }} (Sisa: Rp {{ number_format($b->remaining_amount, 0, ',', '.') }}){{ $b->pending_payments_count > 0 ? ' - (Menunggu Konfirmasi)' : '' }}
+                                            </option>
                                         @endforeach
                                     @endif
                                 </select>
