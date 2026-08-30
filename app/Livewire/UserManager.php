@@ -9,6 +9,7 @@ use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use App\Events\DatabaseUpdated;
 use App\Events\NotificationSent;
+use App\Helpers\BroadcastHelper;
 
 class UserManager extends Component
 {
@@ -125,7 +126,7 @@ class UserManager extends Component
             $message = "Pengguna {$user->name} berhasil diperbarui.";
             $type = 'success';
             $this->dispatch('notify', message: $message, type: $type);
-            broadcast(new NotificationSent($message, $type))->toOthers();
+            BroadcastHelper::safeBroadcast(new NotificationSent($message, $type));
         } else {
             $user = User::create($userData);
             $user->assignRole($this->role);
@@ -133,7 +134,7 @@ class UserManager extends Component
             $message = "Pengguna baru {$user->name} berhasil ditambahkan.";
             $type = 'success';
             $this->dispatch('notify', message: $message, type: $type);
-            broadcast(new NotificationSent($message, $type))->toOthers();
+            BroadcastHelper::safeBroadcast(new NotificationSent($message, $type));
         }
 
         DatabaseUpdated::dispatch();
@@ -153,7 +154,7 @@ class UserManager extends Component
         $message = "Password {$user->name} berhasil direset ke 12345678.";
         $type = 'info';
         $this->dispatch('notify', message: $message, type: $type);
-        broadcast(new NotificationSent($message, $type))->toOthers();
+        BroadcastHelper::safeBroadcast(new NotificationSent($message, $type));
     }
 
     public function deleteUser($id)
@@ -162,7 +163,7 @@ class UserManager extends Component
             $message = "Anda tidak bisa menghapus diri sendiri!";
             $type = 'danger';
             $this->dispatch('notify', message: $message, type: $type);
-            broadcast(new NotificationSent($message, $type))->toOthers();
+            BroadcastHelper::safeBroadcast(new NotificationSent($message, $type));
             return;
         }
 
@@ -174,7 +175,7 @@ class UserManager extends Component
         $message = "Pengguna {$name} berhasil dihapus.";
         $type = 'success';
         $this->dispatch('notify', message: $message, type: $type);
-        broadcast(new NotificationSent($message, $type))->toOthers();
+        BroadcastHelper::safeBroadcast(new NotificationSent($message, $type));
     }
 
     public function updatingSearch()

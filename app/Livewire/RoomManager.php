@@ -9,6 +9,7 @@ use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\Storage;
 use App\Events\NotificationSent;
+use App\Helpers\BroadcastHelper;
 use App\Events\DatabaseUpdated;
 
 class RoomManager extends Component
@@ -169,7 +170,7 @@ class RoomManager extends Component
         }
 
         $this->dispatch('notify', message: $message, type: $type, hideInBell: true);
-        broadcast(new NotificationSent($message, $type, hideInBell: true))->toOthers();
+        BroadcastHelper::safeBroadcast(new NotificationSent($message, $type, hideInBell: true));
 
         // Handle Gallery
         if ($this->newGallery) {
@@ -190,7 +191,7 @@ class RoomManager extends Component
             $message = "Gagal menghapus! Kamar #{$room->room_number} masih terisi oleh penghuni.";
             $type = 'error';
             $this->dispatch('notify', message: $message, type: $type);
-            broadcast(new NotificationSent($message, $type))->toOthers();
+            BroadcastHelper::safeBroadcast(new NotificationSent($message, $type));
             return;
         }
 
@@ -210,7 +211,7 @@ class RoomManager extends Component
         $message = "Kamar #{$roomNumber} telah dihapus.";
         $type = 'warning';
         $this->dispatch('notify', message: $message, type: $type, hideInBell: true);
-        broadcast(new NotificationSent($message, $type, hideInBell: true))->toOthers();
+        BroadcastHelper::safeBroadcast(new NotificationSent($message, $type, hideInBell: true));
     }
 
     public function deleteGalleryImage($imageId)

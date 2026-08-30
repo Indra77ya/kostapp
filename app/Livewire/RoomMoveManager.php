@@ -11,6 +11,7 @@ use Livewire\WithPagination;
 use Illuminate\Support\Facades\DB;
 use App\Events\DatabaseUpdated;
 use App\Events\NotificationSent;
+use App\Helpers\BroadcastHelper;
 use Carbon\Carbon;
 
 class RoomMoveManager extends Component
@@ -249,7 +250,7 @@ class RoomMoveManager extends Component
         $message = "Perpindahan kamar berhasil diproses.";
         $type = 'success';
         $this->dispatch('notify', message: $message, type: $type);
-        broadcast(new NotificationSent($message, $type))->toOthers();
+        BroadcastHelper::safeBroadcast(new NotificationSent($message, $type));
         DatabaseUpdated::dispatch($registration->user_id);
         $this->closeModal();
     }

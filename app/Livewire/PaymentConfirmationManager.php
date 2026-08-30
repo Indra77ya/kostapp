@@ -9,6 +9,7 @@ use App\Models\Registration;
 use Illuminate\Support\Facades\DB;
 use App\Events\DatabaseUpdated;
 use App\Events\NotificationSent;
+use App\Helpers\BroadcastHelper;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -85,7 +86,7 @@ class PaymentConfirmationManager extends Component
 
         // Notify the tenant privately
         $tenantId = $payment->registration->user_id;
-        broadcast(new NotificationSent($message, 'success', $tenantId));
+        BroadcastHelper::safeBroadcast(new NotificationSent($message, 'success', $tenantId), false);
 
         DatabaseUpdated::dispatch($tenantId);
     }
@@ -102,7 +103,7 @@ class PaymentConfirmationManager extends Component
             $this->dispatch('notify', message: 'Pembayaran ditolak dan dihapus.', type: 'info');
 
             // Notify the tenant privately
-            broadcast(new NotificationSent("Pembayaran untuk {$billDescription} ditolak.", 'warning', $tenantId));
+            BroadcastHelper::safeBroadcast(new NotificationSent("Pembayaran untuk {$billDescription} ditolak.", 'warning', $tenantId), false);
 
             DatabaseUpdated::dispatch($tenantId);
         }
