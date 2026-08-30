@@ -303,7 +303,7 @@ class MasterDataImportExportService
         $seenNames = [];
 
         foreach ($dataRows as $lineIndex => $row) {
-            $excelRow = $lineIndex + 1;
+            $excelRow = $lineIndex;
             $id = trim($row['A'] ?? '');
             $name = trim($row['B'] ?? '');
             $category = trim($row['C'] ?? '');
@@ -360,7 +360,7 @@ class MasterDataImportExportService
         $seenRooms = [];
 
         foreach ($dataRows as $lineIndex => $row) {
-            $excelRow = $lineIndex + 1;
+            $excelRow = $lineIndex;
             $id = trim($row['A'] ?? '');
             $locationName = trim($row['B'] ?? '');
             $roomNumber = trim($row['C'] ?? '');
@@ -470,7 +470,7 @@ class MasterDataImportExportService
         $seenEmails = [];
 
         foreach ($dataRows as $lineIndex => $row) {
-            $excelRow = $lineIndex + 1;
+            $excelRow = $lineIndex;
             $id = trim($row['A'] ?? '');
             $name = trim($row['B'] ?? '');
             $email = trim($row['C'] ?? '');
@@ -552,7 +552,7 @@ class MasterDataImportExportService
         $seenRules = [];
 
         foreach ($dataRows as $lineIndex => $row) {
-            $excelRow = $lineIndex + 1;
+            $excelRow = $lineIndex;
             $id = trim($row['A'] ?? '');
             $locationName = trim($row['B'] ?? '');
             $title = trim($row['C'] ?? '');
@@ -633,7 +633,7 @@ class MasterDataImportExportService
         $seenMethods = [];
 
         foreach ($dataRows as $lineIndex => $row) {
-            $excelRow = $lineIndex + 1;
+            $excelRow = $lineIndex;
             $id = trim($row['A'] ?? '');
             $name = trim($row['B'] ?? '');
             $category = trim($row['C'] ?? '');
