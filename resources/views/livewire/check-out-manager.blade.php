@@ -167,6 +167,40 @@
                             <input type="date" class="form-control @error('check_out_date') is-invalid @enderror" wire:model="check_out_date">
                             @error('check_out_date') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
+
+                        @if($registration_data->deposit_balance > 0)
+                        <div class="card bg-primary-lt border-0 mb-3">
+                            <div class="card-body p-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="fw-bold text-primary">Saldo Deposit Penghuni:</span>
+                                    <span class="fs-3 fw-bold text-primary">Rp {{ number_format($registration_data->deposit_balance, 0, ',', '.') }}</span>
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-md-6">
+                                        <label class="form-label small mb-1">Pengembalian (Refund) Deposit</label>
+                                        <div class="input-group input-group-sm">
+                                            <span class="input-group-text">Rp</span>
+                                            <input type="number" class="form-control @error('deposit_refund') is-invalid @enderror" wire:model="deposit_refund" min="0" step="1000">
+                                        </div>
+                                        @error('deposit_refund') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label small mb-1">Potongan Deposit (Kerusakan/Denda)</label>
+                                        <div class="input-group input-group-sm">
+                                            <span class="input-group-text">Rp</span>
+                                            <input type="number" class="form-control @error('deposit_deduction') is-invalid @enderror" wire:model="deposit_deduction" min="0" step="1000">
+                                        </div>
+                                        @error('deposit_deduction') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                                    </div>
+                                    <div class="col-12 mt-2">
+                                        <label class="form-label small mb-1">Alasan Potongan (Jika ada)</label>
+                                        <input type="text" class="form-control form-control-sm" wire:model="deduction_notes" placeholder="Misal: Kerusakan kran air, denda keterlambatan...">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+
                         <div class="mb-3">
                             <label class="form-label">Catatan Check Out</label>
                             <textarea class="form-control @error('check_out_notes') is-invalid @enderror" rows="3" wire:model="check_out_notes" placeholder="Misal: Kunci sudah dikembalikan, Listrik sudah lunas..."></textarea>

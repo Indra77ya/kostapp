@@ -51,6 +51,12 @@ class CheckOutManager extends Component
         $this->registration_data = Registration::with('user', 'room', 'location')->find($id);
         $this->check_out_date = Carbon::now()->format('Y-m-d');
         $this->check_out_notes = '';
+
+        $balance = $this->registration_data ? $this->registration_data->deposit_balance : 0;
+        $this->deposit_refund = $balance > 0 ? $balance : 0;
+        $this->deposit_deduction = 0;
+        $this->deduction_notes = '';
+
         $this->isModalOpen = true;
     }
 
