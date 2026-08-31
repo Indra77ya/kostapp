@@ -102,20 +102,20 @@
                             <td class="text-end fw-bold text-primary">Rp {{ number_format($item->book_value, 0, ',', '.') }}</td>
                             <td class="text-center">
                                 @if($item->condition === 'Baik')
-                                    <span class="badge bg-success-lt">Baik</span>
+                                    <span class="badge bg-success-lt text-dark fw-bold">Baik</span>
                                 @elseif($item->condition === 'Perlu Perbaikan')
-                                    <span class="badge bg-warning-lt">Perlu Perbaikan</span>
+                                    <span class="badge bg-warning-lt text-dark fw-bold">Perlu Perbaikan</span>
                                 @else
-                                    <span class="badge bg-danger-lt">Rusak</span>
+                                    <span class="badge bg-danger-lt text-dark fw-bold">Rusak</span>
                                 @endif
                             </td>
                             <td class="text-center">
                                 @if($item->status === 'Aktif')
-                                    <span class="badge bg-success">Aktif</span>
+                                    <span class="badge bg-success text-white fw-bold">Aktif</span>
                                 @elseif($item->status === 'Non-Aktif')
-                                    <span class="badge bg-secondary">Non-Aktif</span>
+                                    <span class="badge bg-secondary text-white fw-bold">Non-Aktif</span>
                                 @else
-                                    <span class="badge bg-danger">Afkir</span>
+                                    <span class="badge bg-danger text-white fw-bold">Afkir</span>
                                 @endif
                             </td>
                             <td>
