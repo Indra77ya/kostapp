@@ -79,6 +79,10 @@ Route::middleware('auth')->group(function () {
                 return view('payment-methods.index');
             })->name('payment-methods.index');
 
+            Route::get('/asset-management', function () {
+                return view('assets.index');
+            })->name('assets.index');
+
             Route::get('/settings', function () {
                 return view('settings');
             })->name('settings');

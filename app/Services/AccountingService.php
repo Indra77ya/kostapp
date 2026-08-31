@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Models\AccountMapping;
 use App\Models\ChartOfAccount;
 use App\Models\Expense;
+use App\Models\Asset;
+use App\Models\AssetDepreciation;
 use App\Models\FundTransfer;
 use App\Models\JournalEntry;
 use App\Models\JournalEntryItem;
@@ -406,5 +408,67 @@ class AccountingService
             'created_by' => $transfer->created_by ?? Auth::id(),
             'items' => $items,
         ]);
+    }
+
+    /**
+     * Record journal entry for monthly Asset Depreciation.
+     */
+    public static function recordAssetDepreciationJournal(AssetDepreciation $depreciation): ?JournalEntry
+    {
+        $existing = JournalEntry::where('reference_type', AssetDepreciation::class)
+            ->where('reference_id', $depreciation->id)
+            ->first();
+
+        if ($existing) {
+            return $existing;
+        }
+
+        $asset = $depreciation->asset;
+        if (!$asset) {
+            return null;
+        }
+
+        $amount = (float) $depreciation->depreciation_amount;
+        if ($amount <= 0) {
+            return null;
+        }
+
+        $expenseAccountId = $asset->depreciation_expense_account_id
+            ?? self::getAccountIdByMapping('default_asset_depr_expense', '5-7000');
+
+        $accumulatedAccountId = $asset->accumulated_depreciation_account_id
+            ?? self::getAccountIdByMapping('default_asset_accum_depr', '1-7900');
+
+        if (!$expenseAccountId || !$accumulatedAccountId) {
+            return null;
+        }
+
+        $items = [
+            [
+                'chart_of_account_id' => $expenseAccountId,
+                'debit' => $amount,
+                'credit' => 0,
+                'memo' => "Beban Penyusutan Asset: {$asset->name} ({$asset->code})",
+            ],
+            [
+                'chart_of_account_id' => $accumulatedAccountId,
+                'debit' => 0,
+                'credit' => $amount,
+                'memo' => "Akumulasi Penyusutan Asset: {$asset->name} ({$asset->code})",
+            ],
+        ];
+
+        $journal = self::createJournalEntry([
+            'entry_date' => $depreciation->period_date ? $depreciation->period_date->toDateString() : now()->toDateString(),
+            'description' => "Penyusutan Aset: {$asset->name} ({$asset->code}) Periode " . ($depreciation->period_date ? $depreciation->period_date->format('M Y') : now()->format('M Y')),
+            'reference_type' => AssetDepreciation::class,
+            'reference_id' => $depreciation->id,
+            'created_by' => Auth::id(),
+            'items' => $items,
+        ]);
+
+        $depreciation->update(['journal_entry_id' => $journal->id]);
+
+        return $journal;
     }
 }

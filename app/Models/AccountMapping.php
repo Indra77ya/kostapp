@@ -56,6 +56,21 @@ class AccountMapping extends Model
                 'description' => 'Akun beban untuk pencatatan biaya admin saat melakukan transfer dana antar kas/bank',
                 'default_code' => '5-6100',
             ],
+            'default_asset_account' => [
+                'name' => 'Aset Tetap Default',
+                'description' => 'Akun aset tetap default saat pendaftaran aset baru (misal Peralatan & Meubel Kos)',
+                'default_code' => '1-7100',
+            ],
+            'default_asset_accum_depr' => [
+                'name' => 'Akumulasi Penyusutan Aset Default',
+                'description' => 'Akun kontra akumulasi penyusutan default untuk aset tetap',
+                'default_code' => '1-7900',
+            ],
+            'default_asset_depr_expense' => [
+                'name' => 'Beban Penyusutan Aset Default',
+                'description' => 'Akun beban penyusutan default untuk pencatatan depresiasi bulanan',
+                'default_code' => '5-7000',
+            ],
         ];
     }
 
