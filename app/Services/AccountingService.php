@@ -411,6 +411,90 @@ class AccountingService
     }
 
     /**
+     * Record journal entry for Asset Purchase / Capitalization.
+     */
+    public static function recordAssetPurchaseJournal(Asset $asset): ?JournalEntry
+    {
+        // Existing purchase journal check or return
+        if ($asset->purchase_journal_entry_id) {
+            $existing = JournalEntry::find($asset->purchase_journal_entry_id);
+            if ($existing) {
+                return $existing;
+            }
+        }
+
+        $cost = (float) $asset->purchase_cost;
+        if ($cost <= 0) {
+            return null;
+        }
+
+        // 1. If purchase_source_type is 'existing', do not create accounting journal
+        if ($asset->purchase_source_type === 'existing') {
+            return null;
+        }
+
+        // Determine Asset Account (Debit)
+        $assetAccountId = $asset->chart_of_account_id
+            ?? self::getAccountIdByMapping('default_asset_account', '1-7100');
+
+        if (!$assetAccountId) {
+            return null;
+        }
+
+        // Determine Credit Account based on purchase source type
+        $creditAccountId = null;
+        $creditMemo = '';
+
+        if ($asset->purchase_source_type === 'equity') {
+            // Credit: Modal Pemilik (3-1000)
+            $equityCoa = ChartOfAccount::where('code', '3-1000')->first();
+            $creditAccountId = $equityCoa?->id;
+            $creditMemo = "Setoran Modal Pemilik untuk Aset: {$asset->name}";
+        } else {
+            // Default: 'cash'
+            $pm = $asset->paymentMethod;
+            $creditAccountId = ($pm && $pm->chart_of_account_id)
+                ? $pm->chart_of_account_id
+                : self::getAccountIdByMapping('default_cash', '1-1000');
+            $creditMemo = "Pengeluaran Kas/Bank untuk Pembelian Aset: {$asset->name}";
+        }
+
+        if (!$creditAccountId) {
+            return null;
+        }
+
+        $items = [
+            [
+                'chart_of_account_id' => $assetAccountId,
+                'debit' => $cost,
+                'credit' => 0,
+                'memo' => "Perolehan Aset Tetap: {$asset->name} ({$asset->code})",
+            ],
+            [
+                'chart_of_account_id' => $creditAccountId,
+                'debit' => 0,
+                'credit' => $cost,
+                'memo' => $creditMemo,
+            ],
+        ];
+
+        $sourceLabel = ($asset->purchase_source_type === 'equity') ? 'Setoran Modal' : 'Pembelian Kas/Bank';
+
+        $journal = self::createJournalEntry([
+            'entry_date' => $asset->purchase_date ? $asset->purchase_date->toDateString() : now()->toDateString(),
+            'description' => "Perolehan Aset ({$sourceLabel}): {$asset->name} ({$asset->code})",
+            'reference_type' => Asset::class,
+            'reference_id' => $asset->id,
+            'created_by' => Auth::id(),
+            'items' => $items,
+        ]);
+
+        $asset->update(['purchase_journal_entry_id' => $journal->id]);
+
+        return $journal;
+    }
+
+    /**
      * Record journal entry for monthly Asset Depreciation.
      */
     public static function recordAssetDepreciationJournal(AssetDepreciation $depreciation): ?JournalEntry

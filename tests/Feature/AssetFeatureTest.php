@@ -40,6 +40,65 @@ class AssetFeatureTest extends TestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
+    public function owner_can_create_asset_with_cash_purchase_journal()
+    {
+        $location = Location::first();
+
+        Livewire::actingAs($this->owner)
+            ->test(AssetManager::class)
+            ->call('openModal')
+            ->set('code', 'AST-CASH-001')
+            ->set('name', 'TV LG 43 Inch')
+            ->set('category', 'Elektronik')
+            ->set('location_id', $location->id)
+            ->set('purchase_date', '2026-02-01')
+            ->set('purchase_cost', 4500000)
+            ->set('purchase_source_type', 'cash')
+            ->set('condition', 'Baik')
+            ->set('status', 'Aktif')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $asset = Asset::where('code', 'AST-CASH-001')->first();
+        $this->assertNotNull($asset);
+        $this->assertNotNull($asset->purchase_journal_entry_id);
+
+        $journal = JournalEntry::with('items')->find($asset->purchase_journal_entry_id);
+        $this->assertNotNull($journal);
+        $this->assertEquals(4500000, $journal->items->where('debit', '>', 0)->sum('debit'));
+        $this->assertEquals(4500000, $journal->items->where('credit', '>', 0)->sum('credit'));
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function owner_can_create_asset_with_equity_contribution_journal()
+    {
+        Livewire::actingAs($this->owner)
+            ->test(AssetManager::class)
+            ->call('openModal')
+            ->set('code', 'AST-EQUITY-001')
+            ->set('name', 'Kulkas Sharp 2 Pintu')
+            ->set('category', 'Elektronik')
+            ->set('purchase_date', '2026-02-01')
+            ->set('purchase_cost', 3000000)
+            ->set('purchase_source_type', 'equity')
+            ->set('condition', 'Baik')
+            ->set('status', 'Aktif')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $asset = Asset::where('code', 'AST-EQUITY-001')->first();
+        $this->assertNotNull($asset);
+        $this->assertNotNull($asset->purchase_journal_entry_id);
+
+        $journal = JournalEntry::with('items.chartOfAccount')->find($asset->purchase_journal_entry_id);
+        $this->assertNotNull($journal);
+
+        // Verify credit item is Modal Pemilik (3-1000)
+        $creditItem = $journal->items->firstWhere('credit', '>', 0);
+        $this->assertEquals('3-1000', $creditItem->chartOfAccount->code);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
     public function owner_can_create_and_delete_asset()
     {
         $location = Location::first();

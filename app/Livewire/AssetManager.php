@@ -7,6 +7,7 @@ use App\Models\Asset;
 use App\Models\AssetDepreciation;
 use App\Models\ChartOfAccount;
 use App\Models\Location;
+use App\Models\PaymentMethod;
 use App\Models\Room;
 use App\Services\AccountingService;
 use Carbon\Carbon;
@@ -42,6 +43,8 @@ class AssetManager extends Component
     public $room_id = null;
     public $purchase_date = '';
     public $purchase_cost = null;
+    public $purchase_source_type = 'cash'; // cash, equity, existing
+    public $payment_method_id = null;
     public $condition = 'Baik';
     public $status = 'Aktif';
     public $useful_life_months = null;
@@ -99,6 +102,8 @@ class AssetManager extends Component
             $this->room_id = $asset->room_id;
             $this->purchase_date = $asset->purchase_date->format('Y-m-d');
             $this->purchase_cost = $asset->purchase_cost;
+            $this->purchase_source_type = $asset->purchase_source_type ?? 'cash';
+            $this->payment_method_id = $asset->payment_method_id;
             $this->condition = $asset->condition;
             $this->status = $asset->status;
             $this->useful_life_months = $asset->useful_life_months;
@@ -138,6 +143,8 @@ class AssetManager extends Component
         $this->room_id = null;
         $this->purchase_date = Carbon::now()->format('Y-m-d');
         $this->purchase_cost = null;
+        $this->purchase_source_type = 'cash';
+        $this->payment_method_id = null;
         $this->condition = 'Baik';
         $this->status = 'Aktif';
         $this->useful_life_months = null;
@@ -167,6 +174,8 @@ class AssetManager extends Component
             'room_id' => 'nullable|exists:rooms,id',
             'purchase_date' => 'required|date',
             'purchase_cost' => 'required|numeric|min:0',
+            'purchase_source_type' => 'required|in:cash,equity,existing',
+            'payment_method_id' => $this->purchase_source_type === 'cash' ? 'nullable|exists:payment_methods,id' : 'nullable',
             'condition' => 'required|in:Baik,Perlu Perbaikan,Rusak',
             'status' => 'required|in:Aktif,Non-Aktif,Afkir',
             'useful_life_months' => 'nullable|integer|min:1',
@@ -188,6 +197,8 @@ class AssetManager extends Component
                 'room_id' => $this->room_id ?: null,
                 'purchase_date' => $this->purchase_date,
                 'purchase_cost' => $this->purchase_cost,
+                'purchase_source_type' => $this->purchase_source_type,
+                'payment_method_id' => $this->purchase_source_type === 'cash' ? ($this->payment_method_id ?: null) : null,
                 'condition' => $this->condition,
                 'status' => $this->status,
                 'useful_life_months' => $this->useful_life_months ?: null,
@@ -199,10 +210,14 @@ class AssetManager extends Component
             ];
 
             if ($this->assetId) {
-                Asset::find($this->assetId)->update($data);
+                $asset = Asset::find($this->assetId);
+                $asset->update($data);
             } else {
-                Asset::create($data);
+                $asset = Asset::create($data);
             }
+
+            // Automatically record Asset Purchase journal entry if configured
+            AccountingService::recordAssetPurchaseJournal($asset);
         });
 
         $this->dispatch('notify', message: 'Data aset berhasil disimpan.', type: 'success');
@@ -220,7 +235,7 @@ class AssetManager extends Component
 
     public function openDetailModal($id)
     {
-        $this->selectedAsset = Asset::with(['location', 'room', 'chartOfAccount', 'accumulatedDepreciationAccount', 'depreciationExpenseAccount', 'depreciations.journalEntry'])->findOrFail($id);
+        $this->selectedAsset = Asset::with(['location', 'room', 'paymentMethod', 'purchaseJournalEntry', 'chartOfAccount', 'accumulatedDepreciationAccount', 'depreciationExpenseAccount', 'depreciations.journalEntry'])->findOrFail($id);
         $this->isDetailModalOpen = true;
     }
 
@@ -342,6 +357,7 @@ class AssetManager extends Component
             'assets' => $assets,
             'locations' => Location::orderBy('name')->get(),
             'rooms' => $selectableRooms,
+            'paymentMethods' => PaymentMethod::where('is_active', true)->orderBy('name')->get(),
             'categories' => $categories,
             'assetAccounts' => ChartOfAccount::where('type', 'asset')->where('is_active', true)->orderBy('code')->get(),
             'expenseAccounts' => ChartOfAccount::where('type', 'expense')->where('is_active', true)->orderBy('code')->get(),

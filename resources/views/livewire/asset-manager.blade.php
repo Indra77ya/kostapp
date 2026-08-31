@@ -278,6 +278,30 @@
                                         </div>
                                     </div>
 
+                                    <div class="row g-2 mb-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label required">Sumber Pembelian / Asal Aset</label>
+                                            <select class="form-select @error('purchase_source_type') is-invalid @enderror" wire:model.live="purchase_source_type">
+                                                <option value="cash">Pembelian Kas / Bank</option>
+                                                <option value="equity">Setoran Modal Pemilik</option>
+                                                <option value="existing">Aset Lama (Tanpa Jurnal Akuntansi)</option>
+                                            </select>
+                                            @error('purchase_source_type') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                        </div>
+                                        @if($purchase_source_type === 'cash')
+                                            <div class="col-md-6">
+                                                <label class="form-label">Metode Pembayaran Kas/Bank</label>
+                                                <select class="form-select @error('payment_method_id') is-invalid @enderror" wire:model="payment_method_id">
+                                                    <option value="">-- Kas Default --</option>
+                                                    @foreach($paymentMethods as $pm)
+                                                        <option value="{{ $pm->id }}">{{ $pm->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                                @error('payment_method_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                            </div>
+                                        @endif
+                                    </div>
+
                                     <div class="mb-3">
                                         <label class="form-label">Masa Manfaat (Bulan)</label>
                                         <input type="number" class="form-control @error('useful_life_months') is-invalid @enderror" wire:model.live="useful_life_months" placeholder="Contoh: 36 bulan (3 tahun)">
@@ -366,6 +390,24 @@
                                     <tr><td class="text-secondary">Kategori</td><td>: <span class="badge bg-blue-lt">{{ $selectedAsset->category }}</span></td></tr>
                                     <tr><td class="text-secondary">Lokasi / Kamar</td><td>: {{ optional($selectedAsset->location)->name ?? '-' }} {{ $selectedAsset->room ? '(Kamar ' . $selectedAsset->room->room_number . ')' : '' }}</td></tr>
                                     <tr><td class="text-secondary">Tgl Beli</td><td>: {{ $selectedAsset->purchase_date ? $selectedAsset->purchase_date->format('d F Y') : '-' }}</td></tr>
+                                    <tr>
+                                        <td class="text-secondary">Sumber Aset</td>
+                                        <td>:
+                                            @if($selectedAsset->purchase_source_type === 'equity')
+                                                <span class="badge bg-purple-lt">Setoran Modal Pemilik</span>
+                                            @elseif($selectedAsset->purchase_source_type === 'cash')
+                                                <span class="badge bg-green-lt">Pembelian Kas / Bank ({{ optional($selectedAsset->paymentMethod)->name ?? 'Kas Utama' }})</span>
+                                            @else
+                                                <span class="badge bg-secondary-lt">Aset Lama</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    @if($selectedAsset->purchaseJournalEntry)
+                                        <tr>
+                                            <td class="text-secondary">No. Jurnal Pembelian</td>
+                                            <td>: <span class="badge bg-blue-lt">{{ $selectedAsset->purchaseJournalEntry->entry_number }}</span></td>
+                                        </tr>
+                                    @endif
                                 </table>
                             </div>
                             <div class="col-md-6">

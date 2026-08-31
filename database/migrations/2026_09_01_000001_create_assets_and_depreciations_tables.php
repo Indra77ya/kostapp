@@ -20,6 +20,12 @@ return new class extends Migration
             $table->foreignId('room_id')->nullable()->constrained('rooms')->nullOnDelete();
             $table->date('purchase_date');
             $table->decimal('purchase_cost', 15, 2)->default(0);
+
+            // Purchase Source Tracking for Accounting Sync
+            $table->string('purchase_source_type')->default('cash'); // cash, equity, existing
+            $table->foreignId('payment_method_id')->nullable()->constrained('payment_methods')->nullOnDelete();
+            $table->foreignId('purchase_journal_entry_id')->nullable()->constrained('journal_entries')->nullOnDelete();
+
             $table->string('condition')->default('Baik'); // Baik, Perlu Perbaikan, Rusak
             $table->string('status')->default('Aktif'); // Aktif, Non-Aktif, Afkir
             $table->integer('useful_life_months')->nullable(); // Masa manfaat dalam bulan

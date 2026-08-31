@@ -19,6 +19,9 @@ class Asset extends Model
         'room_id',
         'purchase_date',
         'purchase_cost',
+        'purchase_source_type',
+        'payment_method_id',
+        'purchase_journal_entry_id',
         'condition',
         'status',
         'useful_life_months',
@@ -44,6 +47,16 @@ class Asset extends Model
     public function room(): BelongsTo
     {
         return $this->belongsTo(Room::class);
+    }
+
+    public function paymentMethod(): BelongsTo
+    {
+        return $this->belongsTo(PaymentMethod::class);
+    }
+
+    public function purchaseJournalEntry(): BelongsTo
+    {
+        return $this->belongsTo(JournalEntry::class, 'purchase_journal_entry_id');
     }
 
     public function chartOfAccount(): BelongsTo
