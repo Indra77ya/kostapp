@@ -83,6 +83,10 @@ Route::middleware('auth')->group(function () {
                 return view('assets.index');
             })->name('assets.index');
 
+            Route::get('/analytics', function () {
+                return view('analytics.index');
+            })->name('analytics.index');
+
             Route::get('/settings', function () {
                 return view('settings');
             })->name('settings');

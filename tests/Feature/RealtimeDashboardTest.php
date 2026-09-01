@@ -32,8 +32,8 @@ class RealtimeDashboardTest extends TestCase
             ->test(\App\Livewire\DashboardStats::class)
             ->assertSet('totalRooms', 2)
             ->assertSet('availableRooms', 1)
-            ->assertSee('2 Total Kamar')
-            ->assertSee('1 Tersedia');
+            ->assertSee('Okupansi 50%')
+            ->assertSee('1 / 2 Kamar Terisi (1 Kosong)');
     }
 
     public function test_notification_bell_component_can_be_cleared()
