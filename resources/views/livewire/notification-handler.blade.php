@@ -36,6 +36,15 @@
             showNotification(payload.message, payload.type || 'info');
         });
 
+        // Catch validation errors on Livewire request commit
+        Livewire.hook('commit', ({ component, commit, respond, succeed, fail }) => {
+            succeed(({ snapshot, effect }) => {
+                if (effect && effect.errors && Object.keys(effect.errors).length > 0) {
+                    showNotification('Gagal menyimpan! Mohon lengkapi seluruh kolom yang wajib diisi.', 'error');
+                }
+            });
+        });
+
         // Handle Session Flash and generic browser events
         window.addEventListener('DOMContentLoaded', () => {
             @if(session('success')) showNotification(@json(session('success')), 'success'); @endif

@@ -395,7 +395,8 @@
                         @endif
                         <div class="mb-3">
                             <label class="form-label">Catatan Tambahan</label>
-                            <textarea class="form-control" rows="3" wire:model="notes" placeholder="Contoh: Pembayaran melalui ATM Bank BCA a/n John Doe"></textarea>
+                                <textarea class="form-control @error('notes') is-invalid @enderror" rows="3" wire:model="notes" placeholder="Contoh: Pembayaran melalui ATM Bank BCA a/n John Doe"></textarea>
+                                @error('notes') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
                         <div class="modal-footer px-0 pb-0 mt-3">
