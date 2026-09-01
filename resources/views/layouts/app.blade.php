@@ -16,6 +16,32 @@
 	font-feature-settings: "cv03", "cv04", "cv11";
       }
 
+      /* Fix invalid state icon positioning & overlap */
+      .form-control.is-invalid, .was-validated .form-control:invalid {
+        padding-right: 2.5rem !important;
+        background-position: right 0.75rem center !important;
+        background-size: 1.125rem 1.125rem !important;
+      }
+
+      .form-select.is-invalid, .was-validated .form-select:invalid {
+        padding-right: 3.75rem !important;
+        background-position: right 0.75rem center, center right 2rem !important;
+        background-size: 16px 12px, 1.125rem 1.125rem !important;
+      }
+
+      /* Adjust native browser picker icons (date, time, number) so they don't overlap with the invalid icon */
+      input[type="date"].is-invalid::-webkit-calendar-picker-indicator,
+      input[type="datetime-local"].is-invalid::-webkit-calendar-picker-indicator,
+      input[type="month"].is-invalid::-webkit-calendar-picker-indicator,
+      input[type="time"].is-invalid::-webkit-calendar-picker-indicator {
+        margin-right: 1.5rem !important;
+      }
+
+      input[type="number"].is-invalid::-webkit-inner-spin-button,
+      input[type="number"].is-invalid::-webkit-outer-spin-button {
+        margin-right: 1.5rem !important;
+      }
+
       @media print {
         body {
           background-color: #fff !important;
