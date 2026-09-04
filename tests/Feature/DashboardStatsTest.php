@@ -349,4 +349,74 @@ class DashboardStatsTest extends TestCase
         $this->assertCount(1, $upcomingBills);
         $this->assertEquals($nearBill1->id, $upcomingBills->first()->id);
     }
+
+    public function test_admin_can_open_and_close_payment_detail_modal_on_dashboard()
+    {
+        $owner = User::factory()->create();
+        $owner->assignRole('owner');
+
+        $location = Location::create(['name' => 'Lokasi Mawar']);
+        $room = Room::create(['location_id' => $location->id, 'room_number' => '301', 'price_monthly' => 1200000, 'status' => 'occupied']);
+
+        $tenantUser = User::factory()->create(['name' => 'Siti Nurhaliza']);
+        $tenantUser->assignRole('tenant');
+
+        $registration = Registration::create([
+            'registration_number' => 'REG-DETAIL-001',
+            'registration_date' => now(),
+            'stay_start_date' => now(),
+            'user_id' => $tenantUser->id,
+            'location_id' => $location->id,
+            'room_id' => $room->id,
+            'status' => 'active',
+            'duration_type' => 'monthly',
+            'duration_value' => 6,
+            'room_price' => 1200000,
+            'total_price' => 7200000,
+            'identity_type' => 'KTP',
+            'identity_number' => '77777',
+            'gender' => 'Perempuan',
+            'birth_date' => '1995-05-05',
+        ]);
+
+        $coa = ChartOfAccount::create([
+            'code' => '1-1003',
+            'name' => 'Kas Bank BCA',
+            'type' => 'Aset',
+            'normal_balance' => 'debit',
+            'is_active' => true,
+        ]);
+
+        $paymentMethod = PaymentMethod::create([
+            'name' => 'Transfer Bank BCA',
+            'category' => 'bank',
+            'chart_of_account_id' => $coa->id,
+            'is_active' => true,
+        ]);
+
+        $payment = Payment::create([
+            'payment_number' => 'PAY-DETAIL-001',
+            'registration_id' => $registration->id,
+            'payment_method_id' => $paymentMethod->id,
+            'amount' => 1200000,
+            'payment_date' => now(),
+            'status' => 'Menunggu Konfirmasi',
+            'sender_bank_name' => 'Bank Mandiri',
+            'sender_account_number' => '1234567890',
+            'sender_account_name' => 'Siti Nurhaliza',
+        ]);
+
+        Livewire::actingAs($owner)
+            ->test(\App\Livewire\DashboardStats::class)
+            ->call('showPaymentDetail', $payment->id)
+            ->assertSet('isDetailModalOpen', true)
+            ->assertSet('selectedPaymentId', $payment->id)
+            ->assertSee('Detail Konfirmasi Pembayaran')
+            ->assertSee('PAY-DETAIL-001')
+            ->assertSee('Bank Mandiri')
+            ->assertSee('1234567890')
+            ->call('closeDetailModal')
+            ->assertSet('isDetailModalOpen', false)
+            ->assertSet('selectedPaymentId', null);
+    }
 }

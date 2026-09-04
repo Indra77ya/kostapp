@@ -28,6 +28,10 @@ class DashboardStats extends Component
     public $outstandingBillsCount = 0;
     public $pendingConfirmationsCount = 0;
 
+    // Payment Detail Modal
+    public $selectedPaymentId = null;
+    public $isDetailModalOpen = false;
+
     // Tenant properties
     public $tenantRegistration = null;
     public $tenantTotalOutstanding = 0;
@@ -51,6 +55,18 @@ class DashboardStats extends Component
         } else {
             $this->loadAdminStats();
         }
+    }
+
+    public function showPaymentDetail($id)
+    {
+        $this->selectedPaymentId = $id;
+        $this->isDetailModalOpen = true;
+    }
+
+    public function closeDetailModal()
+    {
+        $this->isDetailModalOpen = false;
+        $this->selectedPaymentId = null;
     }
 
     private function loadAdminStats()
@@ -177,6 +193,10 @@ class DashboardStats extends Component
             DatabaseUpdated::dispatch($tenantId);
         }
 
+        if ($this->selectedPaymentId == $id) {
+            $this->closeDetailModal();
+        }
+
         $this->refreshStats();
     }
 
@@ -194,6 +214,10 @@ class DashboardStats extends Component
             if ($tenantId) {
                 broadcast(new NotificationSent("Pembayaran untuk {$billDescription} ditolak.", 'warning', $tenantId, false, route('tenant.payments')));
                 DatabaseUpdated::dispatch($tenantId);
+            }
+
+            if ($this->selectedPaymentId == $id) {
+                $this->closeDetailModal();
             }
 
             $this->refreshStats();
@@ -273,6 +297,7 @@ class DashboardStats extends Component
         $pendingPayments = collect();
         $upcomingBills = collect();
         $tenantBills = collect();
+        $selectedPayment = null;
 
         $user = Auth::user();
 
@@ -304,12 +329,17 @@ class DashboardStats extends Component
                 ->get()
                 ->unique('registration_id')
                 ->take(5);
+
+            if ($this->selectedPaymentId) {
+                $selectedPayment = Payment::with(['registration.user', 'registration.room', 'registration.location', 'bill', 'paymentMethod'])->find($this->selectedPaymentId);
+            }
         }
 
         return view('livewire.dashboard-stats', [
             'pendingPayments' => $pendingPayments,
             'upcomingBills' => $upcomingBills,
             'tenantBills' => $tenantBills,
+            'selectedPayment' => $selectedPayment,
         ]);
     }
 }
