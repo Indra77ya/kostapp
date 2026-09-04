@@ -327,9 +327,9 @@
         {{-- Visual Room Map Section --}}
         <div class="card mb-3">
             <div class="card-header d-flex align-items-center justify-content-between">
-                <h3 class="card-title">
+                <h3 class="card-title d-flex align-items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon text-primary me-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l-2 0l9 -9l9 9l-2 0" /><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" /><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" /></svg>
-                    Peta Status Kamar Real-time
+                    <span>Peta Status Kamar Real-time</span>
                 </h3>
                 <div class="d-flex align-items-center gap-2 small">
                     <span class="badge bg-success text-white">Tersedia</span>
@@ -400,9 +400,9 @@
             <div class="col-lg-6">
                 <div class="card card-table">
                     <div class="card-header d-flex align-items-center justify-content-between">
-                        <h3 class="card-title">
+                        <h3 class="card-title d-flex align-items-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon text-warning me-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M12 7v5l3 3" /></svg>
-                            Konfirmasi Pembayaran Pending
+                            <span>Konfirmasi Pembayaran Pending</span>
                         </h3>
                         <a href="{{ route('payments.confirmation') }}" class="btn btn-link btn-sm">Lihat Semua</a>
                     </div>
@@ -462,9 +462,9 @@
             <div class="col-lg-6">
                 <div class="card card-table">
                     <div class="card-header d-flex align-items-center justify-content-between">
-                        <h3 class="card-title">
+                        <h3 class="card-title d-flex align-items-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon text-danger me-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /><path d="M9 14l6 0" /></svg>
-                            Tagihan Belum Lunas Terdekat
+                            <span>Tagihan Belum Lunas Terdekat</span>
                         </h3>
                         <a href="{{ route('payments.index') }}" class="btn btn-link btn-sm">Kelola Tagihan</a>
                     </div>
