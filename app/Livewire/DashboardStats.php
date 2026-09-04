@@ -67,14 +67,26 @@ class DashboardStats extends Component
             ->whereMonth('payment_date', now()->month)
             ->sum('amount');
 
-        $this->outstandingBillsCount = Bill::whereIn('status', ['Belum Lunas', 'Cicilan'])->count();
-        $this->outstandingBillsAmount = Bill::whereIn('status', ['Belum Lunas', 'Cicilan'])
+        $this->outstandingBillsCount = Bill::whereHas('registration', function ($q) {
+                $q->where('status', 'active');
+            })
+            ->whereIn('status', ['Belum Lunas', 'Cicilan'])
+            ->count();
+
+        $this->outstandingBillsAmount = Bill::whereHas('registration', function ($q) {
+                $q->where('status', 'active');
+            })
+            ->whereIn('status', ['Belum Lunas', 'Cicilan'])
             ->get()
             ->sum(function ($bill) {
                 return max(0, $bill->amount - $bill->paid_amount);
             });
 
-        $this->pendingConfirmationsCount = Payment::where('status', 'Menunggu Konfirmasi')->count();
+        $this->pendingConfirmationsCount = Payment::whereHas('registration', function ($q) {
+                $q->where('status', 'active');
+            })
+            ->where('status', 'Menunggu Konfirmasi')
+            ->count();
     }
 
     private function loadTenantStats($user)
@@ -272,12 +284,18 @@ class DashboardStats extends Component
             }
         } else {
             $pendingPayments = Payment::with(['registration.user', 'registration.room', 'registration.location', 'bill', 'paymentMethod'])
+                ->whereHas('registration', function ($q) {
+                    $q->where('status', 'active');
+                })
                 ->where('status', 'Menunggu Konfirmasi')
                 ->orderBy('payment_date', 'desc')
                 ->take(5)
                 ->get();
 
             $upcomingBills = Bill::with(['registration.user', 'registration.room', 'registration.location'])
+                ->whereHas('registration', function ($q) {
+                    $q->where('status', 'active');
+                })
                 ->whereIn('status', ['Belum Lunas', 'Cicilan'])
                 ->orderBy('due_date', 'asc')
                 ->take(5)

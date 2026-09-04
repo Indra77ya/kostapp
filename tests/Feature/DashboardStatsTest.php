@@ -228,4 +228,52 @@ class DashboardStatsTest extends TestCase
             ->assertSee('Ringkasan Tagihan Aktif Anda')
             ->assertSee('BILL-TENANT-001');
     }
+
+    public function test_checked_out_tenant_bills_are_excluded_from_dashboard()
+    {
+        $owner = User::factory()->create();
+        $owner->assignRole('owner');
+
+        $location = Location::create(['name' => 'Lokasi Ceria']);
+        $room = Room::create(['location_id' => $location->id, 'room_number' => '102', 'price_monthly' => 1800000, 'status' => 'available']);
+
+        $tenantUser = User::factory()->create();
+        $tenantUser->assignRole('tenant');
+
+        // Checked out registration
+        $registration = Registration::create([
+            'registration_number' => 'REG-CHECKOUT-001',
+            'registration_date' => now()->subMonths(3),
+            'stay_start_date' => now()->subMonths(3),
+            'user_id' => $tenantUser->id,
+            'location_id' => $location->id,
+            'room_id' => $room->id,
+            'status' => 'checked_out',
+            'duration_type' => 'monthly',
+            'duration_value' => 1,
+            'room_price' => 1800000,
+            'total_price' => 1800000,
+            'identity_type' => 'KTP',
+            'identity_number' => '12345678',
+            'gender' => 'Laki-laki',
+            'birth_date' => '1992-01-01',
+        ]);
+
+        Bill::create([
+            'registration_id' => $registration->id,
+            'bill_number' => 'BILL-CHECKOUT-001',
+            'description' => 'Tagihan Sisa Checked Out',
+            'amount' => 1800000,
+            'paid_amount' => 0,
+            'due_date' => now()->addDays(5),
+            'status' => 'Belum Lunas',
+        ]);
+
+        Livewire::actingAs($owner)
+            ->test(\App\Livewire\DashboardStats::class)
+            ->assertSet('outstandingBillsCount', 0)
+            ->assertSet('outstandingBillsAmount', 0)
+            ->assertDontSee('BILL-CHECKOUT-001')
+            ->assertSee('Semua tagihan tergolong lunas.');
+    }
 }
