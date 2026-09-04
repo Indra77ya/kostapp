@@ -104,11 +104,11 @@
                                 </td>
                                 <td>
                                     @if($bill->status === 'Lunas')
-                                        <span class="badge bg-success">Lunas</span>
+                                        <span class="badge bg-success text-white">Lunas</span>
                                     @elseif($bill->status === 'Cicilan')
-                                        <span class="badge bg-warning">Cicilan</span>
+                                        <span class="badge bg-warning text-dark">Cicilan</span>
                                     @else
-                                        <span class="badge bg-danger">Belum Lunas</span>
+                                        <span class="badge bg-danger text-white">Belum Lunas</span>
                                     @endif
                                 </td>
                             </tr>
@@ -381,9 +381,9 @@
                                         </td>
                                         <td>
                                             @if($bill->status === 'Cicilan')
-                                                <span class="badge bg-warning">Cicilan</span>
+                                                <span class="badge bg-warning text-dark">Cicilan</span>
                                             @else
-                                                <span class="badge bg-danger">Belum Lunas</span>
+                                                <span class="badge bg-danger text-white">Belum Lunas</span>
                                             @endif
                                         </td>
                                     </tr>
