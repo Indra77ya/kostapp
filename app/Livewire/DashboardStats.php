@@ -71,12 +71,14 @@ class DashboardStats extends Component
                 $q->where('status', 'active');
             })
             ->whereIn('status', ['Belum Lunas', 'Cicilan'])
+            ->where('due_date', '<=', now()->addDays(30))
             ->count();
 
         $this->outstandingBillsAmount = Bill::whereHas('registration', function ($q) {
                 $q->where('status', 'active');
             })
             ->whereIn('status', ['Belum Lunas', 'Cicilan'])
+            ->where('due_date', '<=', now()->addDays(30))
             ->get()
             ->sum(function ($bill) {
                 return max(0, $bill->amount - $bill->paid_amount);
@@ -297,9 +299,11 @@ class DashboardStats extends Component
                     $q->where('status', 'active');
                 })
                 ->whereIn('status', ['Belum Lunas', 'Cicilan'])
+                ->where('due_date', '<=', now()->addDays(30))
                 ->orderBy('due_date', 'asc')
-                ->take(5)
-                ->get();
+                ->get()
+                ->unique('registration_id')
+                ->take(5);
         }
 
         return view('livewire.dashboard-stats', [

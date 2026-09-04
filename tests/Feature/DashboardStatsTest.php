@@ -276,4 +276,77 @@ class DashboardStatsTest extends TestCase
             ->assertDontSee('BILL-CHECKOUT-001')
             ->assertSee('Semua tagihan tergolong lunas.');
     }
+
+    public function test_dashboard_filters_out_far_future_bills_and_limits_to_one_bill_per_tenant()
+    {
+        $owner = User::factory()->create();
+        $owner->assignRole('owner');
+
+        $location = Location::create(['name' => 'Lokasi Indah']);
+        $room = Room::create(['location_id' => $location->id, 'room_number' => '103', 'price_monthly' => 1500000, 'status' => 'occupied']);
+
+        $tenantUser = User::factory()->create(['name' => 'Budi Santoso']);
+        $tenantUser->assignRole('tenant');
+
+        $registration = Registration::create([
+            'registration_number' => 'REG-004',
+            'registration_date' => now(),
+            'stay_start_date' => now(),
+            'user_id' => $tenantUser->id,
+            'location_id' => $location->id,
+            'room_id' => $room->id,
+            'status' => 'active',
+            'duration_type' => 'monthly',
+            'duration_value' => 12,
+            'room_price' => 1500000,
+            'total_price' => 18000000,
+            'identity_type' => 'KTP',
+            'identity_number' => '99999',
+            'gender' => 'Laki-laki',
+            'birth_date' => '1990-01-01',
+        ]);
+
+        // Bill due in 5 days (Should be shown in table)
+        $nearBill1 = Bill::create([
+            'registration_id' => $registration->id,
+            'bill_number' => 'BILL-NEAR-001',
+            'description' => 'Sewa Bulan 1 (Terdekat)',
+            'amount' => 1500000,
+            'paid_amount' => 0,
+            'due_date' => now()->addDays(5),
+            'status' => 'Belum Lunas',
+        ]);
+
+        // Bill due in 20 days (Within 30 days, but second bill for same tenant -> Table picks earliest only)
+        $nearBill2 = Bill::create([
+            'registration_id' => $registration->id,
+            'bill_number' => 'BILL-NEAR-002',
+            'description' => 'Sewa Bulan 2 (Segera)',
+            'amount' => 1500000,
+            'paid_amount' => 0,
+            'due_date' => now()->addDays(20),
+            'status' => 'Belum Lunas',
+        ]);
+
+        // Bill due in 100 days (Far future -> Excluded from 30d window)
+        $farBill = Bill::create([
+            'registration_id' => $registration->id,
+            'bill_number' => 'BILL-FAR-001',
+            'description' => 'Sewa Bulan 4 (Masa Depan)',
+            'amount' => 1500000,
+            'paid_amount' => 0,
+            'due_date' => now()->addDays(100),
+            'status' => 'Belum Lunas',
+        ]);
+
+        $test = Livewire::actingAs($owner)
+            ->test(\App\Livewire\DashboardStats::class)
+            ->assertSet('outstandingBillsCount', 2) // Only 2 bills within 30 days
+            ->assertSet('outstandingBillsAmount', 3000000)
+            ->assertSee('Budi Santoso');
+
+        $upcomingBills = $test->viewData('upcomingBills');
+        $this->assertCount(1, $upcomingBills);
+        $this->assertEquals($nearBill1->id, $upcomingBills->first()->id);
+    }
 }
