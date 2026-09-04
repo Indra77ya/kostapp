@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Room;
 use App\Models\User;
+use App\Models\Location;
 use App\Models\Booking;
 use App\Models\Registration;
 use App\Models\Bill;
@@ -17,6 +18,9 @@ use Livewire\Component;
 
 class DashboardStats extends Component
 {
+    // Location Filter
+    public $selectedLocationId = '';
+
     // Admin / Owner KPI properties
     public $totalRooms = 0;
     public $availableRooms = 0;
@@ -46,6 +50,11 @@ class DashboardStats extends Component
         $this->refreshStats();
     }
 
+    public function updatedSelectedLocationId()
+    {
+        $this->refreshStats();
+    }
+
     public function refreshStats()
     {
         $user = Auth::user();
@@ -71,40 +80,57 @@ class DashboardStats extends Component
 
     private function loadAdminStats()
     {
-        $this->totalRooms = Room::count();
-        $this->availableRooms = Room::where('status', 'available')->count();
-        $this->occupiedRooms = Room::where('status', 'occupied')->count();
+        $roomQuery = Room::query();
+        if ($this->selectedLocationId) {
+            $roomQuery->where('location_id', $this->selectedLocationId);
+        }
+
+        $this->totalRooms = (clone $roomQuery)->count();
+        $this->availableRooms = (clone $roomQuery)->where('status', 'available')->count();
+        $this->occupiedRooms = (clone $roomQuery)->where('status', 'occupied')->count();
         $this->occupancyRate = $this->totalRooms > 0 ? round(($this->occupiedRooms / $this->totalRooms) * 100, 1) : 0;
 
-        $this->activeTenantsCount = Registration::where('status', 'active')->count();
+        $tenantQuery = Registration::where('status', 'active');
+        if ($this->selectedLocationId) {
+            $tenantQuery->where('location_id', $this->selectedLocationId);
+        }
+        $this->activeTenantsCount = $tenantQuery->count();
 
-        $this->monthlyRevenue = Payment::whereNotIn('status', ['Menunggu Konfirmasi', 'Ditolak'])
+        $revenueQuery = Payment::whereNotIn('status', ['Menunggu Konfirmasi', 'Ditolak'])
             ->whereYear('payment_date', now()->year)
-            ->whereMonth('payment_date', now()->month)
-            ->sum('amount');
+            ->whereMonth('payment_date', now()->month);
+        if ($this->selectedLocationId) {
+            $revenueQuery->whereHas('registration', function ($q) {
+                $q->where('location_id', $this->selectedLocationId);
+            });
+        }
+        $this->monthlyRevenue = $revenueQuery->sum('amount');
 
-        $this->outstandingBillsCount = Bill::whereHas('registration', function ($q) {
+        $billQuery = Bill::whereHas('registration', function ($q) {
                 $q->where('status', 'active');
+                if ($this->selectedLocationId) {
+                    $q->where('location_id', $this->selectedLocationId);
+                }
             })
             ->whereIn('status', ['Belum Lunas', 'Cicilan'])
-            ->where('due_date', '<=', now()->addDays(30))
-            ->count();
+            ->where('due_date', '<=', now()->addDays(30));
 
-        $this->outstandingBillsAmount = Bill::whereHas('registration', function ($q) {
-                $q->where('status', 'active');
-            })
-            ->whereIn('status', ['Belum Lunas', 'Cicilan'])
-            ->where('due_date', '<=', now()->addDays(30))
-            ->get()
+        $this->outstandingBillsCount = (clone $billQuery)->count();
+
+        $this->outstandingBillsAmount = (clone $billQuery)->get()
             ->sum(function ($bill) {
                 return max(0, $bill->amount - $bill->paid_amount);
             });
 
-        $this->pendingConfirmationsCount = Payment::whereHas('registration', function ($q) {
+        $pendingQuery = Payment::whereHas('registration', function ($q) {
                 $q->where('status', 'active');
+                if ($this->selectedLocationId) {
+                    $q->where('location_id', $this->selectedLocationId);
+                }
             })
-            ->where('status', 'Menunggu Konfirmasi')
-            ->count();
+            ->where('status', 'Menunggu Konfirmasi');
+
+        $this->pendingConfirmationsCount = $pendingQuery->count();
     }
 
     private function loadTenantStats($user)
@@ -298,6 +324,7 @@ class DashboardStats extends Component
         $upcomingBills = collect();
         $tenantBills = collect();
         $selectedPayment = null;
+        $locations = collect();
 
         $user = Auth::user();
 
@@ -310,9 +337,14 @@ class DashboardStats extends Component
                     ->get();
             }
         } else {
+            $locations = Location::orderBy('name')->get();
+
             $pendingPayments = Payment::with(['registration.user', 'registration.room', 'registration.location', 'bill', 'paymentMethod'])
                 ->whereHas('registration', function ($q) {
                     $q->where('status', 'active');
+                    if ($this->selectedLocationId) {
+                        $q->where('location_id', $this->selectedLocationId);
+                    }
                 })
                 ->where('status', 'Menunggu Konfirmasi')
                 ->orderBy('payment_date', 'desc')
@@ -322,6 +354,9 @@ class DashboardStats extends Component
             $upcomingBills = Bill::with(['registration.user', 'registration.room', 'registration.location'])
                 ->whereHas('registration', function ($q) {
                     $q->where('status', 'active');
+                    if ($this->selectedLocationId) {
+                        $q->where('location_id', $this->selectedLocationId);
+                    }
                 })
                 ->whereIn('status', ['Belum Lunas', 'Cicilan'])
                 ->where('due_date', '<=', now()->addDays(30))
@@ -340,6 +375,7 @@ class DashboardStats extends Component
             'upcomingBills' => $upcomingBills,
             'tenantBills' => $tenantBills,
             'selectedPayment' => $selectedPayment,
+            'locations' => $locations,
         ]);
     }
 }

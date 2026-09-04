@@ -419,4 +419,106 @@ class DashboardStatsTest extends TestCase
             ->assertSet('isDetailModalOpen', false)
             ->assertSet('selectedPaymentId', null);
     }
+
+    public function test_admin_can_filter_dashboard_stats_by_location()
+    {
+        $owner = User::factory()->create();
+        $owner->assignRole('owner');
+
+        $locationA = Location::create(['name' => 'Kost Ceria A']);
+        $locationB = Location::create(['name' => 'Kost Ceria B']);
+
+        // Rooms
+        $roomA = Room::create(['location_id' => $locationA->id, 'room_number' => 'A101', 'price_monthly' => 1000000, 'status' => 'occupied']);
+        $roomB = Room::create(['location_id' => $locationB->id, 'room_number' => 'B201', 'price_monthly' => 2000000, 'status' => 'occupied']);
+
+        // Tenants
+        $tenantA = User::factory()->create(['name' => 'Penghuni A']);
+        $tenantA->assignRole('tenant');
+
+        $tenantB = User::factory()->create(['name' => 'Penghuni B']);
+        $tenantB->assignRole('tenant');
+
+        // Registrations
+        $regA = Registration::create([
+            'registration_number' => 'REG-A',
+            'registration_date' => now(),
+            'stay_start_date' => now(),
+            'user_id' => $tenantA->id,
+            'location_id' => $locationA->id,
+            'room_id' => $roomA->id,
+            'status' => 'active',
+            'duration_type' => 'monthly',
+            'duration_value' => 12,
+            'room_price' => 1000000,
+            'total_price' => 12000000,
+            'identity_type' => 'KTP',
+            'identity_number' => '111',
+            'gender' => 'Laki-laki',
+            'birth_date' => '1990-01-01',
+        ]);
+
+        $regB = Registration::create([
+            'registration_number' => 'REG-B',
+            'registration_date' => now(),
+            'stay_start_date' => now(),
+            'user_id' => $tenantB->id,
+            'location_id' => $locationB->id,
+            'room_id' => $roomB->id,
+            'status' => 'active',
+            'duration_type' => 'monthly',
+            'duration_value' => 12,
+            'room_price' => 2000000,
+            'total_price' => 24000000,
+            'identity_type' => 'KTP',
+            'identity_number' => '222',
+            'gender' => 'Laki-laki',
+            'birth_date' => '1990-01-01',
+        ]);
+
+        // Unpaid Bills
+        Bill::create([
+            'registration_id' => $regA->id,
+            'bill_number' => 'BILL-A',
+            'description' => 'Tagihan A',
+            'amount' => 1000000,
+            'paid_amount' => 0,
+            'due_date' => now()->addDays(5),
+            'status' => 'Belum Lunas',
+        ]);
+
+        Bill::create([
+            'registration_id' => $regB->id,
+            'bill_number' => 'BILL-B',
+            'description' => 'Tagihan B',
+            'amount' => 2000000,
+            'paid_amount' => 0,
+            'due_date' => now()->addDays(5),
+            'status' => 'Belum Lunas',
+        ]);
+
+        // Unfiltered check (All locations)
+        Livewire::actingAs($owner)
+            ->test(\App\Livewire\DashboardStats::class)
+            ->assertSet('totalRooms', 2)
+            ->assertSet('activeTenantsCount', 2)
+            ->assertSet('outstandingBillsCount', 2)
+            ->assertSet('outstandingBillsAmount', 3000000)
+            // Filter by Location A
+            ->set('selectedLocationId', $locationA->id)
+            ->assertSet('totalRooms', 1)
+            ->assertSet('activeTenantsCount', 1)
+            ->assertSet('outstandingBillsCount', 1)
+            ->assertSet('outstandingBillsAmount', 1000000)
+            ->assertSee('Penghuni A')
+            ->assertDontSee('Penghuni B')
+            // Filter by Location B
+            ->set('selectedLocationId', $locationB->id)
+            ->assertSet('totalRooms', 1)
+            ->assertSet('activeTenantsCount', 1)
+            ->assertSet('outstandingBillsCount', 1)
+            ->assertSet('outstandingBillsAmount', 2000000)
+            ->assertSee('Penghuni B')
+            ->assertDontSee('Penghuni A');
+    }
 }
