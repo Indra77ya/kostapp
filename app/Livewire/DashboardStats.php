@@ -36,6 +36,10 @@ class DashboardStats extends Component
     public $selectedPaymentId = null;
     public $isDetailModalOpen = false;
 
+    // Occupied Room Detail Modal
+    public $selectedOccupiedRoomId = null;
+    public $isOccupiedRoomModalOpen = false;
+
     // Tenant properties
     public $tenantRegistration = null;
     public $tenantTotalOutstanding = 0;
@@ -76,6 +80,18 @@ class DashboardStats extends Component
     {
         $this->isDetailModalOpen = false;
         $this->selectedPaymentId = null;
+    }
+
+    public function showOccupiedRoomDetail($roomId)
+    {
+        $this->selectedOccupiedRoomId = $roomId;
+        $this->isOccupiedRoomModalOpen = true;
+    }
+
+    public function closeOccupiedRoomModal()
+    {
+        $this->isOccupiedRoomModalOpen = false;
+        $this->selectedOccupiedRoomId = null;
     }
 
     private function loadAdminStats()
@@ -324,7 +340,9 @@ class DashboardStats extends Component
         $upcomingBills = collect();
         $tenantBills = collect();
         $selectedPayment = null;
+        $selectedOccupiedRoom = null;
         $locations = collect();
+        $roomsMap = collect();
 
         $user = Auth::user();
 
@@ -365,8 +383,25 @@ class DashboardStats extends Component
                 ->unique('registration_id')
                 ->take(5);
 
+            $roomsMapQuery = Room::with(['location', 'registrations' => function ($q) {
+                    $q->where('status', 'active')->with(['user', 'bills']);
+                }])
+                ->orderBy('room_number');
+
+            if ($this->selectedLocationId) {
+                $roomsMapQuery->where('location_id', $this->selectedLocationId);
+            }
+
+            $roomsMap = $roomsMapQuery->get()->groupBy('location.name');
+
             if ($this->selectedPaymentId) {
                 $selectedPayment = Payment::with(['registration.user', 'registration.room', 'registration.location', 'bill', 'paymentMethod'])->find($this->selectedPaymentId);
+            }
+
+            if ($this->selectedOccupiedRoomId) {
+                $selectedOccupiedRoom = Room::with(['location', 'registrations' => function ($q) {
+                    $q->where('status', 'active')->with(['user', 'bills']);
+                }])->find($this->selectedOccupiedRoomId);
             }
         }
 
@@ -375,7 +410,9 @@ class DashboardStats extends Component
             'upcomingBills' => $upcomingBills,
             'tenantBills' => $tenantBills,
             'selectedPayment' => $selectedPayment,
+            'selectedOccupiedRoom' => $selectedOccupiedRoom,
             'locations' => $locations,
+            'roomsMap' => $roomsMap,
         ]);
     }
 }

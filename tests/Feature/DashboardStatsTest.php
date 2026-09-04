@@ -105,6 +105,7 @@ class DashboardStatsTest extends TestCase
             ->assertSee('2 Total Kamar')
             ->assertSee('Okupansi 50%')
             ->assertSee('Pintasan Cepat')
+            ->assertSee('Peta Status Kamar Real-time')
             ->assertSee('Konfirmasi Pembayaran Pending')
             ->assertSee('Tagihan Belum Lunas Terdekat');
     }
@@ -520,5 +521,49 @@ class DashboardStatsTest extends TestCase
             ->assertSet('outstandingBillsAmount', 2000000)
             ->assertSee('Penghuni B')
             ->assertDontSee('Penghuni A');
+    }
+
+    public function test_admin_can_open_occupied_room_detail_modal_on_dashboard()
+    {
+        $owner = User::factory()->create();
+        $owner->assignRole('owner');
+
+        $location = Location::create(['name' => 'Lokasi Anggrek']);
+        $room = Room::create(['location_id' => $location->id, 'room_number' => 'K-501', 'price_monthly' => 1500000, 'status' => 'occupied']);
+
+        $tenantUser = User::factory()->create(['name' => 'Dewi Lestari', 'phone_number' => '08123456789']);
+        $tenantUser->assignRole('tenant');
+
+        $registration = Registration::create([
+            'registration_number' => 'REG-ROOM-001',
+            'registration_date' => now(),
+            'stay_start_date' => now(),
+            'user_id' => $tenantUser->id,
+            'location_id' => $location->id,
+            'room_id' => $room->id,
+            'status' => 'active',
+            'duration_type' => 'monthly',
+            'duration_value' => 12,
+            'room_price' => 1500000,
+            'total_price' => 18000000,
+            'identity_type' => 'KTP',
+            'identity_number' => '88888',
+            'gender' => 'Perempuan',
+            'birth_date' => '1993-03-03',
+        ]);
+
+        Livewire::actingAs($owner)
+            ->test(\App\Livewire\DashboardStats::class)
+            ->assertSee('Peta Status Kamar Real-time')
+            ->assertSee('K-501')
+            ->call('showOccupiedRoomDetail', $room->id)
+            ->assertSet('isOccupiedRoomModalOpen', true)
+            ->assertSet('selectedOccupiedRoomId', $room->id)
+            ->assertSee('Informasi Kamar K-501')
+            ->assertSee('Dewi Lestari')
+            ->assertSee('08123456789')
+            ->call('closeOccupiedRoomModal')
+            ->assertSet('isOccupiedRoomModalOpen', false)
+            ->assertSet('selectedOccupiedRoomId', null);
     }
 }

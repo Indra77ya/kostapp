@@ -298,6 +298,76 @@
             </div>
         </div>
 
+        {{-- Visual Room Map Section --}}
+        <div class="card mb-3">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <h3 class="card-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon text-primary me-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l-2 0l9 -9l9 9l-2 0" /><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" /><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" /></svg>
+                    Peta Status Kamar Real-time
+                </h3>
+                <div class="d-flex align-items-center gap-2 small">
+                    <span class="badge bg-success text-white">Tersedia</span>
+                    <span class="badge bg-primary text-white">Terisi</span>
+                    <span class="badge bg-secondary text-white">Maintenance</span>
+                </div>
+            </div>
+            <div class="card-body">
+                @forelse($roomsMap as $locationName => $roomsList)
+                    <div class="mb-3">
+                        <div class="font-weight-bold text-secondary mb-2 small text-uppercase d-flex align-items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-map-pin me-1" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /><path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z" /></svg>
+                            {{ $locationName }} ({{ $roomsList->count() }} Kamar)
+                        </div>
+                        <div class="row g-2">
+                            @foreach($roomsList as $rm)
+                                @php
+                                    $activeReg = $rm->registrations->first();
+                                @endphp
+                                <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                                    @if($rm->status === 'available')
+                                        <div class="card card-sm border-success bg-success-lt hover-shadow cursor-pointer transition-all h-100">
+                                            <div class="card-body p-2 text-center">
+                                                <div class="badge bg-success text-white mb-1">Tersedia</div>
+                                                <div class="font-weight-bold h4 mb-0 text-dark">Kamar {{ $rm->room_number }}</div>
+                                                <div class="text-secondary x-small mb-2">Rp {{ number_format($rm->price_monthly, 0, ',', '.') }}/bln</div>
+                                                <a href="{{ route('registrations.index', ['room_id' => $rm->id]) }}" class="btn btn-success btn-xs w-100 shadow-sm">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user-plus" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /><path d="M16 11h6m-3 -3v6" /></svg>
+                                                    + Daftar
+                                                </a>
+                                            </div>
+                                        </div>
+                                    @elseif($rm->status === 'occupied')
+                                        <div wire:click="showOccupiedRoomDetail({{ $rm->id }})" class="card card-sm border-primary bg-primary-lt hover-shadow cursor-pointer transition-all h-100">
+                                            <div class="card-body p-2 text-center">
+                                                <div class="badge bg-primary text-white mb-1">Terisi</div>
+                                                <div class="font-weight-bold h4 mb-0 text-dark">Kamar {{ $rm->room_number }}</div>
+                                                <div class="text-primary font-weight-medium small text-truncate mt-1" title="{{ $activeReg->user->name ?? '-' }}">
+                                                    {{ $activeReg->user->name ?? 'Terisi' }}
+                                                </div>
+                                                <div class="text-secondary x-small">Klik untuk Detail</div>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <div class="card card-sm border-secondary bg-light h-100">
+                                            <div class="card-body p-2 text-center">
+                                                <div class="badge bg-secondary text-white mb-1">Maintenance</div>
+                                                <div class="font-weight-bold h4 mb-0 text-secondary">Kamar {{ $rm->room_number }}</div>
+                                                <div class="text-secondary x-small">Tidak Aktif</div>
+                                            </div>
+                                        </div>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @empty
+                    <div class="text-center py-4 text-secondary">
+                        Belum ada kamar yang terdaftar.
+                    </div>
+                @endforelse
+            </div>
+        </div>
+
         {{-- Tables Section --}}
         <div class="row row-cards">
             {{-- Pending Confirmations --}}
@@ -570,6 +640,77 @@
                                 <button type="button" class="btn btn-danger" wire:click="rejectPayment({{ $selectedPayment->id }})" wire:confirm="Tolak dan hapus pembayaran ini?">Tolak</button>
                                 <button type="button" class="btn btn-success" wire:click="approvePayment({{ $selectedPayment->id }})" wire:confirm="Setujui pembayaran ini?">Setujui Pembayaran</button>
                             </div>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        {{-- Occupied Room Detail Modal --}}
+        <div class="modal modal-blur fade {{ $isOccupiedRoomModalOpen ? 'show d-block' : '' }}" tabindex="-1" role="dialog" aria-hidden="true" style="{{ $isOccupiedRoomModalOpen ? 'background: rgba(0,0,0,0.5)' : '' }}">
+            <div class="modal-dialog modal-md modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    @if($selectedOccupiedRoom)
+                        @php
+                            $activeReg = $selectedOccupiedRoom->registrations->first();
+                            $unpaidBills = $activeReg ? $activeReg->bills->whereIn('status', ['Belum Lunas', 'Cicilan']) : collect();
+                            $totalUnpaid = $unpaidBills->sum(function($b) { return max(0, $b->amount - $b->paid_amount); });
+                        @endphp
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon text-primary me-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l-2 0l9 -9l9 9l-2 0" /><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" /><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" /></svg>
+                                Informasi Kamar {{ $selectedOccupiedRoom->room_number }}
+                            </h5>
+                            <button type="button" class="btn-close" wire:click="closeOccupiedRoomModal()"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="card bg-primary-lt border-0 mb-3">
+                                <div class="card-body p-3">
+                                    <div class="text-secondary small text-uppercase font-weight-bold">Lokasi</div>
+                                    <div class="h4 mb-0">{{ $selectedOccupiedRoom->location->name ?? '-' }}</div>
+                                </div>
+                            </div>
+
+                            @if($activeReg)
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <label class="form-label text-secondary small text-uppercase fw-bold mb-1">Nama Penghuni</label>
+                                        <div class="h3 text-primary mb-0">{{ $activeReg->user->name ?? '-' }}</div>
+                                        <div class="text-secondary small">{{ $activeReg->user->phone_number ?? 'No HP tidak tersedia' }}</div>
+                                    </div>
+
+                                    <div class="col-6">
+                                        <label class="form-label text-secondary small text-uppercase fw-bold mb-1">Tgl Mulai Sewa</label>
+                                        <div class="fw-bold">{{ \Carbon\Carbon::parse($activeReg->stay_start_date)->format('d F Y') }}</div>
+                                    </div>
+
+                                    <div class="col-6">
+                                        <label class="form-label text-secondary small text-uppercase fw-bold mb-1">Durasi Sewa</label>
+                                        <div class="fw-bold">{{ $activeReg->duration_value }} {{ ucfirst($activeReg->duration_type) }}</div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="p-3 rounded bg-light border">
+                                            <div class="d-flex align-items-center justify-content-between">
+                                                <span class="text-secondary small font-weight-bold">Status Tagihan Aktif:</span>
+                                                @if($totalUnpaid > 0)
+                                                    <span class="badge bg-danger text-white">Tunggakan: Rp {{ number_format($totalUnpaid, 0, ',', '.') }}</span>
+                                                @else
+                                                    <span class="badge bg-success text-white">Lunas</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @else
+                                <div class="alert alert-info mb-0">Tidak ada pendaftaran aktif pada kamar ini.</div>
+                            @endif
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-link link-secondary" wire:click="closeOccupiedRoomModal()">Tutup</button>
+                            <a href="{{ route('registrations.index') }}" class="btn btn-primary ms-auto">
+                                Kelola Check-in
+                            </a>
                         </div>
                     @endif
                 </div>
