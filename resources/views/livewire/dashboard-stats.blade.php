@@ -1,73 +1,99 @@
 <div>
     @if(auth()->user()->hasRole('tenant'))
         {{-- Tenant Dashboard View --}}
-        <div class="row row-cards mb-3">
-            <div class="col-sm-6 col-lg-4">
-                <div class="card card-sm">
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col-auto">
-                                <span class="bg-primary text-white avatar">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l-2 0l9 -9l9 9l-2 0" /><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" /><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" /></svg>
-                                </span>
-                            </div>
-                            <div class="col">
-                                <div class="font-weight-medium">
-                                    {{ $tenantRegistration ? 'Kamar ' . $tenantRegistration->room->room_number : 'Belum Terdaftar' }}
-                                </div>
-                                <div class="text-secondary">
-                                    {{ $tenantRegistration ? $tenantRegistration->location->name : 'Status Hunian Nonaktif' }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+        @if($tenantPendingConfirmations > 0)
+            <div class="alert alert-warning d-flex align-items-center mb-3" role="alert">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v4" /><path d="M12 17h.01" /><path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.48 0l-7.1 12.25a2 2 0 0 0 1.74 2.75z" /></svg>
+                <div>
+                    <strong>Konfirmasi Pembayaran Diproses:</strong> Anda memiliki <strong>{{ $tenantPendingConfirmations }}</strong> pembayaran yang sedang menunggu konfirmasi admin.
                 </div>
             </div>
+        @endif
 
-            <div class="col-sm-6 col-lg-4">
-                <div class="card card-sm">
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col-auto">
-                                <span class="bg-danger text-white avatar">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /><path d="M9 14l6 0" /></svg>
-                                </span>
-                            </div>
-                            <div class="col">
-                                <div class="font-weight-medium">
-                                    Rp {{ number_format($tenantTotalOutstanding, 0, ',', '.') }}
+        @if($tenantRegistration)
+            <div class="card mb-3 bg-primary-lt border-0">
+                <div class="card-body p-3">
+                    <div class="row align-items-center g-3">
+                        <div class="col-md-3">
+                            <div class="text-secondary small font-weight-bold text-uppercase">Lokasi & Kamar</div>
+                            <div class="h4 mb-0 text-primary">Kamar {{ $tenantRegistration->room->room_number }}</div>
+                            <div class="small text-secondary">{{ $tenantRegistration->location->name }}</div>
+                        </div>
+                        <div class="col-md-3 border-start-md">
+                            <div class="text-secondary small font-weight-bold text-uppercase">Mulai Sewa</div>
+                            <div class="h4 mb-0 text-dark">{{ \Carbon\Carbon::parse($tenantRegistration->stay_start_date)->format('d F Y') }}</div>
+                            <div class="small text-secondary">Tipe: {{ ucfirst($tenantRegistration->duration_type) }} {{ $tenantRegistration->is_open_ended ? '(Berlanjut)' : '' }}</div>
+                        </div>
+                        <div class="col-md-3 border-start-md">
+                            <div class="text-secondary small font-weight-bold text-uppercase">Total Tagihan Belum Lunas</div>
+                            <div class="h4 mb-0 text-danger">Rp {{ number_format($tenantTotalOutstanding, 0, ',', '.') }}</div>
+                            <div class="small text-secondary">{{ $tenantUnpaidBillsCount }} Tagihan Aktif</div>
+                        </div>
+                        <div class="col-md-3 border-start-md">
+                            <div class="text-secondary small font-weight-bold text-uppercase">Saldo Deposit</div>
+                            <div class="h4 mb-0 text-success">Rp {{ number_format($tenantDepositBalance, 0, ',', '.') }}</div>
+                            <div class="small text-secondary">Saldo Tersimpan</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @else
+            <div class="row row-cards mb-3">
+                <div class="col-sm-6 col-lg-4">
+                    <div class="card card-sm">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <span class="bg-primary text-white avatar">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l-2 0l9 -9l9 9l-2 0" /><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" /><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" /></svg>
+                                    </span>
                                 </div>
-                                <div class="text-secondary">
-                                    {{ $tenantUnpaidBillsCount }} Tagihan Belum Lunas
+                                <div class="col">
+                                    <div class="font-weight-medium">Belum Terdaftar</div>
+                                    <div class="text-secondary">Status Hunian Nonaktif</div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="col-sm-6 col-lg-4">
-                <div class="card card-sm">
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col-auto">
-                                <span class="bg-success text-white avatar">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 8v-3a1 1 0 0 0 -1 -1h-10a2 2 0 0 0 0 4h12a1 1 0 0 1 1 1v3m0 4v3a1 1 0 0 1 -1 1h-12a2 2 0 0 1 -2 -2v-12" /><path d="M20 12v4h-4a2 2 0 0 1 0 -4h4" /></svg>
-                                </span>
-                            </div>
-                            <div class="col">
-                                <div class="font-weight-medium">
-                                    Rp {{ number_format($tenantDepositBalance, 0, ',', '.') }}
+                <div class="col-sm-6 col-lg-4">
+                    <div class="card card-sm">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <span class="bg-danger text-white avatar">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /><path d="M9 14l6 0" /></svg>
+                                    </span>
                                 </div>
-                                <div class="text-secondary">
-                                    Saldo Deposit Anda
+                                <div class="col">
+                                    <div class="font-weight-medium">Rp {{ number_format($tenantTotalOutstanding, 0, ',', '.') }}</div>
+                                    <div class="text-secondary">{{ $tenantUnpaidBillsCount }} Tagihan Belum Lunas</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-lg-4">
+                    <div class="card card-sm">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <span class="bg-success text-white avatar">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 8v-3a1 1 0 0 0 -1 -1h-10a2 2 0 0 0 0 4h12a1 1 0 0 1 1 1v3m0 4v3a1 1 0 0 1 -1 1h-12a2 2 0 0 1 -2 -2v-12" /><path d="M20 12v4h-4a2 2 0 0 1 0 -4h4" /></svg>
+                                    </span>
+                                </div>
+                                <div class="col">
+                                    <div class="font-weight-medium">Rp {{ number_format($tenantDepositBalance, 0, ',', '.') }}</div>
+                                    <div class="text-secondary">Saldo Deposit Anda</div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        @endif
 
         {{-- Tenant Quick Action & Tenant Bills --}}
         <div class="card mb-3">
