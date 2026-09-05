@@ -227,7 +227,9 @@ class DashboardStatsTest extends TestCase
             ->assertSee('Kamar 201')
             ->assertSee('Lokasi Melati')
             ->assertSee('Ringkasan Tagihan Aktif Anda')
-            ->assertSee('BILL-TENANT-001');
+            ->assertSee('BILL-TENANT-001')
+            ->assertSee('Bayar')
+            ->assertSee(route('tenant.payments', ['bill_id' => $bill->id]));
     }
 
     public function test_checked_out_tenant_bills_are_excluded_from_dashboard()

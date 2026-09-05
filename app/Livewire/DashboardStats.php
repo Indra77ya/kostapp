@@ -351,7 +351,6 @@ class DashboardStats extends Component
                 $tenantBills = Bill::where('registration_id', $this->tenantRegistration->id)
                     ->whereIn('status', ['Belum Lunas', 'Cicilan'])
                     ->orderBy('due_date', 'asc')
-                    ->take(5)
                     ->get();
             }
         } else {
