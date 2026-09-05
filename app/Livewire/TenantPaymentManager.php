@@ -58,6 +58,17 @@ class TenantPaymentManager extends Component
             $paymentsCount = Payment::where('registration_id', $registration->id)->count();
             $lastPaymentPage = ceil($paymentsCount / 12);
             $this->setPage($lastPaymentPage, 'paymentsPage');
+
+            // Handle bill_id parameter passed via URL (e.g., from Dashboard)
+            $billIdParam = request()->query('bill_id');
+            if ($billIdParam && is_numeric($billIdParam)) {
+                $billExists = Bill::where('id', $billIdParam)
+                    ->where('registration_id', $registration->id)
+                    ->exists();
+                if ($billExists) {
+                    $this->openModal($billIdParam);
+                }
+            }
         }
     }
 

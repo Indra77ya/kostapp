@@ -227,7 +227,9 @@ class DashboardStatsTest extends TestCase
             ->assertSee('Kamar 201')
             ->assertSee('Lokasi Melati')
             ->assertSee('Ringkasan Tagihan Aktif Anda')
-            ->assertSee('BILL-TENANT-001');
+            ->assertSee('BILL-TENANT-001')
+            ->assertSee('Bayar')
+            ->assertSee(route('tenant.payments', ['bill_id' => $bill->id]));
     }
 
     public function test_checked_out_tenant_bills_are_excluded_from_dashboard()
@@ -565,5 +567,36 @@ class DashboardStatsTest extends TestCase
             ->call('closeOccupiedRoomModal')
             ->assertSet('isOccupiedRoomModalOpen', false)
             ->assertSet('selectedOccupiedRoomId', null);
+    }
+
+    public function test_admin_can_toggle_room_map_view_mode_and_status_filter()
+    {
+        $owner = User::factory()->create();
+        $owner->assignRole('owner');
+
+        $location = Location::create(['name' => 'Kost Teratai']);
+        $room1 = Room::create(['location_id' => $location->id, 'room_number' => 'T101', 'price_monthly' => 1000000, 'status' => 'available']);
+        $room2 = Room::create(['location_id' => $location->id, 'room_number' => 'T102', 'price_monthly' => 1200000, 'status' => 'occupied']);
+
+        Livewire::actingAs($owner)
+            ->test(\App\Livewire\DashboardStats::class)
+            ->assertSet('roomMapViewMode', 'grid')
+            ->assertSet('roomMapStatusFilter', 'all')
+            ->assertSee('T101')
+            ->assertSee('T102')
+            // Switch filter to 'available'
+            ->set('roomMapStatusFilter', 'available')
+            ->assertSee('T101')
+            ->assertDontSee('T102')
+            // Switch filter to 'occupied'
+            ->set('roomMapStatusFilter', 'occupied')
+            ->assertSee('T102')
+            ->assertDontSee('T101')
+            // Switch view mode to 'table'
+            ->set('roomMapViewMode', 'table')
+            ->assertSet('roomMapViewMode', 'table')
+            ->assertSee('No. Kamar')
+            ->assertSee('Harga / Bln')
+            ->assertSee('T102');
     }
 }

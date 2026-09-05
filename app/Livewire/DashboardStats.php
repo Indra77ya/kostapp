@@ -21,6 +21,10 @@ class DashboardStats extends Component
     // Location Filter
     public $selectedLocationId = '';
 
+    // Room Map View & Filter Properties
+    public $roomMapViewMode = 'grid'; // 'grid' or 'table'
+    public $roomMapStatusFilter = 'all'; // 'all', 'available', 'occupied', 'maintenance'
+
     // Admin / Owner KPI properties
     public $totalRooms = 0;
     public $availableRooms = 0;
@@ -351,7 +355,6 @@ class DashboardStats extends Component
                 $tenantBills = Bill::where('registration_id', $this->tenantRegistration->id)
                     ->whereIn('status', ['Belum Lunas', 'Cicilan'])
                     ->orderBy('due_date', 'asc')
-                    ->take(5)
                     ->get();
             }
         } else {
@@ -390,6 +393,10 @@ class DashboardStats extends Component
 
             if ($this->selectedLocationId) {
                 $roomsMapQuery->where('location_id', $this->selectedLocationId);
+            }
+
+            if ($this->roomMapStatusFilter && $this->roomMapStatusFilter !== 'all') {
+                $roomsMapQuery->where('status', $this->roomMapStatusFilter);
             }
 
             $roomsMap = $roomsMapQuery->get()->groupBy('location.name');
