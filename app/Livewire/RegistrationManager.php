@@ -69,6 +69,17 @@ class RegistrationManager extends Component
     {
         $this->registration_date = Carbon::now()->format('Y-m-d');
         $this->generateRegistrationNumber();
+
+        if (request()->has('room_id')) {
+            $roomId = request('room_id');
+            $room = Room::find($roomId);
+            if ($room && $room->status === 'available') {
+                $this->openModal();
+                $this->location_id = $room->location_id;
+                $this->room_id = $room->id;
+                $this->updatedRoomId($room->id);
+            }
+        }
     }
 
     public function addEmergencyContact()
