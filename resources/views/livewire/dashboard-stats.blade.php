@@ -342,27 +342,27 @@
                 <div class="d-flex align-items-center flex-wrap gap-2 ms-auto">
                     {{-- Status Filter Buttons --}}
                     <div class="btn-group btn-group-sm" role="group">
-                        <button type="button" wire:click="$set('roomMapStatusFilter', 'all')" class="btn {{ $roomMapStatusFilter === 'all' ? 'btn-primary' : 'btn-white' }}">
+                        <button type="button" wire:click="$set('roomMapStatusFilter', 'all')" class="btn d-inline-flex align-items-center justify-content-center {{ $roomMapStatusFilter === 'all' ? 'btn-primary' : 'btn-white' }}">
                             Semua
                         </button>
-                        <button type="button" wire:click="$set('roomMapStatusFilter', 'available')" class="btn {{ $roomMapStatusFilter === 'available' ? 'btn-success text-white' : 'btn-white' }}">
+                        <button type="button" wire:click="$set('roomMapStatusFilter', 'available')" class="btn d-inline-flex align-items-center justify-content-center {{ $roomMapStatusFilter === 'available' ? 'btn-success text-white' : 'btn-white' }}">
                             Tersedia
                         </button>
-                        <button type="button" wire:click="$set('roomMapStatusFilter', 'occupied')" class="btn {{ $roomMapStatusFilter === 'occupied' ? 'btn-azure text-white' : 'btn-white' }}">
+                        <button type="button" wire:click="$set('roomMapStatusFilter', 'occupied')" class="btn d-inline-flex align-items-center justify-content-center {{ $roomMapStatusFilter === 'occupied' ? 'btn-azure text-white' : 'btn-white' }}">
                             Terisi
                         </button>
-                        <button type="button" wire:click="$set('roomMapStatusFilter', 'maintenance')" class="btn {{ $roomMapStatusFilter === 'maintenance' ? 'btn-secondary text-white' : 'btn-white' }}">
+                        <button type="button" wire:click="$set('roomMapStatusFilter', 'maintenance')" class="btn d-inline-flex align-items-center justify-content-center {{ $roomMapStatusFilter === 'maintenance' ? 'btn-secondary text-white' : 'btn-white' }}">
                             Maintenance
                         </button>
                     </div>
 
                     {{-- View Mode Switcher (Grid / Table) --}}
                     <div class="btn-group btn-group-sm" role="group">
-                        <button type="button" wire:click="$set('roomMapViewMode', 'grid')" class="btn {{ $roomMapViewMode === 'grid' ? 'btn-primary' : 'btn-white' }}" title="Tampilan Grid">
+                        <button type="button" wire:click="$set('roomMapViewMode', 'grid')" class="btn d-inline-flex align-items-center justify-content-center gap-1 {{ $roomMapViewMode === 'grid' ? 'btn-primary' : 'btn-white' }}" title="Tampilan Grid">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-layout-grid m-0" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" /><path d="M14 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" /><path d="M4 14m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" /><path d="M14 14m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" /></svg>
                             Grid
                         </button>
-                        <button type="button" wire:click="$set('roomMapViewMode', 'table')" class="btn {{ $roomMapViewMode === 'table' ? 'btn-primary' : 'btn-white' }}" title="Tampilan Tabel">
+                        <button type="button" wire:click="$set('roomMapViewMode', 'table')" class="btn d-inline-flex align-items-center justify-content-center gap-1 {{ $roomMapViewMode === 'table' ? 'btn-primary' : 'btn-white' }}" title="Tampilan Tabel">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-list m-0" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 6l11 0" /><path d="M9 12l11 0" /><path d="M9 18l11 0" /><path d="M5 6l0 .01" /><path d="M5 12l0 .01" /><path d="M5 18l0 .01" /></svg>
                             Tabel
                         </button>
