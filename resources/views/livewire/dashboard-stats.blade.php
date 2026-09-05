@@ -333,72 +333,179 @@
 
         {{-- Visual Room Map Section --}}
         <div class="card mb-3">
-            <div class="card-header d-flex align-items-center justify-content-between">
+            <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2 py-2">
                 <h3 class="card-title d-flex align-items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon text-primary me-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l-2 0l9 -9l9 9l-2 0" /><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" /><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" /></svg>
                     <span>Peta Status Kamar Real-time</span>
                 </h3>
-                <div class="d-flex align-items-center gap-2 small">
-                    <span class="badge bg-success text-white">Tersedia</span>
-                    <span class="badge bg-primary text-white">Terisi</span>
-                    <span class="badge bg-secondary text-white">Maintenance</span>
+
+                <div class="d-flex align-items-center flex-wrap gap-2 ms-auto">
+                    {{-- Status Filter Buttons --}}
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" wire:click="$set('roomMapStatusFilter', 'all')" class="btn {{ $roomMapStatusFilter === 'all' ? 'btn-primary' : 'btn-white' }}">
+                            Semua
+                        </button>
+                        <button type="button" wire:click="$set('roomMapStatusFilter', 'available')" class="btn {{ $roomMapStatusFilter === 'available' ? 'btn-success text-white' : 'btn-white' }}">
+                            Tersedia
+                        </button>
+                        <button type="button" wire:click="$set('roomMapStatusFilter', 'occupied')" class="btn {{ $roomMapStatusFilter === 'occupied' ? 'btn-azure text-white' : 'btn-white' }}">
+                            Terisi
+                        </button>
+                        <button type="button" wire:click="$set('roomMapStatusFilter', 'maintenance')" class="btn {{ $roomMapStatusFilter === 'maintenance' ? 'btn-secondary text-white' : 'btn-white' }}">
+                            Maintenance
+                        </button>
+                    </div>
+
+                    {{-- View Mode Switcher (Grid / Table) --}}
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" wire:click="$set('roomMapViewMode', 'grid')" class="btn {{ $roomMapViewMode === 'grid' ? 'btn-primary' : 'btn-white' }}" title="Tampilan Grid">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-layout-grid m-0" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" /><path d="M14 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" /><path d="M4 14m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" /><path d="M14 14m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" /></svg>
+                            Grid
+                        </button>
+                        <button type="button" wire:click="$set('roomMapViewMode', 'table')" class="btn {{ $roomMapViewMode === 'table' ? 'btn-primary' : 'btn-white' }}" title="Tampilan Tabel">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-list m-0" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 6l11 0" /><path d="M9 12l11 0" /><path d="M9 18l11 0" /><path d="M5 6l0 .01" /><path d="M5 12l0 .01" /><path d="M5 18l0 .01" /></svg>
+                            Tabel
+                        </button>
+                    </div>
                 </div>
             </div>
-            <div class="card-body">
-                @forelse($roomsMap as $locationName => $roomsList)
-                    <div class="mb-3">
-                        <div class="font-weight-bold text-secondary mb-2 small text-uppercase d-flex align-items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-map-pin me-1" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /><path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z" /></svg>
-                            {{ $locationName }} ({{ $roomsList->count() }} Kamar)
-                        </div>
-                        <div class="row g-2">
-                            @foreach($roomsList as $rm)
-                                @php
-                                    $activeReg = $rm->registrations->first();
-                                @endphp
-                                <div class="col-6 col-sm-4 col-md-3 col-lg-2">
-                                    @if($rm->status === 'available')
-                                        <div class="card card-sm border-success bg-success-lt hover-shadow cursor-pointer transition-all h-100">
-                                            <div class="card-body p-2 text-center">
-                                                <div class="badge bg-success text-white mb-1">Tersedia</div>
-                                                <div class="font-weight-bold h4 mb-0 text-dark">Kamar {{ $rm->room_number }}</div>
-                                                <div class="text-secondary x-small mb-2">Rp {{ number_format($rm->price_monthly, 0, ',', '.') }}/bln</div>
-                                                <a href="{{ route('registrations.index', ['room_id' => $rm->id]) }}" class="btn btn-success btn-xs w-100 shadow-sm">
+
+            @if($roomMapViewMode === 'table')
+                {{-- Table Layout View --}}
+                <div class="card-table table-responsive">
+                    <table class="table table-vcenter card-table">
+                        <thead>
+                            <tr>
+                                <th>Lokasi</th>
+                                <th>No. Kamar</th>
+                                <th>Harga / Bln</th>
+                                <th>Status</th>
+                                <th>Penghuni</th>
+                                <th class="text-end">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @php $hasRooms = false; @endphp
+                            @foreach($roomsMap as $locationName => $roomsList)
+                                @foreach($roomsList as $rm)
+                                    @php
+                                        $hasRooms = true;
+                                        $activeReg = $rm->registrations->first();
+                                    @endphp
+                                    <tr>
+                                        <td>
+                                            <div class="font-weight-medium small">{{ $rm->location->name ?? $locationName }}</div>
+                                        </td>
+                                        <td>
+                                            <span class="font-weight-bold text-dark">Kamar {{ $rm->room_number }}</span>
+                                        </td>
+                                        <td>
+                                            Rp {{ number_format($rm->price_monthly, 0, ',', '.') }}
+                                        </td>
+                                        <td>
+                                            @if($rm->status === 'available')
+                                                <span class="badge bg-success text-white">Tersedia</span>
+                                            @elseif($rm->status === 'occupied')
+                                                <span class="badge bg-primary text-white">Terisi</span>
+                                            @else
+                                                <span class="badge bg-secondary text-white">Maintenance</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if($rm->status === 'occupied' && $activeReg)
+                                                <div class="font-weight-medium text-primary">{{ $activeReg->user->name ?? '-' }}</div>
+                                                <div class="text-secondary x-small">{{ $activeReg->user->phone_number ?? '-' }}</div>
+                                            @else
+                                                <span class="text-secondary small">-</span>
+                                            @endif
+                                        </td>
+                                        <td class="text-end">
+                                            @if($rm->status === 'available')
+                                                <a href="{{ route('registrations.index', ['room_id' => $rm->id]) }}" class="btn btn-success btn-xs">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user-plus" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /><path d="M16 11h6m-3 -3v6" /></svg>
                                                     + Daftar
                                                 </a>
-                                            </div>
-                                        </div>
-                                    @elseif($rm->status === 'occupied')
-                                        <div wire:click="showOccupiedRoomDetail({{ $rm->id }})" class="card card-sm border-primary bg-primary-lt hover-shadow cursor-pointer transition-all h-100">
-                                            <div class="card-body p-2 text-center">
-                                                <div class="badge bg-primary text-white mb-1">Terisi</div>
-                                                <div class="font-weight-bold h4 mb-0 text-dark">Kamar {{ $rm->room_number }}</div>
-                                                <div class="text-primary font-weight-medium small text-truncate mt-1" title="{{ $activeReg->user->name ?? '-' }}">
-                                                    {{ $activeReg->user->name ?? 'Terisi' }}
-                                                </div>
-                                                <div class="text-secondary x-small">Klik untuk Detail</div>
-                                            </div>
-                                        </div>
-                                    @else
-                                        <div class="card card-sm border-secondary bg-light h-100">
-                                            <div class="card-body p-2 text-center">
-                                                <div class="badge bg-secondary text-white mb-1">Maintenance</div>
-                                                <div class="font-weight-bold h4 mb-0 text-secondary">Kamar {{ $rm->room_number }}</div>
-                                                <div class="text-secondary x-small">Tidak Aktif</div>
-                                            </div>
-                                        </div>
-                                    @endif
-                                </div>
+                                            @elseif($rm->status === 'occupied')
+                                                <button wire:click="showOccupiedRoomDetail({{ $rm->id }})" class="btn btn-white btn-xs">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-eye me-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" /></svg>
+                                                    Detail
+                                                </button>
+                                            @else
+                                                <span class="text-secondary x-small">N/A</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
                             @endforeach
+
+                            @if(!$hasRooms)
+                                <tr>
+                                    <td colspan="6" class="text-center py-4 text-secondary">
+                                        Tidak ada kamar yang sesuai dengan filter.
+                                    </td>
+                                </tr>
+                            @endif
+                        </tbody>
+                    </table>
+                </div>
+            @else
+                {{-- Grid Layout View --}}
+                <div class="card-body">
+                    @forelse($roomsMap as $locationName => $roomsList)
+                        <div class="mb-3">
+                            <div class="font-weight-bold text-secondary mb-2 small text-uppercase d-flex align-items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-map-pin me-1" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /><path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z" /></svg>
+                                {{ $locationName }} ({{ $roomsList->count() }} Kamar)
+                            </div>
+                            <div class="row g-2">
+                                @foreach($roomsList as $rm)
+                                    @php
+                                        $activeReg = $rm->registrations->first();
+                                    @endphp
+                                    <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                                        @if($rm->status === 'available')
+                                            <div class="card card-sm border-success bg-success-lt hover-shadow cursor-pointer transition-all h-100">
+                                                <div class="card-body p-2 text-center">
+                                                    <div class="badge bg-success text-white mb-1">Tersedia</div>
+                                                    <div class="font-weight-bold h4 mb-0 text-dark">Kamar {{ $rm->room_number }}</div>
+                                                    <div class="text-secondary x-small mb-2">Rp {{ number_format($rm->price_monthly, 0, ',', '.') }}/bln</div>
+                                                    <a href="{{ route('registrations.index', ['room_id' => $rm->id]) }}" class="btn btn-success btn-xs w-100 shadow-sm">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user-plus" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /><path d="M16 11h6m-3 -3v6" /></svg>
+                                                        + Daftar
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        @elseif($rm->status === 'occupied')
+                                            <div wire:click="showOccupiedRoomDetail({{ $rm->id }})" class="card card-sm border-primary bg-primary-lt hover-shadow cursor-pointer transition-all h-100">
+                                                <div class="card-body p-2 text-center">
+                                                    <div class="badge bg-primary text-white mb-1">Terisi</div>
+                                                    <div class="font-weight-bold h4 mb-0 text-dark">Kamar {{ $rm->room_number }}</div>
+                                                    <div class="text-primary font-weight-medium small text-truncate mt-1" title="{{ $activeReg->user->name ?? '-' }}">
+                                                        {{ $activeReg->user->name ?? 'Terisi' }}
+                                                    </div>
+                                                    <div class="text-secondary x-small">Klik untuk Detail</div>
+                                                </div>
+                                            </div>
+                                        @else
+                                            <div class="card card-sm border-secondary bg-light h-100">
+                                                <div class="card-body p-2 text-center">
+                                                    <div class="badge bg-secondary text-white mb-1">Maintenance</div>
+                                                    <div class="font-weight-bold h4 mb-0 text-secondary">Kamar {{ $rm->room_number }}</div>
+                                                    <div class="text-secondary x-small">Tidak Aktif</div>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </div>
                         </div>
-                    </div>
-                @empty
-                    <div class="text-center py-4 text-secondary">
-                        Belum ada kamar yang terdaftar.
-                    </div>
-                @endforelse
-            </div>
+                    @empty
+                        <div class="text-center py-4 text-secondary">
+                            Belum ada kamar yang terdaftar.
+                        </div>
+                    @endforelse
+                </div>
+            @endif
         </div>
 
         {{-- Tables Section --}}
