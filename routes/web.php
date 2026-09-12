@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\FinancialReportExportController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ProfileController;
 use App\Livewire\SystemSettings;
@@ -98,6 +99,7 @@ Route::middleware('auth')->group(function () {
                 Route::get('/trial-balance', fn() => view('accounting.trial-balance'))->name('trial-balance');
                 Route::get('/profit-loss', fn() => view('accounting.profit-loss'))->name('profit-loss');
                 Route::get('/cash-flow', fn() => view('accounting.cash-flow'))->name('cash-flow');
+                Route::get('/export/{type}', [FinancialReportExportController::class, 'export'])->name('export');
             });
         });
     });
