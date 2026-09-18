@@ -198,9 +198,9 @@
                                 <td class="text-end font-monospace fw-bold">Rp {{ number_format($t->rate_per_unit, 0, ',', '.') }}</td>
                                 <td>
                                     @if($t->is_active)
-                                        <span class="badge bg-success">Aktif</span>
+                                        <span class="badge bg-success-lt">Aktif</span>
                                     @else
-                                        <span class="badge bg-danger">Nonaktif</span>
+                                        <span class="badge bg-danger-lt">Nonaktif</span>
                                     @endif
                                 </td>
                                 <td class="text-end">
