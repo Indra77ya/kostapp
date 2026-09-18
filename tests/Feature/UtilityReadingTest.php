@@ -186,4 +186,52 @@ class UtilityReadingTest extends TestCase
         $response->assertSee('UTIL-TEST-0001');
         $response->assertSee('50,00 kWh');
     }
+
+    public function test_sync_bills_does_not_overwrite_utility_bills()
+    {
+        $utilityType = UtilityType::create([
+            'location_id' => $this->location->id,
+            'name' => 'Listrik PLN',
+            'unit' => 'kWh',
+            'rate_per_unit' => 1800,
+            'is_active' => true,
+        ]);
+
+        $bill = Bill::create([
+            'registration_id' => $this->registration->id,
+            'bill_number' => 'UTIL-20260918-7452',
+            'description' => 'Tagihan Utilitas Listrik PLN Kamar 101 (September 2026): 51 kWh',
+            'discount' => 0,
+            'amount' => 91800,
+            'paid_amount' => 0,
+            'due_date' => now()->addDays(7),
+            'status' => 'Belum Lunas',
+        ]);
+
+        UtilityReading::create([
+            'location_id' => $this->location->id,
+            'room_id' => $this->room->id,
+            'registration_id' => $this->registration->id,
+            'utility_type_id' => $utilityType->id,
+            'reading_date' => now()->format('Y-m-d'),
+            'period_month' => (int) now()->format('m'),
+            'period_year' => (int) now()->format('Y'),
+            'previous_reading' => 1000,
+            'current_reading' => 1051,
+            'usage_amount' => 51,
+            'rate_per_unit' => 1800,
+            'total_amount' => 91800,
+            'status' => 'billed',
+            'bill_id' => $bill->id,
+        ]);
+
+        // Trigger syncBills
+        $this->registration->syncBills();
+
+        // Reload bill from database
+        $bill->refresh();
+
+        $this->assertEquals(91800, $bill->amount);
+        $this->assertStringContainsString('Tagihan Utilitas', $bill->description);
+    }
 }
