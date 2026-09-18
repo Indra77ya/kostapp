@@ -513,6 +513,19 @@ class UtilityManager extends Component
     public function updatingFilterYear() { $this->resetPage(); }
     public function updatingSearchRoom() { $this->resetPage(); }
 
+    public function getActiveTenantProperty()
+    {
+        if (!$this->reading_room_id) {
+            return null;
+        }
+        $reg = Registration::where('room_id', $this->reading_room_id)
+            ->where('status', 'active')
+            ->with('user')
+            ->first();
+
+        return $reg ? $reg->user : null;
+    }
+
     public function render()
     {
         $locations = Location::orderBy('name')->get();
@@ -552,7 +565,12 @@ class UtilityManager extends Component
 
         if ($this->reading_location_id) {
             $modalUtilityTypes = UtilityType::where('location_id', $this->reading_location_id)->where('is_active', true)->orderBy('name')->get();
-            $modalRooms = Room::where('location_id', $this->reading_location_id)->orderBy('room_number')->get();
+            $modalRooms = Room::where('location_id', $this->reading_location_id)
+                ->with(['registrations' => function ($q) {
+                    $q->where('status', 'active')->with('user');
+                }])
+                ->orderBy('room_number')
+                ->get();
         }
 
         return view('livewire.utility-manager', [

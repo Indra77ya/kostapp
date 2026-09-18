@@ -312,7 +312,13 @@
                                     <select class="form-select @error('reading_room_id') is-invalid @enderror" wire:model.live="reading_room_id">
                                         <option value="">-- Pilih Kamar --</option>
                                         @foreach($modalRooms as $rm)
-                                            <option value="{{ $rm->id }}">Kamar {{ $rm->room_number }}</option>
+                                            @php
+                                                $activeReg = $rm->registrations->first();
+                                                $tenantName = $activeReg && $activeReg->user ? $activeReg->user->name : null;
+                                            @endphp
+                                            <option value="{{ $rm->id }}">
+                                                Kamar {{ $rm->room_number }} {{ $tenantName ? "({$tenantName})" : '(Kosong)' }}
+                                            </option>
                                         @endforeach
                                     </select>
                                     @error('reading_room_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -410,8 +416,15 @@
                                 @if(!$readingId)
                                     <div class="col-12">
                                         <label class="form-check">
-                                            <input class="form-check-input" type="checkbox" wire:model="auto_generate_bill">
-                                            <span class="form-check-label fw-semibold">Otomatis buat & terbitkan data Tagihan (Bill) ke penghuni aktif kamar ini</span>
+                                            <input class="form-check-input" type="checkbox" wire:model="auto_generate_bill" {{ !$this->activeTenant ? 'disabled' : '' }}>
+                                            <span class="form-check-label fw-semibold">
+                                                Otomatis buat & terbitkan data Tagihan (Bill) ke penghuni aktif:
+                                                @if($this->activeTenant)
+                                                    <span class="badge bg-blue-lt ms-1">{{ $this->activeTenant->name }}</span>
+                                                @else
+                                                    <span class="text-danger small ms-1">(Kamar tidak ada penghuni aktif)</span>
+                                                @endif
+                                            </span>
                                         </label>
                                     </div>
                                 @endif
