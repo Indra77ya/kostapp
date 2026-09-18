@@ -9,13 +9,11 @@
             <div class="btn-list">
                 @if($activeTab === 'readings')
                     <button class="btn btn-primary d-none d-sm-inline-block" wire:click="openReadingModal">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
-                        Catat Meteran Baru
+                        + Catat Meteran Baru
                     </button>
                 @else
                     <button class="btn btn-primary d-none d-sm-inline-block" wire:click="openTariffModal">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
-                        Tambah Tarif Utilitas
+                        + Tambah Tarif Utilitas
                     </button>
                 @endif
             </div>
@@ -26,11 +24,9 @@
     <div class="mb-3">
         <div class="btn-group w-100 w-sm-auto">
             <button type="button" class="btn {{ $activeTab === 'readings' ? 'btn-primary' : 'btn-white' }}" wire:click="setTab('readings')">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" /><path d="M12 7v5l3 3" /></svg>
                 Pencatatan Meteran Kamar
             </button>
             <button type="button" class="btn {{ $activeTab === 'tariffs' ? 'btn-primary' : 'btn-white' }}" wire:click="setTab('tariffs')">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M16.7 8a3 3 0 0 0 -2.7 -2h-4a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6h-4a3 3 0 0 1 -2.7 -2" /><path d="M12 3v3m0 12v3" /></svg>
                 Pengaturan Tarif per Lokasi
             </button>
         </div>
@@ -137,7 +133,7 @@
 
                                         @if($item->image_path)
                                             <a href="{{ Storage::url($item->image_path) }}" target="_blank" class="badge bg-info-lt text-decoration-none">
-                                                📷 Lihat Bukti
+                                                Lihat Bukti
                                             </a>
                                         @endif
                                     </div>
@@ -146,7 +142,7 @@
                                     <div class="btn-list flex-nowrap justify-content-end">
                                         @if($item->status !== 'billed' && $item->registration_id)
                                             <button class="btn btn-white btn-sm text-success" title="Terbitkan Tagihan" wire:click="generateBillForReading({{ $item->id }})">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file-invoice" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /><path d="M9 7l1 0" /><path d="M9 13l6 0" /><path d="M13 17l2 0" /></svg>
+                                                Terbitkan Tagihan
                                             </button>
                                         @endif
                                         <button class="btn btn-white btn-sm" wire:click="openReadingModal({{ $item->id }})" title="Edit">

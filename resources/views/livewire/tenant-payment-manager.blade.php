@@ -139,9 +139,9 @@
                                 @if($bill->utilityReadings && $bill->utilityReadings->isNotEmpty())
                                     @foreach($bill->utilityReadings as $ur)
                                         <div class="small text-muted mt-1">
-                                            💡 Meter: {{ number_format($ur->previous_reading, 2, ',', '.') }} &rarr; {{ number_format($ur->current_reading, 2, ',', '.') }} ({{ number_format($ur->usage_amount, 2, ',', '.') }} {{ $ur->utilityType->unit ?? '' }} @ Rp {{ number_format($ur->rate_per_unit, 0, ',', '.') }})
+                                            Meter: {{ number_format($ur->previous_reading, 2, ',', '.') }} &rarr; {{ number_format($ur->current_reading, 2, ',', '.') }} ({{ number_format($ur->usage_amount, 2, ',', '.') }} {{ $ur->utilityType->unit ?? '' }} @ Rp {{ number_format($ur->rate_per_unit, 0, ',', '.') }})
                                             @if($ur->image_path)
-                                                | <a href="{{ Storage::url($ur->image_path) }}" target="_blank" class="text-info text-decoration-none">📷 Bukti Meteran</a>
+                                                | <a href="{{ Storage::url($ur->image_path) }}" target="_blank" class="text-info text-decoration-none">Bukti Meteran</a>
                                             @endif
                                         </div>
                                     @endforeach
