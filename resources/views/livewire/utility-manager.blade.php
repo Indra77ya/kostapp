@@ -125,8 +125,16 @@
                                 </td>
                                 <td class="text-center">
                                     <div class="d-flex flex-column align-items-center gap-1">
-                                        @if($item->status === 'billed')
-                                            <span class="badge bg-success-lt">Terbit Tagihan</span>
+                                        @if($item->bill)
+                                            @if($item->bill->status === 'Lunas')
+                                                <span class="badge bg-success-lt">Lunas</span>
+                                            @elseif($item->bill->status === 'Cicilan')
+                                                <span class="badge bg-info-lt">Cicilan</span>
+                                            @else
+                                                <span class="badge bg-primary-lt">Terbit Tagihan</span>
+                                            @endif
+                                        @elseif($item->status === 'billed')
+                                            <span class="badge bg-primary-lt">Terbit Tagihan</span>
                                         @else
                                             <span class="badge bg-warning-lt">Draft</span>
                                         @endif
