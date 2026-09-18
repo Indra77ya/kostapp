@@ -376,6 +376,28 @@ class UtilityManager extends Component
                 $reading = UtilityReading::findOrFail($this->readingId);
                 $reading->update($data);
                 $readingObj = $reading;
+
+                if ($readingObj->bill_id && $readingObj->bill) {
+                    $monthName = \Carbon\Carbon::createFromDate($this->period_year, $this->period_month, 1)->locale('id')->isoFormat('MMMM YYYY');
+                    $description = "Tagihan Utilitas {$utilityType->name} Kamar {$room->room_number} ({$monthName}): {$this->usage_amount} {$utilityType->unit}";
+
+                    $bill = $readingObj->bill;
+                    $bill->update([
+                        'amount' => $this->total_amount,
+                        'description' => $description,
+                    ]);
+
+                    // Sync bill status
+                    $paidAmount = $bill->paid_amount;
+                    if ($paidAmount <= 0) {
+                        $bill->status = 'Belum Lunas';
+                    } elseif ($paidAmount < $bill->amount) {
+                        $bill->status = 'Cicilan';
+                    } else {
+                        $bill->status = 'Lunas';
+                    }
+                    $bill->save();
+                }
             } else {
                 $readingObj = UtilityReading::create($data);
             }

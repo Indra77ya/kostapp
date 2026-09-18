@@ -23,23 +23,21 @@
     </div>
 
     <!-- Tab Navigation -->
-    <div class="card mb-3">
-        <div class="card-header">
-            <ul class="nav nav-tabs card-header-tabs" data-bs-toggle="tabs">
-                <li class="nav-item">
-                    <a href="#readings" class="nav-link {{ $activeTab === 'readings' ? 'active' : '' }}" wire:click.prevent="setTab('readings')">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" /><path d="M12 7v5l3 3" /></svg>
-                        Pencatatan Meteran Kamar
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#tariffs" class="nav-link {{ $activeTab === 'tariffs' ? 'active' : '' }}" wire:click.prevent="setTab('tariffs')">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M16.7 8a3 3 0 0 0 -2.7 -2h-4a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6h-4a3 3 0 0 1 -2.7 -2" /><path d="M12 3v3m0 12v3" /></svg>
-                        Pengaturan Tarif per Lokasi
-                    </a>
-                </li>
-            </ul>
-        </div>
+    <div class="mb-3">
+        <ul class="nav nav-line-tabs nav-tabs">
+            <li class="nav-item">
+                <a href="#" class="nav-link {{ $activeTab === 'readings' ? 'active' : '' }}" wire:click.prevent="setTab('readings')">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" /><path d="M12 7v5l3 3" /></svg>
+                    Pencatatan Meteran Kamar
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link {{ $activeTab === 'tariffs' ? 'active' : '' }}" wire:click.prevent="setTab('tariffs')">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M16.7 8a3 3 0 0 0 -2.7 -2h-4a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6h-4a3 3 0 0 1 -2.7 -2" /><path d="M12 3v3m0 12v3" /></svg>
+                    Pengaturan Tarif per Lokasi
+                </a>
+            </li>
+        </ul>
     </div>
 
     @if($activeTab === 'readings')
@@ -56,7 +54,7 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <label class="form-label small text-muted mb-1">Bulan Periode</label>
                         <select class="form-select" wire:model.live="filterMonth">
                             <option value="">Semua Bulan</option>
@@ -66,7 +64,7 @@
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label small text-muted mb-1">Tahun Periode</label>
+                        <label class="form-label small text-muted mb-1">Tahun</label>
                         <select class="form-select" wire:model.live="filterYear">
                             <option value="">Semua Tahun</option>
                             @for($y = date('Y'); $y >= 2024; $y--)
@@ -74,7 +72,7 @@
                             @endfor
                         </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <label class="form-label small text-muted mb-1">Cari Kamar</label>
                         <input type="text" class="form-control" placeholder="Nomor Kamar..." wire:model.live.debounce.300ms="searchRoom">
                     </div>
@@ -88,16 +86,15 @@
                 <table class="table table-vcenter card-table table-hover">
                     <thead>
                         <tr>
-                            <th>Lokasi & Kamar</th>
+                            <th>Kamar & Lokasi</th>
                             <th>Penghuni</th>
-                            <th>Jenis Utilitas</th>
-                            <th>Periode & Tanggal</th>
-                            <th class="text-end">Meter Awal - Akhir</th>
+                            <th>Utilitas</th>
+                            <th>Periode</th>
+                            <th class="text-end">Meter Awal &rarr; Akhir</th>
                             <th class="text-end">Pemakaian</th>
-                            <th class="text-end">Tarif / Unit</th>
                             <th class="text-end">Total Biaya</th>
-                            <th class="text-center">Bukti / Status</th>
-                            <th class="text-end" style="width: 120px;">Aksi</th>
+                            <th class="text-center">Status</th>
+                            <th class="text-end" style="width: 140px;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -128,10 +125,8 @@
                                     {{ number_format($item->previous_reading, 2, ',', '.') }} &rarr; {{ number_format($item->current_reading, 2, ',', '.') }}
                                 </td>
                                 <td class="text-end font-monospace fw-bold">
-                                    {{ number_format($item->usage_amount, 2, ',', '.') }} {{ $item->utilityType->unit ?? '' }}
-                                </td>
-                                <td class="text-end text-muted">
-                                    Rp {{ number_format($item->rate_per_unit, 0, ',', '.') }}
+                                    <div>{{ number_format($item->usage_amount, 2, ',', '.') }} {{ $item->utilityType->unit ?? '' }}</div>
+                                    <div class="text-muted small font-weight-normal">@ Rp {{ number_format($item->rate_per_unit, 0, ',', '.') }}</div>
                                 </td>
                                 <td class="text-end font-monospace fw-bold text-primary">
                                     Rp {{ number_format($item->total_amount, 0, ',', '.') }}
@@ -146,7 +141,7 @@
 
                                         @if($item->image_path)
                                             <a href="{{ Storage::url($item->image_path) }}" target="_blank" class="badge bg-info-lt text-decoration-none">
-                                                📷 Lihat Foto
+                                                📷 Lihat Bukti
                                             </a>
                                         @endif
                                     </div>
@@ -169,7 +164,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="10" class="text-center py-4 text-muted">
+                                <td colspan="9" class="text-center py-4 text-muted">
                                     Belum ada catatan meteran utilitas.
                                 </td>
                             </tr>
