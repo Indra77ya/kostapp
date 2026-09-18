@@ -34,6 +34,11 @@ class Bill extends Model
         return $this->hasMany(Payment::class);
     }
 
+    public function utilityReadings()
+    {
+        return $this->hasMany(UtilityReading::class);
+    }
+
     public function getRemainingAmountAttribute()
     {
         return max(0, $this->amount - $this->paid_amount);
