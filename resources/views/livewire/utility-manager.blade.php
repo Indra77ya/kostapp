@@ -24,20 +24,16 @@
 
     <!-- Tab Navigation -->
     <div class="mb-3">
-        <ul class="nav nav-line-tabs nav-tabs">
-            <li class="nav-item">
-                <a href="#" class="nav-link {{ $activeTab === 'readings' ? 'active' : '' }}" wire:click.prevent="setTab('readings')">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" /><path d="M12 7v5l3 3" /></svg>
-                    Pencatatan Meteran Kamar
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="#" class="nav-link {{ $activeTab === 'tariffs' ? 'active' : '' }}" wire:click.prevent="setTab('tariffs')">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M16.7 8a3 3 0 0 0 -2.7 -2h-4a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6h-4a3 3 0 0 1 -2.7 -2" /><path d="M12 3v3m0 12v3" /></svg>
-                    Pengaturan Tarif per Lokasi
-                </a>
-            </li>
-        </ul>
+        <div class="btn-group w-100 w-sm-auto">
+            <button type="button" class="btn {{ $activeTab === 'readings' ? 'btn-primary' : 'btn-white' }}" wire:click="setTab('readings')">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" /><path d="M12 7v5l3 3" /></svg>
+                Pencatatan Meteran Kamar
+            </button>
+            <button type="button" class="btn {{ $activeTab === 'tariffs' ? 'btn-primary' : 'btn-white' }}" wire:click="setTab('tariffs')">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M16.7 8a3 3 0 0 0 -2.7 -2h-4a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6h-4a3 3 0 0 1 -2.7 -2" /><path d="M12 3v3m0 12v3" /></svg>
+                Pengaturan Tarif per Lokasi
+            </button>
+        </div>
     </div>
 
     @if($activeTab === 'readings')
