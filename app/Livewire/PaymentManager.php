@@ -602,7 +602,8 @@ class PaymentManager extends Component
             }
             $selectableBills = $selectableBillsQuery->orderBy('due_date', 'asc')->get();
 
-            $bills = $billsQuery->orderBy('due_date', 'asc')
+            $bills = $billsQuery->with(['utilityReadings.utilityType'])
+                ->orderBy('due_date', 'asc')
                 ->paginate($this->billsPerPage, ['*'], 'billsPage');
 
             $paymentsQuery = Payment::with(['paymentMethod', 'bill'])

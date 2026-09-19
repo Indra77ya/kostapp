@@ -201,6 +201,9 @@
                         <a class="dropdown-item {{ request()->routeIs('deposits.index') ? 'active' : '' }}" href="{{ route('deposits.index') }}">
                           Manajemen Deposit
                         </a>
+                        <a class="dropdown-item {{ request()->routeIs('utilities.index') ? 'active' : '' }}" href="{{ route('utilities.index') }}">
+                          Tagihan Utilitas
+                        </a>
                       </div>
                     </div>
                   </div>

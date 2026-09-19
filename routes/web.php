@@ -53,6 +53,10 @@ Route::middleware('auth')->group(function () {
             return view('payments.deposits');
         })->name('deposits.index');
 
+        Route::get('/utilities', function () {
+            return view('utilities.index');
+        })->name('utilities.index');
+
         Route::middleware('role:owner|developer')->group(function () {
 
             Route::get('/locations', function () {

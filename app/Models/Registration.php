@@ -145,6 +145,7 @@ class Registration extends Model
             $existingBillsCount = $this->bills()
                 ->where('description', 'not like', 'Deposit Awal%')
                 ->where('bill_number', 'not like', 'BILL-M-%')
+                ->where('bill_number', 'not like', 'UTIL-%')
                 ->count();
 
             // Initial count should be at least one batch
@@ -154,6 +155,7 @@ class Registration extends Model
             $lastBill = $this->bills()
                 ->where('description', 'not like', 'Deposit Awal%')
                 ->where('bill_number', 'not like', 'BILL-M-%')
+                ->where('bill_number', 'not like', 'UTIL-%')
                 ->orderBy('due_date', 'desc')
                 ->first();
 
@@ -165,6 +167,7 @@ class Registration extends Model
         $existingBills = $this->bills()
             ->where('description', 'not like', 'Deposit Awal%')
             ->where('bill_number', 'not like', 'BILL-M-%')
+            ->where('bill_number', 'not like', 'UTIL-%')
             ->orderBy('due_date', 'asc')
             ->get();
 

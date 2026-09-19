@@ -343,7 +343,8 @@ class TenantPaymentManager extends Component
                 });
             }
 
-            $bills = $billsQuery->orderBy('due_date', 'asc')
+            $bills = $billsQuery->with(['utilityReadings.utilityType'])
+                ->orderBy('due_date', 'asc')
                 ->paginate($this->billsPerPage, ['*'], 'billsPage');
 
             $selectableBillsQuery = Bill::where('registration_id', $registration->id)
