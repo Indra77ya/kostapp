@@ -2,7 +2,6 @@
     <!-- Page Header -->
     <div class="row mb-3 align-items-center">
         <div class="col">
-            <div class="page-pretitle">Manajemen Utilitas & Meteran</div>
             <h2 class="page-title">Pencatatan & Tarif Utilitas (Listrik & Air)</h2>
         </div>
         <div class="col-auto ms-auto d-print-none">
