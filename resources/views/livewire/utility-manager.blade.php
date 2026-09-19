@@ -148,11 +148,26 @@
                                 </td>
                                 <td class="text-end">
                                     <div class="btn-list flex-nowrap justify-content-end">
-                                        @if($item->status !== 'billed' && $item->registration_id)
+                                        @if($item->bill)
+                                            @php
+                                                $latestPayment = $item->bill->payments->where('status', '!=', 'Ditolak')->last();
+                                            @endphp
+
+                                            @if($latestPayment)
+                                                <a href="{{ route('payments.invoice', $latestPayment->id) }}" target="_blank" class="btn btn-white btn-sm text-primary" title="Cetak Kuitansi Pembayaran">
+                                                    Kuitansi
+                                                </a>
+                                            @else
+                                                <a href="{{ route('bills.invoice', $item->bill->id) }}" target="_blank" class="btn btn-white btn-sm text-secondary" title="Cetak Invoice Tagihan">
+                                                    Invoice
+                                                </a>
+                                            @endif
+                                        @elseif($item->registration_id)
                                             <button class="btn btn-white btn-sm text-success" title="Terbitkan Tagihan" wire:click="generateBillForReading({{ $item->id }})">
                                                 Terbitkan Tagihan
                                             </button>
                                         @endif
+
                                         <button class="btn btn-white btn-sm" wire:click="openReadingModal({{ $item->id }})" title="Edit">
                                             Edit
                                         </button>

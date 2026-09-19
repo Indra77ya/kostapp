@@ -537,7 +537,7 @@ class UtilityManager extends Component
             ->paginate(10, ['*'], 'tariffsPage');
 
         // Fetch Utility Readings Query
-        $readingsQuery = UtilityReading::with(['location', 'room', 'registration.user', 'utilityType', 'bill']);
+        $readingsQuery = UtilityReading::with(['location', 'room', 'registration.user', 'utilityType', 'bill.payments']);
 
         if ($this->filterLocation) {
             $readingsQuery->where('location_id', $this->filterLocation);
