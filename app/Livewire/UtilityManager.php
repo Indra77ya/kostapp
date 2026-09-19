@@ -552,8 +552,13 @@ class UtilityManager extends Component
         }
 
         if ($this->searchRoom) {
-            $readingsQuery->whereHas('room', function ($q) {
-                $q->where('room_number', 'like', '%' . $this->searchRoom . '%');
+            $term = '%' . $this->searchRoom . '%';
+            $readingsQuery->where(function ($query) use ($term) {
+                $query->whereHas('room', function ($q) use ($term) {
+                    $q->where('room_number', 'like', $term);
+                })->orWhereHas('registration.user', function ($q) use ($term) {
+                    $q->where('name', 'like', $term);
+                });
             });
         }
 

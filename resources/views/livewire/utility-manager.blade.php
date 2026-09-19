@@ -64,8 +64,8 @@
                         </select>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label small text-muted mb-1">Cari Kamar</label>
-                        <input type="text" class="form-control" placeholder="Nomor Kamar..." wire:model.live.debounce.300ms="searchRoom">
+                        <label class="form-label small text-muted mb-1">Cari Kamar / Penghuni</label>
+                        <input type="text" class="form-control" placeholder="Nomor Kamar atau Nama..." wire:model.live.debounce.300ms="searchRoom">
                     </div>
                 </div>
             </div>
